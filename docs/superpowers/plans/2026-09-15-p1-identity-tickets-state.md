@@ -29,6 +29,9 @@
 - commit 類 evidence 不寫入票檔，由 git log 動態算出；票檔只存 `check`、`hil`、`review`。
 - `feature_list.json` 由腳本產生並 gitignored。
 - 計畫決定（spec 未指定）：腳本只用標準庫，支援 Python 3.9 以上；Windows 上以 `py -3` 執行。
+- 票檔含布林欄位 `requires_hil`（預設 true）；`requires_hil` 為 true 時轉 `done` 需要 `kind: hil` evidence。
+- `kind: check` evidence 含布林欄位 `passed`；只有 `passed: true` 的 check 能讓票轉 `verifying`。
+- `ticket.py move <票號> done` 在 DoD 檢查通過後，還要求 stdin 是 TTY 並輸入票號確認（agent 的 shell 通常不是 TTY，因此無法自行標記 done）。
 
 ## 檔案結構
 
@@ -44,7 +47,7 @@
 | `SCRIPTS/transitions.py` | 狀態機與 DoD 條件 |
 | `SCRIPTS/ticket_check.py` | `check` 第 4 步用的全域票檢查（可獨立執行） |
 | `SCRIPTS/index.py` | 產生 `feature_list.json` |
-| `SCRIPTS/ticket.py` | CLI：new / claim / move / block / unblock / evidence / renumber / show |
+| `SCRIPTS/ticket.py` | CLI：new / claim / move / block / unblock / evidence / dod / collisions / renumber / show |
 | `pytest.ini` | pytest 設定 |
 | `.gitignore` | 忽略 `__pycache__`、`.pytest_cache` |
 | `tests/conftest.py` | 把 `SCRIPTS` 加進 `sys.path`；`repo`、`team` fixture |
@@ -469,7 +472,7 @@ git commit -m "feat(scripts): 新增 identity 身分與 slug 計算"
 **Interfaces:**
 - Consumes: `jsonio.read_json`、`jsonio.write_json_atomic`
 - Produces:
-  - 常數：`TICKET_ID_RE`、`STATUSES = ("backlog", "next", "active", "verifying", "done", "blocked")`、`EVIDENCE_KINDS = ("check", "hil", "review")`、`EVIDENCE_FIELDS = {"check": ("commit", "summary"), "hil": ("ref",), "review": ("ref", "open_critical")}`
+  - 常數：`TICKET_ID_RE`、`STATUSES = ("backlog", "next", "active", "verifying", "done", "blocked")`、`EVIDENCE_KINDS = ("check", "hil", "review")`、`EVIDENCE_FIELDS = {"check": ("commit", "summary", "passed"), "hil": ("ref",), "review": ("ref", "open_critical")}`
   - `tickets_dir(repo) -> Path`、`ticket_path(repo, ticket_id) -> Path`
   - `format_id(number: int) -> str`（`7 -> "FW-0007"`）、`parse_id(ticket_id: str) -> int`（格式錯誤丟 `ValueError`）
   - `now_iso() -> str`（本地時區、到秒，例如 `2026-09-15T10:02:00+08:00`）
@@ -477,7 +480,7 @@ git commit -m "feat(scripts): 新增 identity 身分與 slug 計算"
   - `load_all(repo) -> list[tuple[Path, dict]]`（依檔名排序，只讀 `FW-*.json`）
   - `save_ticket(repo, ticket) -> None`（寫到 `ticket_path(repo, ticket["id"])`）
   - `validate_ticket(ticket, filename=None) -> list[str]`（每條錯誤以 `"<檔名或票號>："` 開頭；空 list 表示合法）
-  - `new_ticket(ticket_id, title, area, by, now, priority=3, user_visible_behavior="", verification_steps=(), dod_pending=()) -> dict`（`status="backlog"`、`assignee=None`，history 一筆 `from=None → backlog`）
+  - `new_ticket(ticket_id, title, area, by, now, priority=3, user_visible_behavior="", verification_steps=(), dod_pending=(), requires_hil=True) -> dict`（`status="backlog"`、`assignee=None`，history 一筆 `from=None → backlog`）
   - `make_evidence(kind, by, now, **fields) -> dict`（缺欄位丟 `ValueError`）
 
 - [ ] **Step 1：寫失敗測試**
@@ -537,11 +540,13 @@ def test_filename_must_match_id():
     ({"id": "FW-42"}, "id 必須是 FW-NNNN"),
     ({"status": "doing"}, "status 必須是"),
     ({"priority": "high"}, "priority"),
+    ({"requires_hil": "yes"}, "requires_hil"),
     ({"status": "blocked"}, "blocked_reason"),
     ({"status": "active"}, "必須有 assignee"),
     ({"dod_pending": "上板"}, "dod_pending"),
     ({"evidence": [{"kind": "commit", "by": ALICE, "at": NOW}]}, "由 git log 動態計算"),
     ({"evidence": [{"kind": "review", "by": ALICE, "at": NOW, "ref": "r.md"}]}, "open_critical"),
+    ({"evidence": [{"kind": "check", "by": ALICE, "at": NOW, "commit": "abc1234", "summary": "s", "passed": "yes"}]}, "passed"),
     ({"history": [{"by": ALICE, "at": NOW, "to": "nowhere"}]}, "history[0]"),
 ])
 def test_validation_errors(overrides, fragment):
@@ -570,6 +575,10 @@ def test_load_ticket_missing(repo):
 def test_make_evidence():
     ev = make_evidence("review", ALICE, NOW, ref="harness/reviews/x.md", open_critical=0)
     assert ev == {"kind": "review", "by": ALICE, "at": NOW, "ref": "harness/reviews/x.md", "open_critical": 0}
+    failed = make_evidence("check", ALICE, NOW, commit="abc1234", summary="check 5/7", passed=False)
+    assert failed["passed"] is False
+    with pytest.raises(ValueError):
+        make_evidence("check", ALICE, NOW, commit="abc1234", summary="check 7/7 通過")
     with pytest.raises(ValueError):
         make_evidence("check", ALICE, NOW, commit="abc")
     with pytest.raises(ValueError):
@@ -596,7 +605,7 @@ from jsonio import read_json, write_json_atomic
 TICKET_ID_RE = re.compile(r"^FW-(\d{4,})$")
 STATUSES = ("backlog", "next", "active", "verifying", "done", "blocked")
 EVIDENCE_KINDS = ("check", "hil", "review")
-EVIDENCE_FIELDS = {"check": ("commit", "summary"), "hil": ("ref",), "review": ("ref", "open_critical")}
+EVIDENCE_FIELDS = {"check": ("commit", "summary", "passed"), "hil": ("ref",), "review": ("ref", "open_critical")}
 ASSIGNED_STATUSES = ("active", "verifying", "done")
 
 
@@ -678,6 +687,8 @@ def validate_ticket(ticket, filename=None):
         err(f"status 必須是 {'/'.join(STATUSES)} 之一")
     if not _is_count(ticket.get("priority")):
         err("priority 必須是非負整數")
+    if not isinstance(ticket.get("requires_hil"), bool):
+        err("requires_hil 必須是 true 或 false")
     if not _is_person(ticket.get("created_by")):
         err("created_by 必須含 name 與 email")
     assignee = ticket.get("assignee")
@@ -711,6 +722,9 @@ def validate_ticket(ticket, filename=None):
                 if field == "open_critical":
                     if not _is_count(item.get(field)):
                         err(f"{where}.open_critical 必須是非負整數")
+                elif field == "passed":
+                    if not isinstance(item.get(field), bool):
+                        err(f"{where}.passed 必須是 true 或 false")
                 elif not (isinstance(item.get(field), str) and item[field]):
                     err(f"{where}.{field} 必須是非空字串")
 
@@ -727,13 +741,14 @@ def validate_ticket(ticket, filename=None):
 
 
 def new_ticket(ticket_id, title, area, by, now, priority=3, user_visible_behavior="",
-               verification_steps=(), dod_pending=()):
+               verification_steps=(), dod_pending=(), requires_hil=True):
     return {
         "id": ticket_id,
         "title": title,
         "area": area,
         "status": "backlog",
         "priority": priority,
+        "requires_hil": requires_hil,
         "created_by": dict(by),
         "created_at": now,
         "assignee": None,
@@ -759,7 +774,7 @@ def make_evidence(kind, by, now, **fields):
 - [ ] **Step 4：執行並確認通過**
 
 Run: `py -3 -m pytest tests/scripts/test_tickets.py`
-Expected: `17 passed`
+Expected: `19 passed`
 
 - [ ] **Step 5：Commit**
 
@@ -784,6 +799,7 @@ git commit -m "feat(scripts): 新增 tickets 票檔 schema 與讀寫"
   - `allocate.next_ticket_id(repo, warn=...) -> str`
   - `allocate.renumber(repo, ticket_id, by, now, warn=...) -> str`（回傳新票號；刪除舊檔、寫入新檔、history 加一筆 note；不動 git index）
   - `allocate.commits_mentioning(repo, ticket_id) -> list[str]`（`origin/main..HEAD` 中訊息含票號的 commit，每行 `"<短 hash> <subject>"`）
+  - `allocate.find_collisions(repo, warn=...) -> list[str]`（合併前預檢：本地與 `origin/main` 同號但不是同一張票的票號，依號碼排序；離線時呼叫 `warn(OFFLINE_WARNING)` 並回傳 `[]`）
 - 「後進者」判定：本地票與 `origin/main` 上同號票的 `created_by.email` 或 `created_at` 不同，就代表是兩張不同的票，本地這張改號。
 
 - [ ] **Step 1：寫失敗測試**
@@ -794,7 +810,7 @@ git commit -m "feat(scripts): 新增 tickets 票檔 schema 與讀寫"
 import pytest
 
 from allocate import (
-    OFFLINE_WARNING, RenumberError, commits_mentioning, next_ticket_id, renumber,
+    OFFLINE_WARNING, RenumberError, commits_mentioning, find_collisions, next_ticket_id, renumber,
 )
 from helpers import commit_all, git
 from tickets import load_ticket, new_ticket, save_ticket, ticket_path
@@ -854,6 +870,22 @@ def test_renumber_later_ticket_and_merge_cleanly(team):
     git(alice, "merge", "--no-edit", "origin/main")
     assert load_ticket(alice, "FW-0001")["title"] == "bob 的票"
     assert load_ticket(alice, "FW-0002")["title"] == "alice 的票"
+
+
+def test_find_collisions_before_and_after_renumber(team):
+    alice, _ = collide(team)
+    assert find_collisions(alice, warn=lambda m: None) == ["FW-0001"]
+    renumber(alice, "FW-0001", ALICE, "2026-09-15T10:05:00+08:00", warn=lambda m: None)
+    commit_all(alice, "harness: renumber FW-0001 → FW-0002")
+    git(alice, "merge", "--no-edit", "origin/main")
+    assert find_collisions(alice, warn=lambda m: None) == []
+
+
+def test_find_collisions_offline_warns(repo):
+    open_ticket(repo, ALICE, "2026-09-15T10:00:00+08:00")
+    warnings = []
+    assert find_collisions(repo, warn=warnings.append) == []
+    assert warnings == [OFFLINE_WARNING]
 
 
 def test_renumber_refuses_when_not_on_main(team):
@@ -961,12 +993,25 @@ def renumber(repo, ticket_id, by, now, warn=_warn_stderr):
 def commits_mentioning(repo, ticket_id):
     output = git(repo, "log", "origin/main..HEAD", "--fixed-strings", f"--grep={ticket_id}", "--format=%h %s")
     return [line for line in output.splitlines() if line]
+
+
+def find_collisions(repo, warn=_warn_stderr):
+    remote = remote_ids(repo, warn)
+    if remote is None:
+        return []
+    found = []
+    for number in sorted(local_ids(repo) & remote):
+        ticket_id = format_id(number)
+        on_main = json.loads(git(repo, "show", f"origin/main:harness/tickets/{ticket_id}.json"))
+        if not _same_ticket(load_ticket(repo, ticket_id), on_main):
+            found.append(ticket_id)
+    return found
 ```
 
 - [ ] **Step 4：執行並確認通過**
 
 Run: `py -3 -m pytest tests/scripts/test_allocate.py`
-Expected: `7 passed`
+Expected: `9 passed`
 
 - [ ] **Step 5：Commit**
 
@@ -985,10 +1030,8 @@ git commit -m "feat(scripts): 新增票號分配與 renumber"
 - Consumes: `gitutil.git_ok`；`tickets.load_all`、`new_ticket`、`save_ticket`、`make_evidence`（測試用）
 - Produces:
   - `transitions.FORWARD = {"backlog": "next", "next": "active", "active": "verifying", "verifying": "done"}`
-  - `transitions.HIL_MARKERS = ("上板", "hil")`（`verification_steps` 任一步驟轉小寫後含其中一個，就代表需要上板）
   - `transitions.TransitionError(ValueError)`
   - `latest_evidence(ticket, kind) -> dict | None`
-  - `needs_hil(ticket) -> bool`
   - `done_problems(ticket) -> list[str]`（空 list 表示可以轉 `done`）
   - `transition(repo, ticket, to, by, now, note="") -> dict`（回傳新 dict，不修改輸入；只允許 `FORWARD` 內的轉換）
   - `block(ticket, by, now, reason) -> dict`
@@ -1005,7 +1048,7 @@ import pytest
 from helpers import commit_all, git
 from tickets import make_evidence, new_ticket, save_ticket
 from transitions import (
-    TransitionError, block, done_problems, needs_hil, transition, unblock,
+    TransitionError, block, done_problems, transition, unblock,
 )
 
 ALICE = {"name": "Alice Chen", "email": "alice@example.com"}
@@ -1067,24 +1110,21 @@ def test_verifying_requires_check_on_head_ancestry(repo):
     (repo / "side.txt").write_text("x", encoding="utf-8")
     side_commit = commit_all(repo, "chore: side")
     git(repo, "checkout", "main")
-    ticket["evidence"] = [make_evidence("check", ALICE, NOW, commit=side_commit, summary="check 7/7 通過")]
+    ticket["evidence"] = [make_evidence("check", ALICE, NOW, commit=side_commit, summary="check 7/7 通過", passed=True)]
     with pytest.raises(TransitionError, match="kind: check"):
         transition(repo, ticket, "verifying", ALICE, NOW)
 
     head = git(repo, "rev-parse", "--short", "HEAD")
-    ticket["evidence"].append(make_evidence("check", ALICE, NOW, commit=head, summary="check 7/7 通過"))
+    ticket["evidence"].append(make_evidence("check", ALICE, NOW, commit=head, summary="check 5/7", passed=False))
+    with pytest.raises(TransitionError, match="passed: true"):
+        transition(repo, ticket, "verifying", ALICE, NOW)
+
+    ticket["evidence"].append(make_evidence("check", ALICE, NOW, commit=head, summary="check 7/7 通過", passed=True))
     assert transition(repo, ticket, "verifying", ALICE, NOW)["status"] == "verifying"
 
 
-def test_needs_hil():
-    assert needs_hil({"verification_steps": ["上板：loopback"]})
-    assert needs_hil({"verification_steps": ["HIL 測試"]})
-    assert not needs_hil({"verification_steps": ["host 測試"]})
-
-
 def test_done_problems_lists_every_gap(repo):
-    ticket = ticket_at(repo, "FW-0001", "verifying", verification_steps=["上板：loopback"],
-                      dod_pending=["上板 loopback 驗證"])
+    ticket = ticket_at(repo, "FW-0001", "verifying", dod_pending=["上板 loopback 驗證"])
     problems = done_problems(ticket)
     assert len(problems) == 3
     assert "dod_pending" in problems[0]
@@ -1100,17 +1140,21 @@ def test_self_review_and_open_critical_rejected(repo):
     assert any("2 個 open critical" in p for p in done_problems(ticket))
 
 
-def test_latest_review_wins(repo):
-    ticket = ticket_at(repo, "FW-0001", "verifying")
+def test_latest_review_wins_and_hil_optional(repo):
+    ticket = ticket_at(repo, "FW-0001", "verifying", requires_hil=False)
     ticket["evidence"] = [
         make_evidence("review", BOB, NOW, ref="r1.md", open_critical=1),
         make_evidence("review", BOB, NOW, ref="r2.md", open_critical=0),
     ]
     assert done_problems(ticket) == []
+    ticket["requires_hil"] = True
+    assert done_problems(ticket) == [
+        "requires_hil 為 true，但沒有 kind: hil 的 evidence。修法：使用 fw-hil-verify"
+    ]
 
 
 def test_done_happy_path(repo):
-    ticket = ticket_at(repo, "FW-0001", "verifying", verification_steps=["上板：loopback"])
+    ticket = ticket_at(repo, "FW-0001", "verifying")
     ticket["evidence"] = [
         make_evidence("hil", ALICE, NOW, ref="harness/evidence/FW-0001/loopback.log"),
         make_evidence("review", BOB, NOW, ref="harness/reviews/FW-0001_bob_2026-09-16.md", open_critical=0),
@@ -1157,7 +1201,6 @@ from gitutil import git_ok
 from tickets import load_all
 
 FORWARD = {"backlog": "next", "next": "active", "active": "verifying", "verifying": "done"}
-HIL_MARKERS = ("上板", "hil")
 
 
 class TransitionError(ValueError):
@@ -1173,17 +1216,12 @@ def latest_evidence(ticket, kind):
     return items[-1] if items else None
 
 
-def needs_hil(ticket):
-    return any(marker in step.lower()
-               for step in ticket.get("verification_steps", []) for marker in HIL_MARKERS)
-
-
 def done_problems(ticket):
     problems = []
     if ticket.get("dod_pending"):
         problems.append(f"dod_pending 尚未清空：{'、'.join(ticket['dod_pending'])}")
-    if needs_hil(ticket) and latest_evidence(ticket, "hil") is None:
-        problems.append("verification_steps 含上板步驟，但沒有 kind: hil 的 evidence。修法：使用 fw-hil-verify")
+    if ticket.get("requires_hil", True) and latest_evidence(ticket, "hil") is None:
+        problems.append("requires_hil 為 true，但沒有 kind: hil 的 evidence。修法：使用 fw-hil-verify")
     review = latest_evidence(ticket, "review")
     if review is None:
         problems.append("沒有 kind: review 的 evidence。修法：請 assignee 以外的同事執行 fw-c-review")
@@ -1231,7 +1269,12 @@ def transition(repo, ticket, to, by, now, note=""):
             raise TransitionError(
                 f"{ticket_id}：active → verifying 需要至少一筆 kind: check 的 evidence，"
                 "且其 commit 是 HEAD 或 HEAD 的祖先。"
-                f"修法：check 通過後執行 ticket.py evidence {ticket_id} check --commit <hash> --summary <摘要>"
+                f"修法：check 通過後執行 ticket.py evidence {ticket_id} check --commit <hash> --summary <摘要> --passed"
+            )
+        if not any(item.get("passed") is True
+                   and git_ok(repo, "merge-base", "--is-ancestor", item["commit"], "HEAD") for item in checks):
+            raise TransitionError(
+                f"{ticket_id}：HEAD 歷史上的 check evidence 都沒有 passed: true。修法：修到 check 通過後重新記錄"
             )
     elif to == "done":
         problems = done_problems(new)
@@ -1270,7 +1313,7 @@ def unblock(repo, ticket, by, now, note=""):
 - [ ] **Step 4：執行並確認通過**
 
 Run: `py -3 -m pytest tests/scripts/test_transitions.py`
-Expected: `13 passed`
+Expected: `12 passed`
 
 - [ ] **Step 5：Commit**
 
@@ -1347,7 +1390,7 @@ def test_two_active_for_same_assignee(repo):
 
 def test_done_without_dod_reported(repo):
     put(repo, "FW-0001", "done", ALICE)
-    ok = put(repo, "FW-0002", "done", ALICE,
+    ok = put(repo, "FW-0002", "done", ALICE, requires_hil=False,
              evidence=[make_evidence("review", BOB, NOW, ref="r.md", open_critical=0)])
     errors = check_tickets(repo)
     assert len(errors) == 1 and errors[0].startswith("FW-0001.json：") and "kind: review" in errors[0]
@@ -1462,7 +1505,7 @@ git commit -m "feat(scripts): 新增 ticket_check 全域票檢查"
   - `index.INDEX_NAME = "feature_list.json"`（放在 repo root，由計畫 3 的範本加進 `.gitignore`）
   - `index.TICKET_REF_RE`（`(?<![A-Za-z0-9-])FW-\d{4,}(?!\d)`；計畫 2 的 `commit-msg` hook 要用同一個）
   - `index.commit_evidence(repo) -> dict[str, list[dict]]`：票號 → `[{"kind": "commit", "commit": <前 10 碼>, "by": {"name", "email"}, "at": <author ISO 時間>, "subject": str}]`，依 git log 由新到舊；subject 與 body 都掃
-  - `index.build_index(repo) -> {"generated_at": str, "tickets": [entry]}`，entry 欄位：`id`、`title`、`area`、`status`、`priority`、`assignee`、`dod_pending`、`blocked_reason`、`evidence_counts`（`check`/`hil`/`review` 各幾筆）、`latest_review_open_critical`（沒有 review 時為 `null`）、`commits`
+  - `index.build_index(repo) -> {"generated_at": str, "tickets": [entry]}`，entry 欄位：`id`、`title`、`area`、`status`、`priority`、`assignee`、`requires_hil`、`dod_pending`、`blocked_reason`、`evidence_counts`（`check`/`hil`/`review` 各幾筆）、`latest_review_open_critical`（沒有 review 時為 `null`）、`commits`
   - `index.write_index(repo) -> Path`
   - `index.main(argv=None) -> int`（計畫 2 的 `post-commit`、`post-merge` hook 會呼叫）
 
@@ -1485,7 +1528,7 @@ def seed(repo):
     first = new_ticket("FW-0001", "UART DMA", "drivers/uart", ALICE, NOW, priority=2)
     first.update(status="active", assignee=ALICE, dod_pending=["上板"])
     first["evidence"] = [
-        make_evidence("check", ALICE, NOW, commit="abc1234", summary="check 7/7 通過"),
+        make_evidence("check", ALICE, NOW, commit="abc1234", summary="check 7/7 通過", passed=True),
         make_evidence("review", BOB, NOW, ref="r.md", open_critical=1),
     ]
     save_ticket(repo, first)
@@ -1512,6 +1555,7 @@ def test_build_index_summary(repo):
     tickets = {t["id"]: t for t in build_index(repo)["tickets"]}
     first = tickets["FW-0001"]
     assert first["status"] == "active" and first["assignee"] == ALICE
+    assert first["requires_hil"] is True
     assert first["evidence_counts"] == {"check": 1, "hil": 0, "review": 1}
     assert first["latest_review_open_critical"] == 1
     assert len(first["commits"]) == 2
@@ -1588,6 +1632,7 @@ def build_index(repo):
             "status": ticket["status"],
             "priority": ticket["priority"],
             "assignee": ticket["assignee"],
+            "requires_hil": ticket["requires_hil"],
             "dod_pending": ticket["dod_pending"],
             "blocked_reason": ticket["blocked_reason"],
             "evidence_counts": {kind: sum(1 for e in ticket["evidence"] if e["kind"] == kind)
@@ -1638,18 +1683,19 @@ git commit -m "feat(scripts): 新增 feature_list.json 索引產生"
 - Test: `tests/scripts/test_ticket_cli.py`
 
 **Interfaces:**
-- Consumes: `allocate.next_ticket_id`、`renumber`、`commits_mentioning`、`RenumberError`；`transitions.transition`、`block`、`unblock`、`TransitionError`；`identity.current_identity`、`IdentityError`；`gitutil.git`、`repo_root`、`GitError`；`tickets.load_ticket`、`save_ticket`、`new_ticket`、`make_evidence`、`validate_ticket`、`now_iso`、`EVIDENCE_FIELDS`
+- Consumes: `allocate.next_ticket_id`、`renumber`、`commits_mentioning`、`find_collisions`、`RenumberError`；`transitions.transition`、`block`、`unblock`、`TransitionError`；`identity.current_identity`、`IdentityError`；`gitutil.git`、`repo_root`、`GitError`；`tickets.load_ticket`、`save_ticket`、`new_ticket`、`make_evidence`、`validate_ticket`、`now_iso`、`EVIDENCE_FIELDS`
 - Produces:
   - `console.use_utf8_stdio() -> None`（把 stdout/stderr 改成 UTF-8，避免 Windows 管線用 cp950 輸出時丟出 `UnicodeEncodeError`）
-  - `ticket.main(argv=None, cwd=None, now=None) -> int`
+  - `ticket.confirm_done_on_tty(ticket_id) -> bool`（stdin 不是 TTY 就回傳 False；否則要求輸入票號）
+  - `ticket.main(argv=None, cwd=None, now=None, confirm=None) -> int`（`confirm` 預設為 `confirm_done_on_tty`；測試注入）
   - 子命令（**沒有任何指定身分的參數**，身分一律來自 git config）：
-    - `new --title T --area A [--priority N] [--behavior B] [--step S]... [--dod D]...`
+    - `new --title T --area A [--priority N] [--behavior B] [--step S]... [--dod D]... [--no-hil]`
     - `claim FW-NNNN`（`backlog` 會先轉 `next` 再轉 `active`）
-    - `move FW-NNNN {next,active,verifying,done} [--note N]`
+    - `move FW-NNNN {next,active,verifying,done} [--note N]`（`done`：DoD 檢查通過後才呼叫 `confirm`，未確認就失敗且不寫檔）
     - `block FW-NNNN --reason R`、`unblock FW-NNNN [--note N]`
-    - `evidence FW-NNNN {check,hil,review} [--commit C] [--summary S] [--ref R] [--open-critical N]`（check 的 commit 會解析成 10 碼 hash，不存在就失敗）
+    - `evidence FW-NNNN {check,hil,review} [--commit C] [--summary S] [--passed | --failed] [--ref R] [--open-critical N]`（check 的 commit 會解析成 10 碼 hash，不存在就失敗；check 必須給 `--passed` 或 `--failed`）
     - `dod FW-NNNN [--add D]... [--remove D]...`（每次變更在 history 記一筆 `from == to` 的 note）
-    - `renumber FW-NNNN`、`show FW-NNNN`
+    - `collisions`（有撞號時列出並回傳 1）、`renumber FW-NNNN`、`show FW-NNNN`
   - 失敗訊息格式：`ticket.py <子命令> 失敗：<原因與修法>`，回傳 1
 
 - [ ] **Step 1：寫失敗測試**
@@ -1670,7 +1716,7 @@ BOB = {"name": "Bob Lin", "email": "bob@example.com"}
 
 
 def run(repo, *argv):
-    return main(list(argv), cwd=repo, now=NOW)
+    return main(list(argv), cwd=repo, now=NOW, confirm=lambda ticket_id: True)
 
 
 def test_new_uses_git_identity_and_warns_offline(repo, capsys):
@@ -1708,10 +1754,13 @@ def test_move_failure_message(repo, capsys):
 def test_check_evidence_resolves_commit_then_verifying(repo, capsys):
     run(repo, "new", "--title", "t", "--area", "a")
     run(repo, "claim", "FW-0001")
-    assert run(repo, "evidence", "FW-0001", "check", "--commit", "nope", "--summary", "s") == 1
-    assert run(repo, "evidence", "FW-0001", "check", "--commit", "HEAD", "--summary", "check 7/7 通過") == 0
+    assert run(repo, "evidence", "FW-0001", "check", "--commit", "nope", "--summary", "s", "--passed") == 1
+    assert run(repo, "evidence", "FW-0001", "check", "--commit", "HEAD", "--summary", "check 7/7 通過") == 1
+    assert "--passed 或 --failed" in capsys.readouterr().err
+    assert run(repo, "evidence", "FW-0001", "check", "--commit", "HEAD", "--summary", "check 7/7 通過", "--passed") == 0
     head = git(repo, "rev-parse", "HEAD")
-    assert load_ticket(repo, "FW-0001")["evidence"][0]["commit"] == head[:10]
+    evidence = load_ticket(repo, "FW-0001")["evidence"][0]
+    assert evidence["commit"] == head[:10] and evidence["passed"] is True
     assert run(repo, "move", "FW-0001", "verifying") == 0
 
 
@@ -1741,15 +1790,36 @@ def test_block_unblock(repo):
     assert load_ticket(repo, "FW-0001")["status"] == "backlog"
 
 
-def test_done_via_cli_after_review_by_other(repo):
-    run(repo, "new", "--title", "t", "--area", "a")
+def ready_for_done(repo):
+    run(repo, "new", "--title", "t", "--area", "a", "--no-hil")
     run(repo, "claim", "FW-0001")
-    run(repo, "evidence", "FW-0001", "check", "--commit", "HEAD", "--summary", "ok")
+    run(repo, "evidence", "FW-0001", "check", "--commit", "HEAD", "--summary", "ok", "--passed")
     run(repo, "move", "FW-0001", "verifying")
     ticket = load_ticket(repo, "FW-0001")
     ticket["evidence"].append(make_evidence("review", BOB, NOW, ref="r.md", open_critical=0))
     save_ticket(repo, ticket)
+
+
+def test_done_via_cli_after_review_by_other(repo):
+    ready_for_done(repo)
+    assert load_ticket(repo, "FW-0001")["requires_hil"] is False
     assert run(repo, "move", "FW-0001", "done") == 0
+    assert load_ticket(repo, "FW-0001")["status"] == "done"
+
+
+def test_done_refused_without_tty(repo, capsys):
+    ready_for_done(repo)
+    capsys.readouterr()
+    # 不注入 confirm：pytest 的 stdin 不是 TTY，等同 agent 執行
+    assert main(["move", "FW-0001", "done"], cwd=repo, now=NOW) == 1
+    assert "互動式終端機" in capsys.readouterr().err
+    assert load_ticket(repo, "FW-0001")["status"] == "verifying"
+
+
+def test_collisions_offline_reports_none(repo, capsys):
+    assert run(repo, "collisions") == 0
+    out = capsys.readouterr()
+    assert "沒有撞號" in out.out and "離線" in out.err
 
 
 def test_show_prints_utf8_json(repo, capsys):
@@ -1801,7 +1871,7 @@ import json
 import sys
 from pathlib import Path
 
-from allocate import RenumberError, commits_mentioning, next_ticket_id, renumber
+from allocate import RenumberError, commits_mentioning, find_collisions, next_ticket_id, renumber
 from console import use_utf8_stdio
 from gitutil import GitError, git, repo_root
 from identity import IdentityError, current_identity
@@ -1823,6 +1893,8 @@ def build_parser():
     new.add_argument("--behavior", default="")
     new.add_argument("--step", action="append", default=[])
     new.add_argument("--dod", action="append", default=[])
+    new.add_argument("--no-hil", dest="requires_hil", action="store_false",
+                     help="這張票不需要上板驗證（預設需要）")
 
     sub.add_parser("claim", help="認領並轉 active").add_argument("ticket_id")
 
@@ -1844,6 +1916,10 @@ def build_parser():
     ev.add_argument("kind", choices=EVIDENCE_KINDS)
     ev.add_argument("--commit")
     ev.add_argument("--summary")
+    outcome = ev.add_mutually_exclusive_group()
+    outcome.add_argument("--passed", dest="passed", action="store_true")
+    outcome.add_argument("--failed", dest="passed", action="store_false")
+    ev.set_defaults(passed=None)
     ev.add_argument("--ref")
     ev.add_argument("--open-critical", dest="open_critical", type=int)
 
@@ -1852,9 +1928,17 @@ def build_parser():
     dod.add_argument("--add", action="append", default=[])
     dod.add_argument("--remove", action="append", default=[])
 
+    sub.add_parser("collisions", help="合併前檢查本地票號是否與 origin/main 撞號")
     sub.add_parser("renumber", help="撞號時把本地票改成下一個空號").add_argument("ticket_id")
     sub.add_parser("show", help="顯示票").add_argument("ticket_id")
     return parser
+
+
+def confirm_done_on_tty(ticket_id):
+    if not sys.stdin.isatty():
+        return False
+    answer = input(f"確認 {ticket_id} 已完成上板驗證並經他人 review？請輸入票號確認：")
+    return answer.strip() == ticket_id
 
 
 def _save(repo, ticket):
@@ -1868,7 +1952,7 @@ def cmd_new(repo, args, by, now):
     ticket_id = next_ticket_id(repo)
     ticket = new_ticket(ticket_id, args.title, args.area, by, now, priority=args.priority,
                         user_visible_behavior=args.behavior, verification_steps=args.step,
-                        dod_pending=args.dod)
+                        dod_pending=args.dod, requires_hil=args.requires_hil)
     _save(repo, ticket)
     print(f"已開票 {ticket_id}：{args.title}")
     print("提醒：票號要等開票 commit 合入 main 之後才算佔住。")
@@ -1887,6 +1971,11 @@ def cmd_claim(repo, args, by, now):
 
 def cmd_move(repo, args, by, now):
     ticket = transition(repo, load_ticket(repo, args.ticket_id), args.status, by, now, note=args.note)
+    if args.status == "done" and not args.confirm(ticket["id"]):
+        raise ValueError(
+            "轉成 done 必須由人在互動式終端機輸入票號確認（agent 不可自行標記 done）。"
+            f"修法：請在自己的終端機執行 ticket.py move {ticket['id']} done"
+        )
     _save(repo, ticket)
     print(f"{ticket['id']} → {ticket['status']}")
     return 0
@@ -1908,7 +1997,10 @@ def cmd_unblock(repo, args, by, now):
 
 def cmd_evidence(repo, args, by, now):
     ticket = load_ticket(repo, args.ticket_id)
-    given = {"commit": args.commit, "summary": args.summary, "ref": args.ref, "open_critical": args.open_critical}
+    if args.kind == "check" and args.passed is None:
+        raise ValueError("check evidence 必須指定 --passed 或 --failed")
+    given = {"commit": args.commit, "summary": args.summary, "passed": args.passed,
+             "ref": args.ref, "open_critical": args.open_critical}
     fields = {key: given[key] for key in EVIDENCE_FIELDS[args.kind]}
     if args.kind == "check" and fields["commit"]:
         fields["commit"] = git(repo, "rev-parse", "--verify", f"{fields['commit']}^{{commit}}")[:10]
@@ -1951,15 +2043,27 @@ def cmd_show(repo, args, by, now):
     return 0
 
 
+def cmd_collisions(repo, args, by, now):
+    found = find_collisions(repo)
+    if not found:
+        print("沒有撞號")
+        return 0
+    for ticket_id in found:
+        print(f"撞號：本地的 {ticket_id} 與 origin/main 上的不是同一張票。修法：ticket.py renumber {ticket_id}")
+    return 1
+
+
 COMMANDS = {
     "new": cmd_new, "claim": cmd_claim, "move": cmd_move, "block": cmd_block, "unblock": cmd_unblock,
-    "evidence": cmd_evidence, "dod": cmd_dod, "renumber": cmd_renumber, "show": cmd_show,
+    "evidence": cmd_evidence, "dod": cmd_dod, "collisions": cmd_collisions, "renumber": cmd_renumber,
+    "show": cmd_show,
 }
 
 
-def main(argv=None, cwd=None, now=None):
+def main(argv=None, cwd=None, now=None, confirm=None):
     use_utf8_stdio()
     args = build_parser().parse_args(argv)
+    args.confirm = confirm or confirm_done_on_tty
     try:
         repo = repo_root(cwd or Path.cwd())
         by = current_identity(repo)
@@ -1992,7 +2096,7 @@ def main(argv=None):
 - [ ] **Step 6：執行並確認通過**
 
 Run: `py -3 -m pytest`
-Expected: 全部通過，`74 passed`
+Expected: 全部通過，`79 passed`
 
 - [ ] **Step 7：Commit**
 
@@ -2025,7 +2129,8 @@ NOW = "2026-09-15T10:00:00+08:00"
 
 
 def run(repo, *argv):
-    return main(list(argv), cwd=repo, now=NOW)
+    # 整合測試代表「人」在終端機操作，所以注入確認；TTY 拒絕的情境在 test_ticket_cli.py 測
+    return main(list(argv), cwd=repo, now=NOW, confirm=lambda ticket_id: True)
 
 
 def test_two_people_collide_claim_review_and_finish(team):
@@ -2040,7 +2145,8 @@ def test_two_people_collide_claim_review_and_finish(team):
     commit_all(bob, "FW-0001 開票：SPI flash")
     git(bob, "push", "origin", "main")
 
-    # 2. alice 是後進者：renumber 後可以乾淨合併
+    # 2. alice 合併前預檢發現撞號；她是後進者，renumber 後可以乾淨合併
+    assert run(alice, "collisions") == 1
     assert run(alice, "renumber", "FW-0001") == 0
     commit_all(alice, "harness: FW-0001 改號為 FW-0002")
     git(alice, "merge", "--no-edit", "origin/main")
@@ -2059,7 +2165,7 @@ def test_two_people_collide_claim_review_and_finish(team):
     # 4. alice 寫完、check 通過 → verifying；自己 review 不能轉 done
     (alice / "uart.c").write_text("int uart_init(void) { return 0; }\n", encoding="utf-8")
     head = commit_all(alice, "FW-0002 實作 DMA 接收")
-    assert run(alice, "evidence", "FW-0002", "check", "--commit", head, "--summary", "check 7/7 通過") == 0
+    assert run(alice, "evidence", "FW-0002", "check", "--commit", head, "--summary", "check 7/7 通過", "--passed") == 0
     assert run(alice, "move", "FW-0002", "verifying") == 0
     assert run(alice, "evidence", "FW-0002", "review", "--ref", "harness/reviews/self.md", "--open-critical", "0") == 0
     assert run(alice, "dod", "FW-0002", "--remove", "上板 loopback 驗證") == 0
@@ -2095,7 +2201,7 @@ Expected: `1 passed`。若失敗，用 superpowers:systematic-debugging 找出�
 - [ ] **Step 3：跑完整測試**
 
 Run: `py -3 -m pytest`
-Expected: `75 passed`
+Expected: `80 passed`
 
 - [ ] **Step 4：Commit**
 
@@ -2108,12 +2214,12 @@ git commit -m "test(scripts): 新增兩人協作整合測試"
 
 ## 完成條件
 
-- `py -3 -m pytest` 全部通過（75 個測試）。
+- `py -3 -m pytest` 全部通過（80 個測試）。
 - `SCRIPTS/` 只有標準庫 import。驗證指令：`py -3 -c "import ast,sys,pathlib; mods={n.names[0].name.split('.')[0] if isinstance(n,ast.Import) else (n.module or '').split('.')[0] for p in pathlib.Path(sys.argv[1]).glob('*.py') for n in ast.walk(ast.parse(p.read_text(encoding='utf-8'))) if isinstance(n,(ast.Import,ast.ImportFrom))}; local={p.stem for p in pathlib.Path(sys.argv[1]).glob('*.py')}; print(sorted(m for m in mods-local if m not in sys.stdlib_module_names))" plugins/fw-c-harness/skills/fw-harness-init/templates/harness/scripts`，預期輸出 `[]`。
 - 沒有任何子命令能指定身分。
 
 ## 留給後續計畫
 
-- 計畫 2：`check.py` 呼叫 `ticket_check.check_tickets`；`commit-msg` hook 使用 `index.TICKET_REF_RE` 並確認票檔存在；`post-commit` 與 `post-merge` 呼叫 `index.main`，`post-merge` 偵測重複票號時提示 `ticket.py renumber`。
+- 計畫 2：`check.py` 呼叫 `ticket_check.check_tickets`；`check.py --record <票號>` 以 `make_evidence("check", ..., passed=<結果>)` 寫入 check evidence；`commit-msg` hook 使用 `index.TICKET_REF_RE` 並確認票檔存在；`post-commit` 與 `post-merge` 呼叫 `index.main`，`post-merge` 偵測重複票號時提示 `ticket.py renumber`。
 - 計畫 3：範本的 `.gitignore` 要加入 `feature_list.json`；`people.json` 範本。
 - 計畫 4：`fw-ticket` skill 只透過 `ticket.py` 寫入，並拒絕替使用者轉 `done`；`fw-done` 需要的 progress 檔名 `<YYYY-MM-DD>_<slug>_<n>.md`（`n` 取當天同一人已有檔案數 + 1）與 handoff 路徑，由計畫 4 以 `identity.slug_for` 實作（spec 第 5.6 節）。
