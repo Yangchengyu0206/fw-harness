@@ -4,6 +4,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
+from console import use_utf8_stdio
 from gitutil import repo_root
 from jsonio import read_json
 from tickets import tickets_dir, validate_ticket
@@ -50,6 +51,7 @@ def check_tickets(repo):
 
 
 def main(argv=None):
+    use_utf8_stdio()
     repo = repo_root(Path.cwd())
     errors = check_tickets(repo)
     if errors:

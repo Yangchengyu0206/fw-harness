@@ -4,6 +4,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
+from console import use_utf8_stdio
 from gitutil import git, repo_root
 from jsonio import read_json, write_json_atomic
 from tickets import EVIDENCE_KINDS, load_all, now_iso
@@ -63,6 +64,7 @@ def write_index(repo):
 
 
 def main(argv=None):
+    use_utf8_stdio()
     repo = repo_root(Path.cwd())
     path = write_index(repo)
     count = len(read_json(path)["tickets"])
