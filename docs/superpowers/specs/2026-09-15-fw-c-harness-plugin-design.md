@@ -187,6 +187,7 @@ log 寫到 `.verify_logs/<時間戳>.log`（gitignored）。
   "area": "drivers/uart",
   "status": "active",
   "priority": 2,
+  "requires_hil": true,
   "created_by": {"name": "Yang cheng", "email": "..."},
   "created_at": "2026-09-15T10:02:00+08:00",
   "assignee": {"name": "Yang cheng", "email": "..."},
@@ -194,7 +195,7 @@ log 寫到 `.verify_logs/<時間戳>.log`（gitignored）。
   "verification_steps": ["host 測試：ring buffer 溢位回報錯誤碼", "上板：loopback 4KB 比對 CRC"],
   "dod_pending": ["上板 loopback 驗證"],
   "evidence": [
-    {"kind": "check", "by": {...}, "at": "...", "commit": "a1b2c3d", "summary": "check 7/7 通過"},
+    {"kind": "check", "by": {...}, "at": "...", "commit": "a1b2c3d", "summary": "check 7/7 通過", "passed": true},
     {"kind": "review", "by": {...}, "at": "...", "ref": "harness/reviews/FW-0042_alice_2026-09-16.md", "open_critical": 0},
     {"kind": "hil", "by": {...}, "at": "...", "ref": "harness/evidence/FW-0042/loopback.log"}
   ],
@@ -212,7 +213,8 @@ log 寫到 `.verify_logs/<時間戳>.log`（gitignored）。
 
 - 新票號為 `max(本地 tickets, origin/main tickets) + 1`，腳本會先 `git fetch origin main`（離線時用本地最大號並警告）。
 - 票號**只有在開票 commit 合入 main 之後才算佔住**。
-- 撞號時，兩個分支都新增了 `harness/tickets/FW-0096.json`，合併時 git 會直接回報 add/add 衝突，不會悄悄覆蓋。`ticket.py renumber FW-0096` 會把後進者改成下一個空號，並提示修改分支上引用舊號的 commit 訊息。
+- 撞號時，兩個分支都新增了 `harness/tickets/FW-0096.json`，合併時 git 會直接回報 add/add 衝突，不會悄悄覆蓋。
+- 合併前可先執行 `ticket.py collisions`：fetch 後比對本地與 `origin/main` 同號票檔的 `created_by` + `created_at`，不同即為撞號。`ticket.py renumber FW-0096` 會把本地那張改成下一個空號，並提示修改分支上引用舊號的 commit 訊息。
 
 ### 5.4 狀態機與 Definition of Done
 
@@ -225,12 +227,12 @@ backlog → next → active → verifying → done
 | 轉換 | 條件（由 `ticket.py` 檢查） |
 |---|---|
 | → `active` | 執行者成為 assignee；該 assignee 沒有其他 `active` 的票 |
-| `active` → `verifying` | 至少一筆 `kind: check`，且其 commit 是目前 HEAD 或 HEAD 的祖先 |
-| `verifying` → `done` | `dod_pending` 已清空；有 `kind: hil`（若 `verification_steps` 含上板步驟）；有 `kind: review`，其 `by` ≠ assignee 且 `open_critical == 0` |
+| `active` → `verifying` | 至少一筆 `kind: check` 且 `passed: true`，其 commit 是目前 HEAD 或 HEAD 的祖先 |
+| `verifying` → `done` | `dod_pending` 已清空；`requires_hil` 為 true 時要有 `kind: hil`；**最新一筆** `kind: review` 的 `by` ≠ assignee 且 `open_critical == 0`；CLI 必須在互動式終端機（TTY）執行並輸入票號確認 |
 
 「寫完」與「完成」分開：程式碼寫完、check 通過，但上板或 review 還沒做，就停在 `verifying`，並把欠的事列進 `dod_pending`。
 
-**agent 不能把票轉到 `done`**：AGENTS.md 明文禁止，`fw-ticket` skill 也會拒絕。機械上，`ticket_check` 能驗證的是「done 的票有沒有 hil 與非本人 review evidence」，但無法證明 evidence 是真人產生的。這個限制寫進 CLAUDE.md，最終把關靠 PR review。
+**agent 不能把票轉到 `done`**：AGENTS.md 明文禁止，`fw-ticket` skill 也會拒絕；`ticket.py status <id> done` 要求 stdin 是 TTY（agent 的 shell 通常不是）並輸入票號確認。機械上，`ticket_check` 能驗證的是「done 的票有沒有 hil 與非本人 review evidence」，但無法證明 evidence 是真人產生的。這個限制寫進 CLAUDE.md，最終把關靠 PR review。
 
 ### 5.5 `ticket_check`（在 `check` 中執行）
 
