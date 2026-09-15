@@ -1,0 +1,7 @@
+#!/bin/sh
+# Regenerate feature_list.json (gitignored). Touches no tracked file and never fails the commit.
+. "$(dirname "$0")/_python.sh"
+PY=$(harness_python) || exit 0
+$PY harness/scripts/index.py >/dev/null 2>&1 \
+  || echo "post-commit: warning: feature_list.json was not regenerated; run harness/scripts/index.py" >&2
+exit 0

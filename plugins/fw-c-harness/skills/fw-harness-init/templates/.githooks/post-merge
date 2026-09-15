@@ -1,0 +1,8 @@
+#!/bin/sh
+# Regenerate the index and check ticket consistency after a merge. Warns only; never fails the merge.
+. "$(dirname "$0")/_python.sh"
+PY=$(harness_python) || exit 0
+$PY harness/scripts/index.py >/dev/null 2>&1
+$PY harness/scripts/ticket_check.py \
+  || echo "post-merge: ticket_check failed after the merge; fix the problems above (for clashing IDs, use ticket.py renumber)" >&2
+exit 0
