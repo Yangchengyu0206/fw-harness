@@ -5,9 +5,11 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from arch_check import ArchitectureError, load_architecture, read_only_prefixes
+from arch_check import ArchitectureError, check_architecture, load_architecture, read_only_prefixes
 from gitutil import git
 from ratchet import baseline_ref, baseline_text, new_entries, parse_entries
+from size_check import evaluate, parse_berkeley
+from ticket_check import check_tickets
 
 SUPPRESSIONS_PATH = "harness/cppcheck-suppressions.txt"
 OUTPUT_TAIL_LINES = 40
@@ -98,3 +100,71 @@ def step_cppcheck(repo, config):
         return StepResult("cppcheck", False,
                           "cppcheck reported findings. Fix: address them; suppressions may only shrink", output)
     return StepResult("cppcheck", True, f"no findings in {', '.join(spec['paths'])}", output)
+
+
+def step_arch(repo, config):
+    try:
+        errors, warnings = check_architecture(repo)
+    except ArchitectureError as exc:
+        return StepResult("arch", False, str(exc))
+    output = "\n".join(errors + warnings)
+    if errors:
+        return StepResult("arch", False, f"{len(errors)} architecture problem(s)", output)
+    return StepResult("arch", True, "module coverage and dependencies approved", output)
+
+
+def step_tickets(repo, config):
+    errors = check_tickets(repo)
+    if errors:
+        return StepResult("tickets", False, f"{len(errors)} ticket problem(s)", "\n".join(errors))
+    return StepResult("tickets", True, "ticket files consistent")
+
+
+def _run_commands(name, repo, commands):
+    outputs = []
+    for argv in commands:
+        proc, problem = run_command(repo, argv)
+        if problem:
+            return StepResult(name, False, problem, "\n".join(outputs))
+        if _output(proc):
+            outputs.append(_output(proc))
+        if proc.returncode != 0:
+            return StepResult(name, False, f"{' '.join(argv)} failed (exit {proc.returncode})", "\n".join(outputs))
+    return StepResult(name, True, f"{len(commands)} command(s) succeeded", "\n".join(outputs))
+
+
+def step_build(repo, config):
+    return _run_commands("build", repo, config["check"]["build"]["commands"])
+
+
+def step_test(repo, config):
+    return _run_commands("test", repo, config["check"]["test"]["commands"])
+
+
+def step_size(repo, config):
+    spec = config["check"]["size"]
+    proc, problem = run_command(repo, spec["command"])
+    if problem:
+        return StepResult("size", False, problem)
+    if proc.returncode != 0:
+        return StepResult("size", False, f"size tool failed (exit {proc.returncode})", _output(proc))
+    try:
+        text, data, bss = parse_berkeley(proc.stdout)
+    except ValueError as exc:
+        return StepResult("size", False, f"{exc}. Fix: point check.size.command at the built ELF", _output(proc))
+    problems, summary = evaluate(text, data, bss, spec["flash_budget"], spec["ram_budget"])
+    if problems:
+        return StepResult("size", False, "; ".join(problems)
+                          + f" ({summary}). Fix: shrink the image or revisit the budget in harness/config.json")
+    return StepResult("size", True, summary)
+
+
+STEPS = (
+    ("format", step_format),
+    ("cppcheck", step_cppcheck),
+    ("arch", step_arch),
+    ("tickets", step_tickets),
+    ("build", step_build),
+    ("test", step_test),
+    ("size", step_size),
+)
