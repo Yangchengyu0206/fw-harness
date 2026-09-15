@@ -1,4 +1,4 @@
-"""呼叫 git CLI。輸出一律以 UTF-8 解碼。"""
+"""Run the git CLI. Output is always decoded as UTF-8."""
 import subprocess
 from pathlib import Path
 
@@ -18,7 +18,7 @@ def git(repo, *args, check=True):
     result = _run(repo, args)
     if check and result.returncode != 0:
         raise GitError(
-            f"git {' '.join(args)} 失敗（exit {result.returncode}）：{result.stderr.strip()}"
+            f"git {' '.join(args)} failed (exit {result.returncode}): {result.stderr.strip()}"
         )
     return result.stdout.strip()
 

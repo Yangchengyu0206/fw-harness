@@ -2,6 +2,8 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **Language note (2026-09-15):** the project is open source and English-only (spec section 1, "Language and license"). This plan was written in Chinese before that decision. When executing, translate every comment, docstring, CLI/error message, and test string in the code blocks below into English, and update test assertions to match the English messages. No Chinese characters may remain in code or tests. Tasks 1 to 3 are already implemented this way; use `tickets.py` and `test_tickets.py` in the repo as the reference for message wording (for example the `"<label>: <message>"` prefix).
+
 **Goal:** 實作 spec 第 5 節的狀態層：git 身分與 slug、一票一檔的票 schema、票號分配與 renumber、狀態機與 DoD 檢查、`ticket.py` CLI、`ticket_check`、`feature_list.json` 索引。
 
 **Architecture:** 全部是 Python 標準庫腳本，放在 `fw-harness-init` skill 的範本目錄裡，之後由 init 複製到 FW repo 的 `harness/scripts/`。每個模組只負責一件事（IO、git、身分、票、票號、狀態機、檢查、索引），`ticket.py` 只是組合它們的 CLI。測試用 pytest，在暫存目錄建立真實 git repo（含 bare origin 和兩個身分的 clone）。

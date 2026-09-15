@@ -1,4 +1,4 @@
-"""身分：來源只有 git config user.name / user.email。"""
+"""Identity comes only from git config user.name and user.email."""
 import re
 from pathlib import Path
 
@@ -22,9 +22,10 @@ def current_identity(repo):
     email = git(repo, "config", "user.email", check=False)
     missing = [key for key, value in (("user.name", name), ("user.email", email)) if not value]
     if missing:
+        unset = ", ".join(f"git config {key}" for key in missing)
         raise IdentityError(
-            f"身分檢查失敗：git config {'、'.join(missing)} 未設定。"
-            '修法：git config user.name "你的名字"；git config user.email you@company.com'
+            f"Identity check failed: {unset} not set. "
+            'Fix: git config user.name "Your Name"; git config user.email you@example.com'
         )
     return {"name": name, "email": email}
 

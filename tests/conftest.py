@@ -13,7 +13,7 @@ from helpers import git, make_repo, set_identity  # noqa: E402
 
 @pytest.fixture(autouse=True)
 def isolated_git_config(tmp_path_factory, monkeypatch):
-    """不讓貢獻者自己的 ~/.gitconfig（hooksPath、簽章、身分等）影響測試結果。"""
+    """Keep a contributor's own ~/.gitconfig (hooksPath, signing, identity) from affecting results."""
     empty = tmp_path_factory.mktemp("gitconfig") / "gitconfig"
     empty.write_text("", encoding="utf-8")
     monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(empty))

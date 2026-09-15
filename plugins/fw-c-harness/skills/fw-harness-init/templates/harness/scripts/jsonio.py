@@ -1,4 +1,4 @@
-"""UTF-8 JSON 讀寫。寫入採暫存檔 + rename，避免寫到一半損毀。"""
+"""UTF-8 JSON I/O. Writes go through a temporary file and a rename, so a crash never leaves a half-written file."""
 import json
 import os
 import tempfile

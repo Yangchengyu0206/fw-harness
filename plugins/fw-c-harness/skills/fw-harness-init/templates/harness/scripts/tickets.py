@@ -1,4 +1,4 @@
-"""票檔：一票一檔 harness/tickets/FW-NNNN.json。"""
+"""Ticket files: one file per ticket at harness/tickets/FW-NNNN.json."""
 import re
 from datetime import datetime
 from pathlib import Path
@@ -27,7 +27,7 @@ def format_id(number):
 def parse_id(ticket_id):
     match = TICKET_ID_RE.match(ticket_id)
     if not match:
-        raise ValueError(f"票號格式錯誤：{ticket_id!r}，應為 FW-NNNN")
+        raise ValueError(f"Invalid ticket ID {ticket_id!r}; expected FW-NNNN")
     return int(match.group(1))
 
 
@@ -38,7 +38,7 @@ def now_iso():
 def load_ticket(repo, ticket_id):
     path = ticket_path(repo, ticket_id)
     if not path.exists():
-        raise FileNotFoundError(f"找不到票 {ticket_id}：{path}")
+        raise FileNotFoundError(f"Ticket {ticket_id} not found: {path}")
     return read_json(path)
 
 
@@ -68,78 +68,80 @@ def _is_count(value):
 
 def validate_ticket(ticket, filename=None):
     if not isinstance(ticket, dict):
-        return [f"{filename or '<票>'}：票檔內容必須是 JSON 物件"]
-    label = Path(filename).name if filename else (ticket.get("id") or "<票>")
+        return [f"{filename or '<ticket>'}: ticket file must contain a JSON object"]
+    label = Path(filename).name if filename else (ticket.get("id") or "<ticket>")
     errors = []
 
     def err(message):
-        errors.append(f"{label}：{message}")
+        errors.append(f"{label}: {message}")
 
     ticket_id = ticket.get("id")
     if not isinstance(ticket_id, str) or not TICKET_ID_RE.match(ticket_id):
-        err("id 必須是 FW-NNNN 格式")
+        err("id must match FW-NNNN")
     elif filename is not None and Path(filename).stem != ticket_id:
-        err(f"id {ticket_id} 與檔名 {Path(filename).name} 不一致。修法：改檔名，或執行 ticket.py renumber")
+        err(f"id {ticket_id} does not match file name {Path(filename).name}. "
+            "Fix: rename the file, or run ticket.py renumber")
 
     for key in ("title", "area", "created_at", "user_visible_behavior", "notes"):
         if not isinstance(ticket.get(key), str):
-            err(f"{key} 必須是字串")
+            err(f"{key} must be a string")
 
     status = ticket.get("status")
     if status not in STATUSES:
-        err(f"status 必須是 {'/'.join(STATUSES)} 之一")
+        err(f"status must be one of {'/'.join(STATUSES)}")
     if not _is_count(ticket.get("priority")):
-        err("priority 必須是非負整數")
+        err("priority must be a non-negative integer")
     if not isinstance(ticket.get("requires_hil"), bool):
-        err("requires_hil 必須是 true 或 false")
+        err("requires_hil must be true or false")
     if not _is_person(ticket.get("created_by")):
-        err("created_by 必須含 name 與 email")
+        err("created_by must have name and email")
     assignee = ticket.get("assignee")
     if assignee is not None and not _is_person(assignee):
-        err("assignee 必須是 null 或含 name 與 email")
+        err("assignee must be null or have name and email")
     if status in ASSIGNED_STATUSES and assignee is None:
-        err(f"status 為 {status} 時必須有 assignee")
+        err(f"status {status} requires an assignee")
 
     for key in ("verification_steps", "dod_pending"):
         if not _is_str_list(ticket.get(key)):
-            err(f"{key} 必須是字串陣列")
+            err(f"{key} must be an array of strings")
 
     reason = ticket.get("blocked_reason")
     if reason is not None and not isinstance(reason, str):
-        err("blocked_reason 必須是 null 或字串")
+        err("blocked_reason must be null or a string")
     if status == "blocked" and not (isinstance(reason, str) and reason.strip()):
-        err("blocked 的票必須填 blocked_reason。修法：ticket.py block <票號> --reason \"原因\"")
+        err('a blocked ticket needs a blocked_reason. Fix: ticket.py block <id> --reason "..."')
 
     evidence = ticket.get("evidence")
     if not isinstance(evidence, list):
-        err("evidence 必須是陣列")
+        err("evidence must be an array")
     else:
         for index, item in enumerate(evidence):
             where = f"evidence[{index}]"
             if not isinstance(item, dict) or item.get("kind") not in EVIDENCE_KINDS:
-                err(f"{where}.kind 必須是 check/hil/review 之一（commit 類 evidence 由 git log 動態計算，不寫入票檔）")
+                err(f"{where}.kind must be one of check/hil/review "
+                    "(commit evidence is derived from git log and never stored in ticket files)")
                 continue
             if not _is_person(item.get("by")) or not isinstance(item.get("at"), str):
-                err(f"{where} 必須含 by 與 at")
+                err(f"{where} must have by and at")
             for field in EVIDENCE_FIELDS[item["kind"]]:
                 if field == "open_critical":
                     if not _is_count(item.get(field)):
-                        err(f"{where}.open_critical 必須是非負整數")
+                        err(f"{where}.open_critical must be a non-negative integer")
                 elif field == "passed":
                     if not isinstance(item.get(field), bool):
-                        err(f"{where}.passed 必須是 true 或 false")
+                        err(f"{where}.passed must be true or false")
                 elif not (isinstance(item.get(field), str) and item[field]):
-                    err(f"{where}.{field} 必須是非空字串")
+                    err(f"{where}.{field} must be a non-empty string")
 
     history = ticket.get("history")
     if not isinstance(history, list):
-        err("history 必須是陣列")
+        err("history must be an array")
     else:
         for index, item in enumerate(history):
             if (not isinstance(item, dict) or not _is_person(item.get("by"))
                     or not isinstance(item.get("at"), str) or item.get("to") not in STATUSES
                     or (item.get("from") is not None and item.get("from") not in STATUSES)):
-                err(f"history[{index}] 必須含 by、at、from（null 或狀態）、to（狀態）")
+                err(f"history[{index}] must have by, at, from (null or a status), and to (a status)")
     return errors
 
 
@@ -159,7 +161,7 @@ def new_ticket(ticket_id, title, area, by, now, priority=3, user_visible_behavio
         "verification_steps": list(verification_steps),
         "dod_pending": list(dod_pending),
         "evidence": [],
-        "history": [{"by": dict(by), "at": now, "from": None, "to": "backlog", "note": "開票"}],
+        "history": [{"by": dict(by), "at": now, "from": None, "to": "backlog", "note": "opened"}],
         "blocked_reason": None,
         "notes": "",
     }
@@ -167,8 +169,8 @@ def new_ticket(ticket_id, title, area, by, now, priority=3, user_visible_behavio
 
 def make_evidence(kind, by, now, **fields):
     if kind not in EVIDENCE_KINDS:
-        raise ValueError(f"evidence kind 必須是 check/hil/review 之一，收到 {kind!r}")
+        raise ValueError(f"evidence kind must be one of check/hil/review, got {kind!r}")
     missing = [field for field in EVIDENCE_FIELDS[kind] if fields.get(field) in (None, "")]
     if missing:
-        raise ValueError(f"{kind} evidence 缺少 {'、'.join(missing)}")
+        raise ValueError(f"{kind} evidence is missing {', '.join(missing)}")
     return {"kind": kind, "by": dict(by), "at": now, **fields}

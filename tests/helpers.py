@@ -8,7 +8,7 @@ def git(cwd, *args):
         text=True, encoding="utf-8", errors="replace",
     )
     if result.returncode != 0:
-        raise AssertionError(f"git {' '.join(args)} 失敗：{result.stderr}")
+        raise AssertionError(f"git {' '.join(args)} failed: {result.stderr}")
     return result.stdout.strip()
 
 
@@ -17,7 +17,7 @@ def set_identity(path, name, email):
     git(path, "config", "user.email", email)
     git(path, "config", "commit.gpgsign", "false")
     git(path, "config", "core.autocrlf", "false")
-    # 蓋掉使用者全域的 pull 設定，讓分叉時的 pull 一律產生 merge commit
+    # Pin pull behaviour so a diverged pull always creates a merge commit
     git(path, "config", "pull.rebase", "false")
     git(path, "config", "pull.ff", "true")
 
