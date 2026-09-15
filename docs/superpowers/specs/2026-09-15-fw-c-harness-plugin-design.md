@@ -172,15 +172,19 @@ The log goes to `.verify_logs/<timestamp>.log` (gitignored).
 
 `check` runs these in order and stops at the first failure:
 
-1. `clang-format --dry-run --Werror` (changed files only)
+1. `clang-format --dry-run --Werror` on changed C sources: files that differ from the merge base with `origin/main` (or from HEAD when `origin/main` is absent), plus untracked ones, skipping vendor and generated modules
 2. `cppcheck` with `harness/cppcheck-suppressions.txt`
 3. `arch_check` (section 6.3)
 4. `ticket_check` (section 5.5)
 5. Cross build (`target` preset, `-Wall -Wextra -Werror`)
 6. Host Unity tests (`host-test` preset)
-7. Size budget: read the map file and fail when flash or RAM exceeds the budget in `config.json`
+7. Size budget: run the size tool (for example `arm-none-eabi-size`) on the ELF and read its Berkeley output; flash is `text + data`, RAM is `data + bss`, and either exceeding its budget in `config.json` fails
 
-**Ratchet:** `cppcheck-suppressions.txt` and the grandfather list in `architecture.json` may only shrink. Step 2 checks the former and step 3 the latter against `origin/main`, failing on any new entry.
+Every command lives in `harness/config.json` as an argv array (the token `{python}` expands to the running interpreter), so a team swaps tools without touching the scripts. A missing tool fails its step with an install hint.
+
+`check.py --record FW-NNNN` writes the result as `kind: check` evidence on that ticket, with HEAD as the commit and `passed` set from the outcome. It refuses to run on a dirty working tree, so the evidence always describes a real commit.
+
+**Ratchet:** `cppcheck-suppressions.txt` and the grandfather list in `architecture.json` may only shrink. Step 2 checks the former and step 3 the latter against `origin/main`, failing on any new entry. Without `origin/main`, both compare against HEAD and warn. A list that does not exist at the baseline yet is being introduced, so nothing in it counts as new.
 
 ### 4.3 git hooks (instead of a Claude-only PostToolUse hook)
 
@@ -287,6 +291,25 @@ backlog → next → active → verifying → done
 ### 6.2 Source of truth
 
 `harness/architecture.json` is the single source of approved rules. The approved-dependency table in each ARCHITECTURE.md is generated from it inside a marked block; scripts rewrite only the marked block and leave the human-written sections alone.
+
+```json
+{
+  "version": 1,
+  "include_dirs": ["src/app", "src/drivers", "src/hal", "third_party/cmsis/Include"],
+  "modules": {
+    "src/app": {"kind": "owned", "allowed_deps": ["src/drivers"]},
+    "src/drivers": {"kind": "owned", "allowed_deps": ["src/hal"]},
+    "src/hal": {"kind": "owned", "allowed_deps": ["third_party/cmsis"]},
+    "third_party/cmsis": {"kind": "vendor", "allowed_deps": []},
+    "test": {"kind": "test", "allowed_deps": []}
+  },
+  "grandfathered": ["src/hal -> src/app"]
+}
+```
+
+- A module is a repo-relative folder; a file belongs to the module with the longest matching path.
+- `kind` is `owned`, `vendor`, `generated`, or `test`. Only `owned` modules have their includes checked; `vendor` and `generated` modules are read-only and skipped by the format step.
+- Includes (`"..."` and `<...>`) resolve against the including file's folder, then `include_dirs` in order. Unresolved includes are system or toolchain headers and are ignored.
 
 ### 6.3 `arch_check`
 

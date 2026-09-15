@@ -172,15 +172,19 @@ log 寫到 `.verify_logs/<時間戳>.log`（gitignored）。
 
 `check` 依序執行，遇到第一個失敗就停：
 
-1. `clang-format --dry-run --Werror`（只檢查變更過的檔案）
+1. `clang-format --dry-run --Werror`，只檢查變更過的 C 檔：與 `origin/main` 的 merge base 相比有差異的檔案（沒有 `origin/main` 時與 HEAD 比），加上未追蹤的檔案，並略過 vendor 與工具產生的模組
 2. `cppcheck`，使用 `harness/cppcheck-suppressions.txt`
 3. `arch_check`（第 6.3 節）
 4. `ticket_check`（第 5.5 節）
 5. 交叉編譯（`target` preset，`-Wall -Wextra -Werror`）
 6. host 端 Unity 測試（`host-test` preset）
-7. size 預算：讀 map 檔，flash 或 RAM 超過 `config.json` 設定的預算就失敗
+7. size 預算：對 ELF 執行 size 工具（例如 `arm-none-eabi-size`）並讀取 Berkeley 格式輸出；flash 為 `text + data`，RAM 為 `data + bss`，任一項超過 `config.json` 的預算就失敗
 
-**棘輪**：`cppcheck-suppressions.txt` 與 `architecture.json` 的 grandfather 清單只能縮短。前者由第 2 步、後者由第 3 步與 `origin/main` 比對，出現新增項目就失敗。
+每個指令都以 argv 陣列寫在 `harness/config.json`（`{python}` 會展開成目前執行的直譯器），團隊換工具不必改腳本。找不到工具時，該步驟失敗並提示安裝。
+
+`check.py --record FW-NNNN` 會把結果寫成該票的 `kind: check` evidence，commit 為 HEAD，`passed` 依結果設定。工作樹不乾淨時拒絕執行，確保 evidence 描述的是真實存在的 commit。
+
+**棘輪**：`cppcheck-suppressions.txt` 與 `architecture.json` 的 grandfather 清單只能縮短。前者由第 2 步、後者由第 3 步與 `origin/main` 比對，出現新增項目就失敗。沒有 `origin/main` 時兩者改與 HEAD 比對並發出警告。若清單在比對基準上還不存在，代表這次才引入，其中的項目不算新增。
 
 ### 4.3 git hooks（取代 Claude 專屬的 PostToolUse hook）
 
@@ -287,6 +291,25 @@ backlog → next → active → verifying → done
 ### 6.2 真相來源
 
 `harness/architecture.json` 是核准規則的唯一來源。每份 ARCHITECTURE.md 裡的核准依賴表格由它產生，放在標記區塊內；腳本只改寫標記區塊，人寫的段落不動。
+
+```json
+{
+  "version": 1,
+  "include_dirs": ["src/app", "src/drivers", "src/hal", "third_party/cmsis/Include"],
+  "modules": {
+    "src/app": {"kind": "owned", "allowed_deps": ["src/drivers"]},
+    "src/drivers": {"kind": "owned", "allowed_deps": ["src/hal"]},
+    "src/hal": {"kind": "owned", "allowed_deps": ["third_party/cmsis"]},
+    "third_party/cmsis": {"kind": "vendor", "allowed_deps": []},
+    "test": {"kind": "test", "allowed_deps": []}
+  },
+  "grandfathered": ["src/hal -> src/app"]
+}
+```
+
+- 模組是 repo 內的相對資料夾；檔案屬於路徑最長且相符的模組。
+- `kind` 為 `owned`、`vendor`、`generated` 或 `test`。只有 `owned` 模組會檢查 include；`vendor` 與 `generated` 模組是唯讀，format 步驟會略過。
+- include（`"..."` 與 `<...>`）先以所在檔案的資料夾解析，再依序查 `include_dirs`。解析不到的 include 視為系統或工具鏈標頭，直接忽略。
 
 ### 6.3 `arch_check`
 
