@@ -1391,7 +1391,7 @@ def test_two_active_for_same_assignee(repo):
 
 
 def test_done_without_dod_reported(repo):
-    put(repo, "FW-0001", "done", ALICE)
+    put(repo, "FW-0001", "done", ALICE, requires_hil=False)
     ok = put(repo, "FW-0002", "done", ALICE, requires_hil=False,
              evidence=[make_evidence("review", BOB, NOW, ref="r.md", open_critical=0)])
     errors = check_tickets(repo)
