@@ -1,0 +1,25 @@
+{
+  "language": "en",
+  "required_tools": ["arm-none-eabi-gcc", "arm-none-eabi-size", "gcc", "cmake", "ctest", "cppcheck", "clang-format"],
+  "check": {
+    "format": {
+      "command": ["clang-format", "--dry-run", "--Werror"],
+      "extensions": [".c", ".h"]
+    },
+    "cppcheck": {
+      "command": ["cppcheck", "--enable=warning,style,performance,portability", "--error-exitcode=1", "--inline-suppr", "--quiet"],
+      "paths": ["src"]
+    },
+    "build": {
+      "commands": [["cmake", "--preset", "target"], ["cmake", "--build", "--preset", "target"]]
+    },
+    "test": {
+      "commands": [["cmake", "--preset", "host-test"], ["cmake", "--build", "--preset", "host-test"], ["ctest", "--preset", "host-test"]]
+    },
+    "size": {
+      "command": ["arm-none-eabi-size", "build/target/firmware.elf"],
+      "flash_budget": 262144,
+      "ram_budget": 32768
+    }
+  }
+}

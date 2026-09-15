@@ -1,5 +1,13 @@
+import json
+import shutil
 import subprocess
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+TEMPLATES = ROOT / "plugins" / "fw-c-harness" / "skills" / "fw-harness-init" / "templates"
+SCRIPTS = TEMPLATES / "harness" / "scripts"
+FIXTURES = Path(__file__).resolve().parent / "fixtures"
+PY = "{python}"
 
 
 def git(cwd, *args):
@@ -38,3 +46,39 @@ def make_repo(path, name, email):
     (tickets / ".gitkeep").write_text("", encoding="utf-8")
     commit_all(path, "harness: init")
     return path
+
+
+def add_origin(repo, tmp_path):
+    origin = Path(tmp_path) / "origin.git"
+    git(tmp_path, "clone", "--bare", str(repo), str(origin))
+    git(repo, "remote", "add", "origin", str(origin))
+    git(repo, "fetch", "origin")
+    return origin
+
+
+def make_fixture_repo(path, name="Alice Chen", email="alice@example.com"):
+    repo = make_repo(path, name, email)
+    shutil.copytree(FIXTURES / "sample-fw", repo, dirs_exist_ok=True)
+    commit_all(repo, "harness: add sample firmware")
+    return repo
+
+
+def fake_config(**check_overrides):
+    ok = [PY, "-c", "pass"]
+    size = [PY, "-c", "print('   text    data     bss     dec     hex filename'); "
+                      "print('   1000     100     200    1300     514 fw.elf')"]
+    check = {
+        "format": {"command": ok, "extensions": [".c", ".h"]},
+        "cppcheck": {"command": ok, "paths": ["src"]},
+        "build": {"commands": [ok]},
+        "test": {"commands": [ok]},
+        "size": {"command": size, "flash_budget": 4096, "ram_budget": 1024},
+    }
+    check.update(check_overrides)
+    return {"language": "en", "required_tools": [], "check": check}
+
+
+def write_config(repo, config):
+    path = Path(repo) / "harness" / "config.json"
+    path.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
+    commit_all(repo, "harness: config")
