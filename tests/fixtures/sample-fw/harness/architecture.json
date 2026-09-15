@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "include_dirs": ["src/app", "src/drivers", "src/hal", "third_party/cmsis/Include"],
+  "modules": {
+    "src/app": {"kind": "owned", "allowed_deps": ["src/drivers"]},
+    "src/drivers": {"kind": "owned", "allowed_deps": ["src/hal"]},
+    "src/hal": {"kind": "owned", "allowed_deps": ["third_party/cmsis"]},
+    "third_party/cmsis": {"kind": "vendor", "allowed_deps": []},
+    "test": {"kind": "test", "allowed_deps": []}
+  },
+  "grandfathered": ["src/hal -> src/app"]
+}
