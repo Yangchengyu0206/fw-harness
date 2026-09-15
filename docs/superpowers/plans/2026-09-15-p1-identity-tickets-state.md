@@ -1603,11 +1603,12 @@ from transitions import latest_evidence
 INDEX_NAME = "feature_list.json"
 # 不用 \b：中文字屬於 \w，「修正FW-0001」會比對不到
 TICKET_REF_RE = re.compile(r"(?<![A-Za-z0-9-])FW-\d{4,}(?!\d)")
-_FIELD, _RECORD = "\x1f", "\x1e"
+# \x1f / \x1e 會被 str.strip() 當成空白吃掉（最後一筆 commit body 為空時少一欄），改用 \x01 / \x02
+_FIELD, _RECORD = "\x01", "\x02"
 
 
 def commit_evidence(repo):
-    output = git(repo, "log", "--format=%H%x1f%an%x1f%ae%x1f%aI%x1f%s%x1f%b%x1e")
+    output = git(repo, "log", "--format=%H%x01%an%x01%ae%x01%aI%x01%s%x01%b%x02")
     result = defaultdict(list)
     for record in output.split(_RECORD):
         record = record.strip("\n")
