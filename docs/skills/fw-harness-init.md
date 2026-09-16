@@ -14,7 +14,7 @@ Once per repository, on a clean working tree. Every later plugin version is `fw-
 
 **Why was my file not overwritten?** Nothing the harness writes replaces an existing file. The new version lands as `<name>.harness-proposed`, and you decide what to take from it.
 
-**Why does it ask me about the modules?** The approved layering becomes a gate that fails builds. A script can observe what the code includes today; only a person can say what it is allowed to include.
+**Why does it ask me about the modules?** The approved layering becomes a gate that fails builds. A script can observe what the code includes today; only a person can say what it is allowed to include. It asks once, as a single table, and you answer in a sentence: usually "looks right", or "src/hal is vendor, the rest is fine".
 
 **What is left for me?** The responsibility line in each ARCHITECTURE.md, the flash and RAM budgets in `harness/config.json`, and the incident table at the end of CLAUDE.md.
 

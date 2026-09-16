@@ -36,9 +36,19 @@ Report its summary to the user: how many files were created, which settings file
 py -3 harness/scripts/arch_sync.py scan
 ```
 
-Show the user the module list, each module's kind, and every dependency the scan pushed into the grandfather list. Ask them to confirm or correct the kinds and the layer order, then edit `harness/architecture.json` to match their answer. Approved rules are a human decision, so take the answer from the user rather than from the draft.
+Present the whole draft once, as one table, and ask one question. Walking the folders one at a time turns a thirty second review into an interrogation, so put everything on screen and let the user answer in a sentence:
 
-**Done when:** every module has a kind the user confirmed, and every grandfathered dependency is one the user knows about.
+| Module | Kind | May include | Note |
+|---|---|---|---|
+| src/app | owned | src/drivers | |
+| src/hal | owned | third_party/cmsis | also includes src/app, proposed as grandfathered |
+| third_party/cmsis | vendor | none | read-only |
+
+Then ask: does this look right, and which rows are wrong? Apply only the rows the user names, and edit `harness/architecture.json` to match. Approved rules are a human decision, and one answer covering every row is that decision; asking row by row is not more approval, only more typing.
+
+Flag in the Note column anything the user is most likely to want changed: a folder classified `vendor` or `generated` by its name alone, a dependency proposed for the grandfather list, and any source file sitting at the repository root that belongs to no module.
+
+**Done when:** the user has answered once on the whole table, and every correction they named is in `harness/architecture.json`.
 
 ### 4. Write the documents
 
