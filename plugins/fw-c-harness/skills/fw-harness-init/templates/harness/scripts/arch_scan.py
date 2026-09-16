@@ -4,6 +4,8 @@ import posixpath
 import re
 from pathlib import Path
 
+from arch_check import dependencies, module_of, source_files
+
 DEFAULTS = {
     "max_depth": 2,
     "deep_file_threshold": 30,
@@ -70,3 +72,64 @@ def classify(repo, folder, files, settings):
         if GENERATED_RE.search(head):
             return "generated"
     return "owned"
+
+
+def include_dirs(files, modules):
+    headers = sorted({posixpath.dirname(name) for name in files
+                      if name.endswith(".h") and posixpath.dirname(name)})
+    owned, rest = [], []
+    for folder in headers:
+        module = module_of(folder, modules)
+        target = owned if module and modules[module]["kind"] == "owned" else rest
+        target.append(folder)
+    return owned + rest
+
+
+def back_edges(edges):
+    graph = {}
+    for source, target in edges:
+        graph.setdefault(source, []).append(target)
+    state, found = {}, set()
+
+    def visit(node):
+        state[node] = "open"
+        for target in sorted(graph.get(node, [])):
+            if state.get(target) == "open":
+                found.add((node, target))
+            elif target not in state:
+                visit(target)
+        state[node] = "done"
+
+    for node in sorted({source for source, _ in edges} | {target for _, target in edges}):
+        if node not in state:
+            visit(node)
+    return sorted(found)
+
+
+def draft_architecture(repo, config):
+    settings = scan_settings(config)
+    files = source_files(repo)
+    paths = module_paths(files, settings)
+    grouped = {path: [] for path in paths}
+    for name in files:
+        module = module_of(name, grouped)
+        if module is not None:
+            grouped[module].append(name)
+    modules = {path: {"kind": classify(repo, path, grouped[path], settings), "allowed_deps": []}
+               for path in paths}
+    arch = {"version": 1, "include_dirs": include_dirs(files, modules),
+            "modules": modules, "grandfathered": []}
+
+    observed = sorted(dependencies(repo, arch, files))
+    reverse = set(back_edges(observed))
+    for source, target in observed:
+        if (source, target) in reverse:
+            arch["grandfathered"].append(f"{source} -> {target}")
+        else:
+            modules[source]["allowed_deps"].append(target)
+    arch["grandfathered"].sort()
+    for module in modules.values():
+        module["allowed_deps"].sort()
+    report = {"observed": observed, "reverse": sorted(reverse),
+              "root_sources": sorted(name for name in files if "/" not in name)}
+    return arch, report
