@@ -1,0 +1,28 @@
+{
+  "name": "fw-c-harness",
+  "version": "0.1.0",
+  "description": "A harness for C firmware teams: verification gates, ticket state with per-person identity, generated ARCHITECTURE.md, and skills for the whole work loop.",
+  "author": {
+    "name": "fw-harness contributors",
+    "url": "https://github.com/Yangchengyu0206/fw-harness"
+  },
+  "homepage": "https://github.com/Yangchengyu0206/fw-harness",
+  "repository": "https://github.com/Yangchengyu0206/fw-harness",
+  "license": "MIT",
+  "keywords": ["firmware", "embedded", "c", "misra", "code-review", "harness"],
+  "skills": [
+    "./skills/fw-architecture-sync",
+    "./skills/fw-c-debug",
+    "./skills/fw-c-implement",
+    "./skills/fw-c-review",
+    "./skills/fw-c-test-gap",
+    "./skills/fw-done",
+    "./skills/fw-guide",
+    "./skills/fw-harness-init",
+    "./skills/fw-harness-upgrade",
+    "./skills/fw-hil-verify",
+    "./skills/fw-misra-deviation",
+    "./skills/fw-session-start",
+    "./skills/fw-ticket"
+  ]
+}

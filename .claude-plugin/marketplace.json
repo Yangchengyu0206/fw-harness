@@ -1,0 +1,17 @@
+{
+  "name": "fw-harness",
+  "owner": {
+    "name": "fw-harness contributors",
+    "url": "https://github.com/Yangchengyu0206/fw-harness"
+  },
+  "description": "A harness and skills for C firmware teams, for Claude Code and GitHub Copilot.",
+  "plugins": [
+    {
+      "name": "fw-c-harness",
+      "source": "./plugins/fw-c-harness",
+      "description": "Generates a verification harness into a C firmware repository and adds skills for the whole work loop: session start, tickets, implementation, review, debugging, and wrap up.",
+      "category": "engineering",
+      "keywords": ["firmware", "embedded", "c", "misra", "code-review", "harness"]
+    }
+  ]
+}
