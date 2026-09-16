@@ -1,0 +1,11 @@
+# Build output
+build/
+out/
+Debug/
+Release/
+
+# Harness working files
+.verify_logs/
+feature_list.json
+*.harness-proposed
+__pycache__/
