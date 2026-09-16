@@ -61,3 +61,51 @@ def test_relative_links_resolve(name):
 def test_no_em_dash_in_shipped_prose():
     offenders = [str(path) for path in prose_files() if "—" in path.read_text(encoding="utf-8")]
     assert offenders == []
+
+
+# Every ticket.py command line we ship must parse with the real CLI parser.
+TICKET_LINE_RE = re.compile(r"ticket\.py ([^`\n]+)")
+PLACEHOLDERS = {
+    "FW-NNNN": "FW-0001", "<id>": "FW-0001", "<status>": "active", "<title>": "a title",
+    "<area>": "drivers/uart", "<reason>": "waiting for the board", "<path>": "harness/reviews/r.md",
+    "<file>": "harness/reviews/r.md", "<count>": "0", "<sub>": "show", "N": "0",
+    "<step>": "loopback", "<date>": "2026-09-16", "<your-slug>": "alice",
+}
+
+
+def sanitize(tokens):
+    cleaned = []
+    for token in tokens:
+        token = token.strip("[]")
+        if not token:
+            continue
+        if token in PLACEHOLDERS:
+            token = PLACEHOLDERS[token]
+        elif token.startswith("<") or "<" in token:
+            token = re.sub(r"<[^>]*>", "x", token)
+        cleaned.append(token)
+    return cleaned
+
+
+def documented_ticket_commands():
+    import shlex
+    found = []
+    for path in prose_files():
+        for match in TICKET_LINE_RE.finditer(path.read_text(encoding="utf-8")):
+            line = match.group(1).strip().rstrip("`.,")
+            if not line or line.startswith("--"):
+                continue
+            found.append((path.name, line, sanitize(shlex.split(line))))
+    return found
+
+
+def test_documented_ticket_commands_parse():
+    from ticket import build_parser
+    parser = build_parser()
+    broken = []
+    for name, line, argv in documented_ticket_commands():
+        try:
+            parser.parse_args(argv)
+        except SystemExit:
+            broken.append(f"{name}: ticket.py {line}")
+    assert broken == []

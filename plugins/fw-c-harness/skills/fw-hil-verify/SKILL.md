@@ -13,7 +13,7 @@ A human flashes the board and watches it. This skill supplies the commands, coll
 ### 1. Read what the ticket owes
 
 ```bash
-py -3 harness/scripts/ticket.py dod FW-NNNN
+py -3 harness/scripts/ticket.py show FW-NNNN
 ```
 
 Read `verification_steps` and `dod_pending`, and pick the board step you are about to run.
