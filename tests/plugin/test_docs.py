@@ -61,3 +61,14 @@ def test_notices_credit_every_adapted_source():
     for path in ("expert-embedded-c-engineer.agent.md", "debug.agent.md", "test-gap-audit",
                  "security-review", "code-review-generic.instructions.md", "code-review"):
         assert path in text, f"{path} is adapted but not credited"
+
+
+CHECKLIST = ROOT / "docs" / "manual-checklist.md"
+
+
+def test_checklist_covers_both_tools_and_every_user_invoked_skill():
+    from skilltools import USER_INVOKED
+    text = CHECKLIST.read_text(encoding="utf-8")
+    assert "Claude Code" in text and "Copilot" in text
+    for name in sorted(USER_INVOKED):
+        assert name in text, f"{name} is typed by a human and is not in the checklist"
