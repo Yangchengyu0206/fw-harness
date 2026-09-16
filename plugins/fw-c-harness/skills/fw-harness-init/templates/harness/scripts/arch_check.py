@@ -6,6 +6,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
+import arch_docs
 from console import use_utf8_stdio
 from gitutil import git, repo_root
 from jsonio import read_json
@@ -129,8 +130,17 @@ def check_architecture(repo):
     for path in sorted(modules):
         if not (Path(repo) / path).is_dir():
             warnings.append(f"{path}: listed in {ARCH_PATH} but the folder no longer exists. Fix: remove it from modules")
-        elif not (Path(repo) / path / "ARCHITECTURE.md").is_file():
+            continue
+        doc = Path(repo) / path / "ARCHITECTURE.md"
+        if not doc.is_file():
             errors.append(f"{path}: missing ARCHITECTURE.md. Fix: run fw-architecture-sync")
+        elif arch_docs.block_of(doc.read_text(encoding="utf-8", errors="replace")) != arch_docs.render_block(path, arch):
+            errors.append(f"{path}/ARCHITECTURE.md: the generated block disagrees with {ARCH_PATH}. "
+                          "Fix: run fw-architecture-sync")
+    root_doc = Path(repo) / "ARCHITECTURE.md"
+    if root_doc.is_file() and arch_docs.block_of(root_doc.read_text(encoding="utf-8", errors="replace")) != arch_docs.render_root(arch):
+        errors.append(f"ARCHITECTURE.md: the generated block disagrees with {ARCH_PATH}. "
+                      "Fix: run fw-architecture-sync")
 
     grandfathered = set(arch["grandfathered"])
     violations = set()

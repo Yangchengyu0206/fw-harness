@@ -64,8 +64,9 @@ def test_sample_firmware_passes_with_grandfathered_reverse_dependency(fw):
 def test_unapproved_dependency_fails_with_location(fw):
     edit_arch(fw, lambda a: a.update(grandfathered=[]))
     errors, _ = check_architecture(fw)
-    assert len(errors) == 1
-    assert errors[0].startswith("src/hal -> src/app: dependency not approved (src/hal/hal_gpio.c:2)")
+    dependency_errors = [error for error in errors if "dependency not approved" in error]
+    assert len(dependency_errors) == 1
+    assert dependency_errors[0].startswith("src/hal -> src/app: dependency not approved (src/hal/hal_gpio.c:2)")
 
 
 def test_new_grandfather_entry_fails_ratchet_and_stale_entry_warns(fw):
@@ -119,3 +120,21 @@ def test_main_exit_codes(fw, monkeypatch, capsys):
     edit_arch(fw, lambda a: a.update(grandfathered=[]))
     assert main([]) == 1
     assert "src/hal -> src/app" in capsys.readouterr().err
+
+
+def test_block_must_agree_with_the_json(fw):
+    errors, _ = check_architecture(fw)
+    assert errors == []
+    doc = fw / "src" / "app" / "ARCHITECTURE.md"
+    doc.write_text(doc.read_text(encoding="utf-8").replace("Approved dependencies: src/drivers",
+                                                          "Approved dependencies: src/hal"), encoding="utf-8")
+    errors, _ = check_architecture(fw)
+    assert len(errors) == 1
+    assert "src/app/ARCHITECTURE.md" in errors[0] and "fw-architecture-sync" in errors[0]
+
+
+def test_root_document_block_is_checked_when_present(fw):
+    root = fw / "ARCHITECTURE.md"
+    root.write_text(root.read_text(encoding="utf-8").replace("| test | test | none |", ""), encoding="utf-8")
+    errors, _ = check_architecture(fw)
+    assert len(errors) == 1 and errors[0].startswith("ARCHITECTURE.md")
