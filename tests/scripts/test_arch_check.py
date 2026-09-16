@@ -1,4 +1,5 @@
 import json
+import shutil
 
 import pytest
 
@@ -6,7 +7,7 @@ from arch_check import (
     ArchitectureError, check_architecture, dependencies, load_architecture, main, module_of,
     source_files, validate_architecture,
 )
-from helpers import TEMPLATES, add_origin, commit_all, make_fixture_repo
+from helpers import FIXTURES, TEMPLATES, add_origin, commit_all, make_fixture_repo
 
 
 def edit_arch(repo, mutate):
@@ -138,3 +139,15 @@ def test_root_document_block_is_checked_when_present(fw):
     root.write_text(root.read_text(encoding="utf-8").replace("| test | test | none |", ""), encoding="utf-8")
     errors, _ = check_architecture(fw)
     assert len(errors) == 1 and errors[0].startswith("ARCHITECTURE.md")
+
+
+def test_skeleton_baseline_is_not_a_ratchet_baseline(fw):
+    """The first scan after fw-harness-init may fill in the grandfather list."""
+    skeleton = {"version": 1, "include_dirs": [], "modules": {}, "grandfathered": []}
+    (fw / "harness" / "architecture.json").write_text(json.dumps(skeleton, indent=2), encoding="utf-8")
+    for doc in list(fw.rglob("ARCHITECTURE.md")):
+        doc.unlink()
+    commit_all(fw, "harness: install the architecture skeleton")
+    shutil.copytree(FIXTURES / "sample-fw", fw, dirs_exist_ok=True)
+    errors, _ = check_architecture(fw)
+    assert not any("may only shrink" in error for error in errors)

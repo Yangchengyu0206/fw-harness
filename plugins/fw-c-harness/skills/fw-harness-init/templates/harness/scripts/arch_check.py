@@ -163,7 +163,10 @@ def check_architecture(repo):
     base_entries = None
     if base is not None:
         try:
-            base_entries = json.loads(base).get("grandfathered", [])
+            baseline = json.loads(base)
+            # A baseline without modules is the skeleton fw-harness-init writes, so its empty
+            # grandfather list is not yet a baseline: the first scan is allowed to fill it in.
+            base_entries = baseline.get("grandfathered", []) if baseline.get("modules") else None
         except (json.JSONDecodeError, AttributeError):
             base_entries = None
     added = new_entries(grandfathered, base_entries)
