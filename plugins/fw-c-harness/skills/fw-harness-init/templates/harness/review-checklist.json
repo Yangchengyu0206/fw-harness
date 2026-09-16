@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "axes": [
+    {
+      "key": "standards",
+      "title": "Standards",
+      "question": "Does the code follow the C and firmware checklist, the approved layering in harness/architecture.json, and the MISRA mode in harness/review-policy.json?"
+    },
+    {
+      "key": "spec",
+      "title": "Spec",
+      "question": "Does the code deliver the ticket's user_visible_behavior and verification_steps? Report missing requirements, partial requirements, behaviour nobody asked for, and requirements that look implemented incorrectly."
+    }
+  ],
+  "severities": [
+    {
+      "level": "critical",
+      "icon": "🔴",
+      "label": "Critical (blocks merge)",
+      "items": [
+        "undefined behaviour, including signed overflow, misaligned access, and use after free",
+        "an array or pointer access that can leave its object",
+        "an integer overflow or truncation that changes the result",
+        "state shared between an interrupt handler and the main loop without protection",
+        "a missing volatile on a register or on state an interrupt handler writes",
+        "an ignored error return code",
+        "an external length or index used without validation",
+        "a debug port left open, or a key or password in the source",
+        "a layering violation that is not in the grandfather list"
+      ]
+    },
+    {
+      "level": "important",
+      "icon": "🟡",
+      "label": "Important",
+      "items": [
+        "new logic with no test",
+        "a resource acquired and not released on every path",
+        "a blocking call on a time critical path",
+        "a magic number standing in for a register address or a timeout"
+      ]
+    },
+    {
+      "level": "suggestion",
+      "icon": "🟢",
+      "label": "Suggestion",
+      "items": [
+        "naming that does not match the module it lives in",
+        "a comment that explains what the code does instead of why",
+        "readability: deep nesting, a function doing several jobs",
+        "a MISRA advisory rule, while the mode is advisory"
+      ]
+    }
+  ],
+  "finding_fields": ["severity", "path:line", "problem", "why it matters", "suggested fix", "confidence"]
+}

@@ -1,0 +1,5 @@
+{
+  "misra": {"standard": "MISRA C:2012", "mode": "advisory"},
+  "block_on": ["critical"],
+  "forbid_self_review": true
+}
