@@ -16,21 +16,41 @@
 
 ## 安裝
 
-**Claude Code**
+加入 marketplace 與安裝 plugin 是兩個步驟。發佈在各工具內建 marketplace 之外的 plugin（包含這一個）兩步都要做。
+
+**Claude Code**，在 session 裡：
 
 ```
 /plugin marketplace add Yangchengyu0206/fw-harness
 /plugin install fw-c-harness@fw-harness
 ```
 
+或在 shell 裡串成一行：
+
+```bash
+claude plugin marketplace add Yangchengyu0206/fw-harness && claude plugin install fw-c-harness@fw-harness
+```
+
 **Copilot CLI**
 
-```
+```bash
 copilot plugin marketplace add Yangchengyu0206/fw-harness
 copilot plugin install fw-c-harness@fw-harness
 ```
 
 接著在你的韌體 repo 裡執行一次 `fw-harness-init`。
+
+### 加入一個已經有 harness 的 repo
+
+`fw-harness-init` 會把這個 marketplace 寫進 repo 的 `.claude/settings.json` 與 `.github/copilot-settings.json`，所以後面的同事要做的比你少。
+
+在 Claude Code，信任該資料夾之後 marketplace 就自動加入、不會再問。但 plugin 本身仍要安裝：來自外部來源的 plugin 不會只靠專案設定就載入，Claude Code 會回報它尚未安裝，並把指令印出來給你：
+
+```bash
+claude plugin install fw-c-harness@fw-harness
+```
+
+Copilot 會讀 `.github/copilot-settings.json` 裡的 `extraKnownMarketplaces`。它是否會接著替你安裝 plugin 沒有文件說明，所以 skills 沒出現的話就執行上面那行。
 
 ## 會產生到 repo 裡的東西
 

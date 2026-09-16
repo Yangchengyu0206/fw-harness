@@ -4,21 +4,27 @@ A harness and a set of skills for C firmware teams, for Claude Code and GitHub C
 
 ## Install
 
-**Claude Code**
+**Claude Code**, from inside a session:
 
 ```
 /plugin marketplace add Yangchengyu0206/fw-harness
 /plugin install fw-c-harness@fw-harness
 ```
 
+Or as one line in a shell:
+
+```bash
+claude plugin marketplace add Yangchengyu0206/fw-harness && claude plugin install fw-c-harness@fw-harness
+```
+
 **Copilot CLI**
 
-```
+```bash
 copilot plugin marketplace add Yangchengyu0206/fw-harness
 copilot plugin install fw-c-harness@fw-harness
 ```
 
-After `fw-harness-init` runs in a firmware repository, that repository carries `.claude/settings.json` and `.github/copilot-settings.json` naming this marketplace, so the next person who clones it is prompted to install the plugin.
+After `fw-harness-init` runs in a firmware repository, that repository carries `.claude/settings.json` and `.github/copilot-settings.json` naming this marketplace. In Claude Code, trusting the folder then adds the marketplace with no further prompt, and the plugin still needs `claude plugin install fw-c-harness@fw-harness`, because a plugin from an external source does not load from a project's settings alone. Claude Code prints that command when it finds the plugin enabled and not installed.
 
 ## Use it
 

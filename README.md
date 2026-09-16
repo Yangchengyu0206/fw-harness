@@ -16,21 +16,41 @@ One install gives a firmware team two things:
 
 ## Install
 
-**Claude Code**
+Adding a marketplace and installing a plugin are two steps. A plugin published outside the marketplaces a tool ships with, which includes this one, needs both.
+
+**Claude Code**, from inside a session:
 
 ```
 /plugin marketplace add Yangchengyu0206/fw-harness
 /plugin install fw-c-harness@fw-harness
 ```
 
+Or as one line in a shell:
+
+```bash
+claude plugin marketplace add Yangchengyu0206/fw-harness && claude plugin install fw-c-harness@fw-harness
+```
+
 **Copilot CLI**
 
-```
+```bash
 copilot plugin marketplace add Yangchengyu0206/fw-harness
 copilot plugin install fw-c-harness@fw-harness
 ```
 
 Then, in your firmware repository, run `fw-harness-init` once.
+
+### Joining a repository that already has the harness
+
+`fw-harness-init` writes this marketplace into the repository's `.claude/settings.json` and `.github/copilot-settings.json`, so your colleagues do less work than you did.
+
+In Claude Code, trusting the folder adds the marketplace with no further prompt. The plugin itself still has to be installed, because a plugin from an external source does not load from a project's settings alone; Claude Code reports it as not installed and prints the command to run:
+
+```bash
+claude plugin install fw-c-harness@fw-harness
+```
+
+Copilot reads `extraKnownMarketplaces` from `.github/copilot-settings.json`. Whether it then installs the plugin for you is not documented, so run the install command above if the skills do not appear.
 
 ## What lands in your repository
 
