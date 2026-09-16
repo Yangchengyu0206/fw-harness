@@ -30,40 +30,40 @@ Report its summary to the user: how many files were created, which settings file
 
 **Done when:** the summary is shown and every `.harness-proposed` file is named to the user, with the reason it exists.
 
-### 3. Draft the architecture
+### 3. Generate everything, with no questions in between
 
 ```bash
 py -3 harness/scripts/arch_sync.py scan
+py -3 harness/scripts/arch_sync.py docs
+py -3 harness/scripts/check.py
 ```
 
-Present the whole draft once, as one table, and ask one question. Walking the folders one at a time turns a thirty second review into an interrogation, so put everything on screen and let the user answer in a sentence:
+Nothing here is committed, so the whole result is still a draft the user can change or throw away. Run all three and collect what they said: the module list with each kind, the dependencies the scan pushed into the grandfather list, any source file at the repository root that belongs to no module, and what `check` reported.
+
+**Done when:** all three commands have run and you hold their output, including the failures.
+
+### 4. Hand the whole result over for review
+
+Now ask, once, with the finished work on screen rather than a plan for it. Give the user four things and one question.
+
+The modules, as one table:
 
 | Module | Kind | May include | Note |
 |---|---|---|---|
 | src/app | owned | src/drivers | |
-| src/hal | owned | third_party/cmsis | also includes src/app, proposed as grandfathered |
+| src/hal | owned | third_party/cmsis | also includes src/app, recorded as grandfathered |
 | third_party/cmsis | vendor | none | read-only |
 
-Then ask: does this look right, and which rows are wrong? Apply only the rows the user names, and edit `harness/architecture.json` to match. Approved rules are a human decision, and one answer covering every row is that decision; asking row by row is not more approval, only more typing.
+In the Note column, flag what a user most often wants changed: a folder classified `vendor` or `generated` from its name alone, every grandfathered dependency, and every root level source file.
 
-Flag in the Note column anything the user is most likely to want changed: a folder classified `vendor` or `generated` by its name alone, a dependency proposed for the grandfather list, and any source file sitting at the repository root that belongs to no module.
+Then: what `check` said, step by step; what was created and every `.harness-proposed` file; and what is left to a person, which is the responsibility line of each ARCHITECTURE.md, the budgets in `harness/config.json`, and the incident table in CLAUDE.md.
 
-**Done when:** the user has answered once on the whole table, and every correction they named is in `harness/architecture.json`.
+The question is one question: which rows are wrong? A single answer covering every row is the human approval these rules need, and asking row by row is not more approval, only more typing. `git status` and `git diff` are open to the user the whole time, so they can read the real files rather than your summary.
 
-### 4. Write the documents
+For each correction they name: edit `harness/architecture.json`, then re-run `arch_sync.py docs` and `check.py`, then show the difference that made.
 
-```bash
-py -3 harness/scripts/arch_sync.py docs
-```
+**Done when:** the user has answered once on the whole table, every correction they named is applied and re-verified, and every `check` failure is either fixed or explained with the command that reproduces it.
 
-**Done when:** every module folder holds an ARCHITECTURE.md and the repository root holds the map.
+### 5. Commit
 
-### 5. Verify and hand back
-
-```bash
-py -3 harness/scripts/check.py
-```
-
-Fix what the gates report, or tell the user which gate needs a toolchain they have yet to install. Then list what is left to them: the responsibility line of each ARCHITECTURE.md, the incident table in CLAUDE.md, and the budgets in `harness/config.json`.
-
-**Done when:** `check` passes or every failure is explained to the user with the command that reproduces it, and the install plus the generated documents are committed together in one commit whose message starts with `harness:`.
+**Done when:** the install and the generated documents are committed together in one commit whose message starts with `harness:`, after the user has said to commit.
