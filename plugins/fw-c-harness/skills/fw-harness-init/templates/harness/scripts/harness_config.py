@@ -69,6 +69,18 @@ def validate_config(config):
         for key in ("flash_budget", "ram_budget"):
             if not _is_positive(size.get(key)):
                 errors.append(f"check.size.{key} must be a positive integer (bytes)")
+
+    architecture = config.get("architecture")
+    if architecture is not None:
+        if not isinstance(architecture, dict):
+            errors.append("architecture must be an object")
+        else:
+            for key in ("max_depth", "deep_file_threshold"):
+                if key in architecture and not _is_positive(architecture[key]):
+                    errors.append(f"architecture.{key} must be a positive integer")
+            for key in ("vendor_patterns", "test_patterns"):
+                if key in architecture and not _is_str_list(architecture[key], allow_empty=True):
+                    errors.append(f"architecture.{key} must be an array of folder patterns")
     return errors
 
 

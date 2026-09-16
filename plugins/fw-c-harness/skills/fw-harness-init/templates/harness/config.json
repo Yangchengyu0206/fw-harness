@@ -21,5 +21,9 @@
       "flash_budget": 262144,
       "ram_budget": 32768
     }
+  },
+  "architecture": {
+    "max_depth": 2,
+    "deep_file_threshold": 30
   }
 }

@@ -51,3 +51,14 @@ def test_load_config_broken_json(repo):
     (repo / "harness" / "config.json").write_text("{", encoding="utf-8")
     with pytest.raises(ConfigError, match="not valid JSON"):
         load_config(repo)
+
+
+def test_architecture_section_is_optional_and_validated():
+    config = fake_config()
+    assert validate_config(config) == []
+    config["architecture"] = {"max_depth": 2, "vendor_patterns": []}
+    assert validate_config(config) == []
+    config["architecture"] = {"max_depth": 0, "vendor_patterns": "third_party"}
+    errors = validate_config(config)
+    assert any("architecture.max_depth" in error for error in errors)
+    assert any("architecture.vendor_patterns" in error for error in errors)
