@@ -1,5 +1,6 @@
 import pytest
 
+from helpers import ROOT
 from skilltools import DOCS, PLUGIN, SKILL_NAMES
 
 HEADINGS = ("## What it does", "## When to reach for it", "## Common questions", "## It is working if")
@@ -26,3 +27,37 @@ def test_plugin_readme_covers_both_tools():
     assert "disable-model-invocation" in text, "the invocation difference between the tools is stated"
     for name in SKILL_NAMES:
         assert name in text, f"{name} is not listed in the plugin README"
+
+
+README = ROOT / "README.md"
+README_ZH = ROOT / "README.zh-TW.md"
+NOTICES = ROOT / "THIRD_PARTY_NOTICES.md"
+
+
+def test_readme_pair_covers_the_same_sections():
+    english = README.read_text(encoding="utf-8")
+    chinese = README_ZH.read_text(encoding="utf-8")
+    for fragment in ("fw-c-harness", "/plugin marketplace add", "copilot plugin marketplace add", "MIT"):
+        assert fragment in english and fragment in chinese, fragment
+    assert "README.zh-TW.md" in english and "README.md" in chinese
+
+
+CJK_FIRST, CJK_LAST = "一", "鿿"
+
+
+def has_cjk(text):
+    return any(CJK_FIRST <= ch <= CJK_LAST for ch in text)
+
+
+def test_readme_is_english_and_the_translation_is_not():
+    assert not has_cjk(README.read_text(encoding="utf-8"))
+    assert has_cjk(README_ZH.read_text(encoding="utf-8"))
+
+
+def test_notices_credit_every_adapted_source():
+    text = NOTICES.read_text(encoding="utf-8")
+    for source in ("github/awesome-copilot", "mattpocock/skills", "MIT"):
+        assert source in text
+    for path in ("expert-embedded-c-engineer.agent.md", "debug.agent.md", "test-gap-audit",
+                 "security-review", "code-review-generic.instructions.md", "code-review"):
+        assert path in text, f"{path} is adapted but not credited"

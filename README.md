@@ -1,0 +1,84 @@
+# fw-harness
+
+A harness and a set of skills for C firmware teams, for Claude Code and GitHub Copilot. Traditional Chinese: [README.zh-TW.md](README.zh-TW.md).
+
+One install gives a firmware team two things:
+
+1. **A harness generated into their own repository**: entry documents, ticket state that records who changed what, verification gates, git hooks, and an ARCHITECTURE.md for every folder of C sources, derived from the real tree.
+2. **Skills for the whole work loop**: starting a session, taking a ticket, implementing test first, reviewing, debugging, and wrapping up.
+
+## Why it looks like this
+
+- **Several people share the repository.** Every state change records the person who made it, taken from `git config`. One file per ticket, so two people adding tickets in parallel get a conflict git can show instead of a silent overwrite.
+- **The rules live in the repository, not in the plugin.** The gates are Python scripts committed to the firmware repository, so a person committing by hand, an agent, and CI all follow the same rules. The plugin carries only what should update with its version.
+- **The gates ratchet.** The `cppcheck` suppression list and the architecture grandfather list may only shrink, measured against `origin/main`.
+- **Written and done are different.** A ticket whose code passes `check` but still owes board verification or a review stays in `verifying`, with the debt written down.
+
+## Install
+
+**Claude Code**
+
+```
+/plugin marketplace add Yangchengyu0206/fw-harness
+/plugin install fw-c-harness@fw-harness
+```
+
+**Copilot CLI**
+
+```
+copilot plugin marketplace add Yangchengyu0206/fw-harness
+copilot plugin install fw-c-harness@fw-harness
+```
+
+Then, in your firmware repository, run `fw-harness-init` once.
+
+## What lands in your repository
+
+```
+AGENTS.md              short entry point for every tool
+CLAUDE.md              the handbook: session, rules, Definition of Done, and why each gate exists
+ARCHITECTURE.md        the module map, generated from harness/architecture.json
+harness/
+  config.json          every external command, as an argv array
+  architecture.json    approved layering, the single source of the rules
+  tickets/FW-NNNN.json one file per ticket
+  scripts/             the only implementation of the gates
+.githooks/             commit-msg, post-commit, post-merge
+init.sh / init.ps1     thin wrappers, no flags of their own
+```
+
+`check` runs seven steps in order and stops at the first failure: format on changed C sources, `cppcheck`, the architecture gate, the ticket gate, the cross build, the host tests, and the size budget. Every external command comes from `harness/config.json`, so a team swaps toolchains without editing a script.
+
+## Requirements
+
+Python 3.9 or newer, git, and the toolchain your project names in `harness/config.json`. The defaults are `arm-none-eabi-gcc` with CMake, host `gcc` running Unity, `cppcheck`, and `clang-format`. MISRA C:2012 is a reference standard, advisory by default, configurable in `harness/review-policy.json`.
+
+Windows, macOS, and Linux. On Windows the scripts run under `py -3`, read and write UTF-8 whatever the console code page is, and the git hooks use the POSIX shell Git for Windows ships.
+
+## The skills
+
+| Skill | Invocation | What it is for |
+|---|---|---|
+| `fw-harness-init` | you type it | Generate the harness in a firmware repository |
+| `fw-harness-upgrade` | you type it | Update the harness after a plugin release |
+| `fw-architecture-sync` | the agent reaches it | Redraft the architecture and refresh the documents |
+| `fw-session-start` | you type it | Open a session and agree on the ticket |
+| `fw-ticket` | the agent reaches it | Every ticket write |
+| `fw-hil-verify` | you type it | Pay off board verification with a captured log |
+| `fw-done` | you type it | Handoff, progress note, ticket, commit message |
+| `fw-c-implement` | the agent reaches it | Test-first implementation |
+| `fw-c-review` | the agent reaches it | Two-axis review, Standards and Spec |
+| `fw-c-test-gap` | the agent reaches it | What has no test, P0 to P3 |
+| `fw-c-debug` | the agent reaches it | Reproduce, then fix |
+| `fw-misra-deviation` | the agent reaches it | Record a deviation with an approver |
+| `fw-guide` | you type it | Which skill fits your situation |
+
+One page per skill is in [docs/skills](docs/skills). The design is in [the spec](docs/superpowers/specs/2026-09-15-fw-c-harness-plugin-design.md).
+
+## Contributing
+
+Run the tests with `py -3 -m pytest tests -q`. Skills cannot be tested automatically, so changes to them are checked against [docs/manual-checklist.md](docs/manual-checklist.md).
+
+## License
+
+MIT. Content adapted from other projects is credited in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
