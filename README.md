@@ -1,6 +1,17 @@
 # fw-harness
 
-Harnesses and skills for C and Python development, for Claude Code and GitHub Copilot. Traditional Chinese: [README.zh-TW.md](README.zh-TW.md).
+Harnesses and skills for C and Python development, for GitHub Copilot in VS Code and Claude Code. Traditional Chinese: [README.zh-TW.md](README.zh-TW.md).
+
+## Status: 0.1 preview
+
+Both plugins are complete and their scripts are covered by automated tests, but the skills have not yet been run end to end by a real agent. Expect rough edges, and please report them in [GitHub issues](https://github.com/Yangchengyu0206/fw-harness/issues).
+
+Known limits in this version:
+
+- **Checked by structure, not yet by use.** The tests prove every skill is well formed, every link resolves, and every documented command parses. They cannot prove an agent follows a skill. [docs/manual-checklist.md](docs/manual-checklist.md) lists what still has to be tried by hand.
+- **Not yet tried in the tools.** Installation and every skill follow the published formats for GitHub Copilot in VS Code, Claude Code, and Copilot CLI, and none has been run in them yet. VS Code is the primary target.
+- **Commands are written for Windows.** The skills tell the agent to run Python as `py -3`. On macOS and Linux, use `python3` in its place; the scripts themselves run on all three.
+- **The driver references are unreviewed.** The Linux and Windows driver material in `cdev` has not yet been checked by a driver engineer. Corrections are welcome.
 
 ## Two plugins
 
@@ -14,7 +25,7 @@ This marketplace holds two plugins. Install one per repository.
 | State | one ticket file per feature, with who changed what | one `feature_list.json` and a `PROGRESS.md` |
 | Review | by someone other than the author | self-review, with every finding re-verified |
 | Scripts written into the repository | the gate and state scripts | one, `tools/feature.py` |
-| Install | `/plugin install fw-c-harness@fw-harness` | `/plugin install cdev@fw-harness` |
+| Install | `fw-c-harness` from `@agentPlugins` in VS Code | `cdev` from `@agentPlugins` in VS Code |
 
 `cdev` is described in [plugins/cdev/README.md](plugins/cdev/README.md). The rest of this page describes `fw-c-harness`.
 
@@ -23,7 +34,7 @@ This marketplace holds two plugins. Install one per repository.
 One install gives a firmware team two things:
 
 1. **A harness generated into their own repository**: entry documents, ticket state that records who changed what, verification gates, git hooks, and an ARCHITECTURE.md for every folder of C sources, derived from the real tree.
-2. **Skills for the whole work loop**: starting a session, taking a ticket, implementing test first, reviewing, debugging, and wrapping up.
+2. **Skills for the whole work loop**: starting a session, taking a ticket, implementing test first, reviewing, answering a review, debugging, and wrapping up.
 
 ## Why it looks like this
 
@@ -34,20 +45,28 @@ One install gives a firmware team two things:
 
 ## Install
 
-Adding a marketplace and installing a plugin are two steps. A plugin published outside the marketplaces a tool ships with, which includes this one, needs both.
+Adding the marketplace and installing a plugin are two steps. Install for the repositories that use the harness rather than for every project: the skills the agent reaches on its own load wherever the plugin is active, and would answer a request for a review or a debug session in an unrelated project too.
 
-**Claude Code**, from inside a session:
+**GitHub Copilot in VS Code**
 
-```
-/plugin marketplace add Yangchengyu0206/fw-harness
-/plugin install fw-c-harness@fw-harness
-```
+1. Open your user settings as JSON (**Preferences: Open User Settings (JSON)**) and add:
 
-Or as one line in a shell:
+   ```json
+   "chat.plugins.enabled": true,
+   "chat.plugins.marketplaces": ["Yangchengyu0206/fw-harness"]
+   ```
+
+2. Open the Extensions view (Ctrl+Shift+X), search for `@agentPlugins`, and install `fw-c-harness`.
+3. VS Code can enable or disable a plugin globally or for one workspace. Keep it enabled only in the firmware workspaces.
+
+**Claude Code**, from a shell in the firmware repository:
 
 ```bash
-claude plugin marketplace add Yangchengyu0206/fw-harness && claude plugin install fw-c-harness@fw-harness
+claude plugin marketplace add Yangchengyu0206/fw-harness
+claude plugin install fw-c-harness@fw-harness --scope project
 ```
+
+Inside a session, `/plugin install fw-c-harness@fw-harness` asks for the scope instead. `project` records the plugin in the repository for everyone; `local` keeps it to you in this repository; `user` turns it on in every project.
 
 **Copilot CLI**
 
@@ -56,19 +75,14 @@ copilot plugin marketplace add Yangchengyu0206/fw-harness
 copilot plugin install fw-c-harness@fw-harness
 ```
 
-Then, in your firmware repository, run `fw-harness-init` once.
+Then open agent chat in the firmware repository and type `/fw-harness-init` once.
 
 ### Joining a repository that already has the harness
 
-`fw-harness-init` writes this marketplace into the repository's `.claude/settings.json` and `.github/copilot-settings.json`, so your colleagues do less work than you did.
+`fw-harness-init` writes this marketplace and the plugin into the repository's `.claude/settings.json`. Claude Code, GitHub Copilot in VS Code, and Copilot CLI all read that file, and none of them installs a plugin from it silently:
 
-In Claude Code, trusting the folder adds the marketplace with no further prompt. The plugin itself still has to be installed, because a plugin from an external source does not load from a project's settings alone; Claude Code reports it as not installed and prints the command to run:
-
-```bash
-claude plugin install fw-c-harness@fw-harness
-```
-
-Copilot reads `extraKnownMarketplaces` from `.github/copilot-settings.json`. Whether it then installs the plugin for you is not documented, so run the install command above if the skills do not appear.
+- **VS Code** shows a notification the first time you send a chat message. Install from the Extensions view filtered by `@agentPlugins @recommended`.
+- **Claude Code** adds the marketplace once you trust the folder, reports the plugin as not installed, and prints the `claude plugin install` command to run.
 
 ## What lands in your repository
 
@@ -91,7 +105,7 @@ init.sh / init.ps1     thin wrappers, no flags of their own
 
 Python 3.9 or newer, git, and the toolchain your project names in `harness/config.json`. The defaults are `arm-none-eabi-gcc` with CMake, host `gcc` running Unity, `cppcheck`, and `clang-format`. MISRA C:2012 is a reference standard, advisory by default, configurable in `harness/review-policy.json`.
 
-Windows, macOS, and Linux. On Windows the scripts run under `py -3`, read and write UTF-8 whatever the console code page is, and the git hooks use the POSIX shell Git for Windows ships.
+Windows, macOS, and Linux. On Windows the scripts run under `py -3` (use `python3` elsewhere), read and write UTF-8 whatever the console code page is, and the git hooks use the POSIX shell Git for Windows ships.
 
 ## The skills
 
@@ -108,7 +122,7 @@ Windows, macOS, and Linux. On Windows the scripts run under `py -3`, read and wr
 | `fw-c-review` | the agent reaches it | Two-axis review, Standards and Spec |
 | `fw-review-respond` | the agent reaches it | Check, fix, or decline review findings, then hand back for re-review |
 | `fw-c-test-gap` | the agent reaches it | What has no test, P0 to P3 |
-| `fw-c-debug` | the agent reaches it | Reproduce, then fix |
+| `fw-c-debug` | the agent reaches it | Make the defect show on demand, prove its cause, then fix |
 | `fw-misra-deviation` | the agent reaches it | Record a deviation with an approver |
 | `fw-guide` | you type it | Which skill fits your situation |
 
@@ -116,7 +130,7 @@ One page per skill is in [docs/skills](docs/skills). The design is in [the spec]
 
 ## Contributing
 
-Run the tests with `py -3 -m pytest tests -q`. Skills cannot be tested automatically, so changes to them are checked against [docs/manual-checklist.md](docs/manual-checklist.md).
+Run the tests with `py -3 -m pytest tests -q`, or `python3 -m pytest tests -q` on macOS and Linux. Skills cannot be tested automatically, so changes to them are checked against [docs/manual-checklist.md](docs/manual-checklist.md).
 
 ## License
 

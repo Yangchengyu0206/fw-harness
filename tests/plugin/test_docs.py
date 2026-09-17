@@ -33,7 +33,8 @@ def test_no_page_without_a_skill():
 @pytest.mark.parametrize("plugin", sorted(PLUGINS))
 def test_plugin_readme_covers_both_tools(plugin):
     text = (plugin_dir(plugin) / "README.md").read_text(encoding="utf-8")
-    assert "/plugin marketplace add" in text and "copilot plugin marketplace add" in text
+    assert "chat.plugins.marketplaces" in text and "@agentPlugins" in text, "the VS Code install is documented"
+    assert "claude plugin marketplace add" in text and "copilot plugin marketplace add" in text
     assert f"{plugin}@fw-harness" in text
     assert "disable-model-invocation" in text, "the invocation difference between the tools is stated"
     for name in PLUGINS[plugin]["skills"]:
@@ -43,7 +44,8 @@ def test_plugin_readme_covers_both_tools(plugin):
 def test_readme_pair_covers_the_same_sections():
     english = README.read_text(encoding="utf-8")
     chinese = README_ZH.read_text(encoding="utf-8")
-    for fragment in ("fw-c-harness", "cdev", "/plugin marketplace add", "copilot plugin marketplace add", "MIT"):
+    for fragment in ("fw-c-harness", "cdev", "chat.plugins.marketplaces", "@agentPlugins", "claude plugin marketplace add",
+                     "copilot plugin marketplace add", "MIT"):
         assert fragment in english and fragment in chinese, fragment
     assert "README.zh-TW.md" in english and "README.md" in chinese
 

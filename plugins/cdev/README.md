@@ -1,25 +1,33 @@
 # cdev
 
-A markdown-first harness for one developer working in C and Python, for Claude Code and GitHub Copilot.
+A markdown-first harness for one developer working in C and Python, for GitHub Copilot in VS Code and Claude Code.
 
 It gives an agent what it needs to know where it is and what to do next, and gives the code the domain rules general coding skills do not carry: firmware, Linux drivers, Windows drivers, plain C, and Python.
 
 ## Install
 
-Adding a marketplace and installing a plugin are two steps.
+Install for the repositories that use it, not for every project: wherever the plugin is active, the skills the agent reaches on its own are loaded too.
 
-**Claude Code**, from inside a session:
+**GitHub Copilot in VS Code**
 
-```
-/plugin marketplace add Yangchengyu0206/fw-harness
-/plugin install cdev@fw-harness
-```
+1. Add to your user settings JSON (**Preferences: Open User Settings (JSON)**):
 
-Or as one line in a shell:
+   ```json
+   "chat.plugins.enabled": true,
+   "chat.plugins.marketplaces": ["Yangchengyu0206/fw-harness"]
+   ```
+
+2. In the Extensions view (Ctrl+Shift+X), search for `@agentPlugins` and install `cdev`.
+3. VS Code can enable or disable a plugin globally or per workspace. Keep it enabled in the workspaces you develop with it only.
+
+**Claude Code**, from a shell in the repository:
 
 ```bash
-claude plugin marketplace add Yangchengyu0206/fw-harness && claude plugin install cdev@fw-harness
+claude plugin marketplace add Yangchengyu0206/fw-harness
+claude plugin install cdev@fw-harness --scope local
 ```
+
+Inside a session, `/plugin install cdev@fw-harness` asks for the scope instead.
 
 **Copilot CLI**
 
@@ -28,7 +36,7 @@ copilot plugin marketplace add Yangchengyu0206/fw-harness
 copilot plugin install cdev@fw-harness
 ```
 
-Then, in your repository, run `cdev-init` once.
+Then, in your repository, open agent chat and type `/cdev-init` once.
 
 ## What lands in your repository
 
@@ -65,7 +73,7 @@ One page per skill lives in [docs/skills](../../docs/skills).
 
 ## One difference between the two tools
 
-Five of the skills are meant for you to type: `cdev-init`, `cdev-session-start`, `cdev-target-verify`, `cdev-done`, and `cdev-guide`. They carry `disable-model-invocation: true`, which Claude Code honours by keeping the agent from firing them. Copilot does not document that key for skills, so on Copilot an agent can still reach them on its own.
+Five of the skills are meant for you to type: `cdev-init`, `cdev-session-start`, `cdev-target-verify`, `cdev-done`, and `cdev-guide`. They carry `disable-model-invocation: true`, which GitHub Copilot in VS Code and Claude Code both document as keeping the agent from starting them; you start them with `/` in chat. Copilot CLI does not document the key, so there an agent may still reach them on its own.
 
 ## How it differs from fw-c-harness
 

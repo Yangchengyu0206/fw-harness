@@ -1,21 +1,31 @@
 # fw-c-harness
 
-A harness and a set of skills for C firmware teams, for Claude Code and GitHub Copilot.
+A harness and a set of skills for C firmware teams, for GitHub Copilot in VS Code and Claude Code.
 
 ## Install
 
-**Claude Code**, from inside a session:
+Install for the repositories that use it, not for every project: wherever the plugin is active, the skills the agent reaches on its own are loaded too.
 
-```
-/plugin marketplace add Yangchengyu0206/fw-harness
-/plugin install fw-c-harness@fw-harness
-```
+**GitHub Copilot in VS Code**
 
-Or as one line in a shell:
+1. Add to your user settings JSON (**Preferences: Open User Settings (JSON)**):
+
+   ```json
+   "chat.plugins.enabled": true,
+   "chat.plugins.marketplaces": ["Yangchengyu0206/fw-harness"]
+   ```
+
+2. In the Extensions view (Ctrl+Shift+X), search for `@agentPlugins` and install `fw-c-harness`.
+3. VS Code can enable or disable a plugin globally or per workspace. Keep it enabled in the firmware workspaces only.
+
+**Claude Code**, from a shell in the repository:
 
 ```bash
-claude plugin marketplace add Yangchengyu0206/fw-harness && claude plugin install fw-c-harness@fw-harness
+claude plugin marketplace add Yangchengyu0206/fw-harness
+claude plugin install fw-c-harness@fw-harness --scope project
 ```
+
+Inside a session, `/plugin install fw-c-harness@fw-harness` asks for the scope instead.
 
 **Copilot CLI**
 
@@ -24,7 +34,7 @@ copilot plugin marketplace add Yangchengyu0206/fw-harness
 copilot plugin install fw-c-harness@fw-harness
 ```
 
-After `fw-harness-init` runs in a firmware repository, that repository carries `.claude/settings.json` and `.github/copilot-settings.json` naming this marketplace. In Claude Code, trusting the folder then adds the marketplace with no further prompt, and the plugin still needs `claude plugin install fw-c-harness@fw-harness`, because a plugin from an external source does not load from a project's settings alone. Claude Code prints that command when it finds the plugin enabled and not installed.
+`fw-harness-init` writes the marketplace and the plugin into the repository's `.claude/settings.json`, which all three tools read. None installs from it silently: VS Code shows a notification on the first chat message and lists the plugin under `@agentPlugins @recommended`, and Claude Code prints the `claude plugin install` command to run.
 
 ## Use it
 
@@ -41,7 +51,7 @@ One page per skill lives in [docs/skills](../../docs/skills).
 
 ## One difference between the two tools
 
-Six of the skills are meant for a human to type: `fw-harness-init`, `fw-harness-upgrade`, `fw-session-start`, `fw-hil-verify`, `fw-done`, and `fw-guide`. They carry `disable-model-invocation: true`, which Claude Code honours by keeping the agent from firing them. Copilot does not document that key for skills, so on Copilot an agent can still reach them on its own. The guardrails that matter do not depend on it: moving a ticket to `done` needs a typed confirmation in a real terminal, and committing is left to you in both tools.
+Six of the skills are meant for a human to type: `fw-harness-init`, `fw-harness-upgrade`, `fw-session-start`, `fw-hil-verify`, `fw-done`, and `fw-guide`. They carry `disable-model-invocation: true`, which GitHub Copilot in VS Code and Claude Code both document as keeping the agent from starting them; you start them with `/` in chat. Copilot CLI does not document the key, so there an agent may still reach them on its own. The guardrails that matter do not depend on it: moving a ticket to `done` needs a typed confirmation in a real terminal, and committing is left to you in both tools.
 
 ## Update
 

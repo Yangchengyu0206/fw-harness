@@ -1,15 +1,17 @@
 # Manual checklist
 
-Skills cannot be tested automatically, so this list is run by hand once in Claude Code and once in Copilot CLI before a release. Work through it on a scratch copy of a firmware repository, never on real work.
+Skills cannot be tested automatically, so this list is run by hand once in GitHub Copilot in VS Code and once in Claude Code before a release. Work through it on a scratch copy of a firmware repository, never on real work.
 
 Record the date, the tool, its version, and who ran it in the table at the end.
 
 ## Install
 
-- [ ] `/plugin marketplace add <owner>/fw-harness` in Claude Code, or `copilot plugin marketplace add <owner>/fw-harness` in Copilot CLI, succeeds.
+- [ ] In VS Code, with `chat.plugins.marketplaces` naming `<owner>/fw-harness`, the plugins appear under `@agentPlugins` in the Extensions view. In Claude Code, `claude plugin marketplace add <owner>/fw-harness` succeeds.
 - [ ] Installing the plugin succeeds, and all fourteen skills are listed.
 - [ ] In Claude Code, `claude plugin validate . --strict` passes in a clone of this repository.
-- [ ] In Copilot CLI, the skills are discovered from the plugin's `skills/` folder. If they are not, the plugin manifest needs an explicit list and this checklist item becomes a bug report.
+- [ ] In VS Code, typing `/` in agent chat lists the typed skills, and the skills are discovered from the plugin's `skills/` folder. If they are not, this item becomes a bug report.
+- [ ] In VS Code, the plugin can be disabled globally and enabled for one workspace, and a skill the agent reaches on its own does not fire in a workspace where the plugin is disabled.
+- [ ] Opening a repository after `fw-harness-init`, VS Code shows the recommendation notification on the first chat message, and the plugin is listed under `@agentPlugins @recommended`.
 
 ## Generate the harness
 
@@ -45,7 +47,7 @@ Record the date, the tool, its version, and who ran it in the table at the end.
 
 ## cdev
 
-Run once in Claude Code and once in Copilot CLI, each on scratch repositories.
+Run once in GitHub Copilot in VS Code and once in Claude Code, each on scratch repositories.
 
 - [ ] Installing `cdev@fw-harness` succeeds, and all eleven skills are listed.
 - [ ] `cdev-init` detects the right domain set on one repository per domain: plain C, firmware, Linux driver, Windows driver, Python.

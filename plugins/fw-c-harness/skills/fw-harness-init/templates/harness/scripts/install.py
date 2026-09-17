@@ -15,8 +15,8 @@ from tickets import now_iso
 DEFAULT_MARKETPLACE = "Yangchengyu0206/fw-harness"
 MARKETPLACE_NAME = "fw-harness"
 PLUGIN_NAME = "fw-c-harness"
+# Claude Code, GitHub Copilot in VS Code, and Copilot CLI all read plugin recommendations from this file.
 CLAUDE_SETTINGS = ".claude/settings.json"
-COPILOT_SETTINGS = ".github/copilot-settings.json"
 
 
 class InstallError(RuntimeError):
@@ -53,15 +53,6 @@ def claude_settings(existing, marketplace):
     enabled = dict(settings.get("enabledPlugins") or {})
     enabled[f"{PLUGIN_NAME}@{MARKETPLACE_NAME}"] = True
     settings["enabledPlugins"] = enabled
-    return settings
-
-
-def copilot_settings(existing, marketplace):
-    settings = dict(existing or {})
-    known = [entry for entry in (settings.get("extraKnownMarketplaces") or [])
-             if not (isinstance(entry, dict) and entry.get("name") == MARKETPLACE_NAME)]
-    known.append({"name": MARKETPLACE_NAME, "source": marketplace, "autoUpdate": True})
-    settings["extraKnownMarketplaces"] = known
     return settings
 
 
@@ -114,7 +105,6 @@ def install(repo, templates, marketplace=DEFAULT_MARKETPLACE, now=None):
         report["unchanged"].append(manifest.GENERATED[0])
 
     _merge_settings(repo, CLAUDE_SETTINGS, claude_settings, marketplace, report)
-    _merge_settings(repo, COPILOT_SETTINGS, copilot_settings, marketplace, report)
 
     git(repo, "config", "core.hooksPath", ".githooks")
     for path in manifest.EXECUTABLE:

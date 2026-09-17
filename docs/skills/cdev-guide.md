@@ -16,7 +16,7 @@ When you cannot remember which skill fits.
 
 **Does it run the skill it names?** No. It tells you which one, and you run it.
 
-**One difference between the two tools:** the typed skills are marked `disable-model-invocation: true`, which Claude Code honours. Copilot does not document that key for skills, so there an agent may still reach them on its own.
+**Can the agent start a typed skill by itself?** Not in GitHub Copilot in VS Code or Claude Code: the typed skills are marked `disable-model-invocation: true`, and both tools document that as slash-command only. Copilot CLI does not document the key, so there an agent may still reach them on its own.
 
 ## It is working if
 

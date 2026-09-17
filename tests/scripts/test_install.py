@@ -69,21 +69,15 @@ def test_settings_merge_keeps_unrelated_keys():
     assert claude["permissions"] == {"allow": ["Bash"]}
     assert claude["extraKnownMarketplaces"]["fw-harness"]["source"] == {"source": "github", "repo": "acme/fw-harness"}
     assert claude["enabledPlugins"]["fw-c-harness@fw-harness"] is True
-
-    copilot = install.copilot_settings({"extraKnownMarketplaces": [{"name": "other", "source": "a/b"}]},
-                                       "acme/fw-harness")
-    names = [entry["name"] for entry in copilot["extraKnownMarketplaces"]]
-    assert names == ["other", "fw-harness"]
-    again = install.copilot_settings(copilot, "acme/fw-harness")
-    assert len(again["extraKnownMarketplaces"]) == 2
+    assert install.claude_settings(claude, "acme/fw-harness") == claude
 
 
-def test_install_writes_both_settings_files(fresh):
+def test_install_writes_one_settings_file_every_tool_reads(fresh):
     install.install(fresh, TEMPLATES)
     claude = json.loads((fresh / ".claude" / "settings.json").read_text(encoding="utf-8"))
-    copilot = json.loads((fresh / ".github" / "copilot-settings.json").read_text(encoding="utf-8"))
-    assert "fw-harness" in claude["extraKnownMarketplaces"]
-    assert copilot["extraKnownMarketplaces"][0]["source"] == install.DEFAULT_MARKETPLACE
+    assert claude["extraKnownMarketplaces"]["fw-harness"]["source"]["repo"] == install.DEFAULT_MARKETPLACE
+    assert claude["enabledPlugins"]["fw-c-harness@fw-harness"] is True
+    assert not (fresh / ".github" / "copilot-settings.json").exists()
 
 
 def test_install_renders_the_review_instructions_from_the_checklist(fresh):

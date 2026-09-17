@@ -1,6 +1,17 @@
 # fw-harness
 
-給 C 與 Python 開發用的 harness 與技能組，同時支援 Claude Code 與 GitHub Copilot。English: [README.md](README.md)。
+給 C 與 Python 開發用的 harness 與技能組，支援 VS Code 上的 GitHub Copilot 與 Claude Code。English: [README.md](README.md)。
+
+## 目前狀態：0.1 預覽版
+
+兩個 plugin 的內容都已完成，腳本也有自動化測試，但 skill 還沒有實際讓 agent 從頭到尾跑過。使用上可能會遇到不順的地方，歡迎到 [GitHub issues](https://github.com/Yangchengyu0206/fw-harness/issues) 回報。
+
+這個版本已知的限制：
+
+- **只檢查過格式，還沒實際使用過。** 測試能確認每個 skill 格式正確、連結有效、文件裡的指令都能解析，但無法確認 agent 會照 skill 做。還需要人工試過的項目列在 [docs/manual-checklist.md](docs/manual-checklist.md)。
+- **還沒在工具裡實際試過。** 安裝方式與每個 skill 都依照 VS Code 上的 GitHub Copilot、Claude Code、Copilot CLI 公開的格式撰寫，但都還沒實際執行過。主要目標是 VS Code。
+- **指令以 Windows 寫法為準。** skill 裡要 agent 用 `py -3` 執行 Python；在 macOS 與 Linux 上請改用 `python3`。腳本本身三個平台都能執行。
+- **驅動參考資料還沒經過審閱。** `cdev` 裡 Linux 與 Windows 驅動的內容還沒有請驅動工程師看過，歡迎指正。
 
 ## 兩個 plugin
 
@@ -14,7 +25,7 @@
 | 狀態 | 一票一檔，記錄誰改了什麼 | 一份 `feature_list.json` 加一份 `PROGRESS.md` |
 | 審查 | 必須由作者以外的人審 | 自我審查，每個發現都重新驗證 |
 | 寫進 repo 的腳本 | 閘門與狀態腳本 | 只有 `tools/feature.py` |
-| 安裝 | `/plugin install fw-c-harness@fw-harness` | `/plugin install cdev@fw-harness` |
+| 安裝 | 在 VS Code 的 `@agentPlugins` 安裝 `fw-c-harness` | 在 VS Code 的 `@agentPlugins` 安裝 `cdev` |
 
 `cdev` 的說明在 [plugins/cdev/README.md](plugins/cdev/README.md)。本頁其餘內容說明 `fw-c-harness`。
 
@@ -23,7 +34,7 @@
 裝一次，團隊會得到兩樣東西：
 
 1. **產生到自己 repo 裡的 harness**：入口文件、記錄「誰改了什麼」的票務狀態、驗證閘門、git hooks，以及依實際目錄樹產生的每個 C 原始碼資料夾一份 ARCHITECTURE.md。
-2. **涵蓋整個工作迴圈的 skills**：開始一個 session、認領票、測試先行地實作、審查、除錯、收尾。
+2. **涵蓋整個工作迴圈的 skills**：開始一個 session、認領票、測試先行地實作、審查、處理審查意見、除錯、收尾。
 
 ## 為什麼設計成這樣
 
@@ -34,20 +45,28 @@
 
 ## 安裝
 
-加入 marketplace 與安裝 plugin 是兩個步驟。發佈在各工具內建 marketplace 之外的 plugin（包含這一個）兩步都要做。
+加入 marketplace 與安裝 plugin 是兩個步驟。請只在使用 harness 的 repo 啟用，不要對所有專案啟用：plugin 啟用的地方，agent 自己會用的 skill 都會載入，在無關的專案裡請 agent 做審查或除錯時也會被觸發。
 
-**Claude Code**，在 session 裡：
+**VS Code 上的 GitHub Copilot**
 
-```
-/plugin marketplace add Yangchengyu0206/fw-harness
-/plugin install fw-c-harness@fw-harness
-```
+1. 開啟使用者設定的 JSON（**Preferences: Open User Settings (JSON)**），加入：
 
-或在 shell 裡串成一行：
+   ```json
+   "chat.plugins.enabled": true,
+   "chat.plugins.marketplaces": ["Yangchengyu0206/fw-harness"]
+   ```
+
+2. 開啟 Extensions 視圖（Ctrl+Shift+X），搜尋 `@agentPlugins`，安裝 `fw-c-harness`。
+3. VS Code 可以對 plugin 做全域或單一工作區的啟用與停用，請只在韌體工作區啟用。
+
+**Claude Code**，在韌體 repo 的 shell 裡：
 
 ```bash
-claude plugin marketplace add Yangchengyu0206/fw-harness && claude plugin install fw-c-harness@fw-harness
+claude plugin marketplace add Yangchengyu0206/fw-harness
+claude plugin install fw-c-harness@fw-harness --scope project
 ```
+
+在 session 裡用 `/plugin install fw-c-harness@fw-harness` 則會讓你選範圍。`project` 會把 plugin 記錄在 repo 裡給所有人用；`local` 只有你、只在這個 repo；`user` 會在你的每個專案都啟用。
 
 **Copilot CLI**
 
@@ -56,19 +75,14 @@ copilot plugin marketplace add Yangchengyu0206/fw-harness
 copilot plugin install fw-c-harness@fw-harness
 ```
 
-接著在你的韌體 repo 裡執行一次 `fw-harness-init`。
+接著在韌體 repo 開啟 agent 對話，輸入一次 `/fw-harness-init`。
 
 ### 加入一個已經有 harness 的 repo
 
-`fw-harness-init` 會把這個 marketplace 寫進 repo 的 `.claude/settings.json` 與 `.github/copilot-settings.json`，所以後面的同事要做的比你少。
+`fw-harness-init` 會把這個 marketplace 和 plugin 寫進 repo 的 `.claude/settings.json`。Claude Code、VS Code 上的 GitHub Copilot、Copilot CLI 都會讀這個檔案，但都不會自動安裝：
 
-在 Claude Code，信任該資料夾之後 marketplace 就自動加入、不會再問。但 plugin 本身仍要安裝：來自外部來源的 plugin 不會只靠專案設定就載入，Claude Code 會回報它尚未安裝，並把指令印出來給你：
-
-```bash
-claude plugin install fw-c-harness@fw-harness
-```
-
-Copilot 會讀 `.github/copilot-settings.json` 裡的 `extraKnownMarketplaces`。它是否會接著替你安裝 plugin 沒有文件說明，所以 skills 沒出現的話就執行上面那行。
+- **VS Code** 在你第一次送出對話訊息時跳出通知，到 Extensions 視圖用 `@agentPlugins @recommended` 篩選後安裝。
+- **Claude Code** 在你信任資料夾後加入 marketplace，回報 plugin 尚未安裝，並印出要執行的 `claude plugin install` 指令。
 
 ## 會產生到 repo 裡的東西
 
@@ -91,7 +105,7 @@ init.sh / init.ps1     薄包裝，不自己加任何旗標
 
 Python 3.9 以上、git，以及你在 `harness/config.json` 指定的工具鏈。預設是 `arm-none-eabi-gcc` 搭配 CMake、主機端 `gcc` 跑 Unity、`cppcheck`、`clang-format`。MISRA C:2012 只是參考標準，預設 advisory，可在 `harness/review-policy.json` 調整。
 
-支援 Windows、macOS、Linux。在 Windows 上腳本以 `py -3` 執行，不論主控台代碼頁為何都以 UTF-8 讀寫，git hooks 使用 Git for Windows 內附的 POSIX shell。
+支援 Windows、macOS、Linux。在 Windows 上腳本以 `py -3` 執行（其他平台用 `python3`），不論主控台代碼頁為何都以 UTF-8 讀寫，git hooks 使用 Git for Windows 內附的 POSIX shell。
 
 ## Skills
 
@@ -108,7 +122,7 @@ Python 3.9 以上、git，以及你在 `harness/config.json` 指定的工具鏈�
 | `fw-c-review` | agent 自己會用 | Standards 與 Spec 兩軸審查 |
 | `fw-review-respond` | agent 自己會用 | 逐條查證審查意見，修正或附理由婉拒，再交回重審 |
 | `fw-c-test-gap` | agent 自己會用 | 哪些行為沒有測試，P0 到 P3 |
-| `fw-c-debug` | agent 自己會用 | 先重現，再修 |
+| `fw-c-debug` | agent 自己會用 | 先讓問題能穩定重現、證實原因，再修 |
 | `fw-misra-deviation` | agent 自己會用 | 記錄偏差並取得核准人 |
 | `fw-guide` | 你自己輸入 | 現在該用哪個 skill |
 
@@ -116,7 +130,7 @@ Python 3.9 以上、git，以及你在 `harness/config.json` 指定的工具鏈�
 
 ## 參與開發
 
-以 `py -3 -m pytest tests -q` 執行測試。skills 無法自動測試，所以相關改動要對照 [docs/manual-checklist.md](docs/manual-checklist.md) 人工走一次。
+以 `py -3 -m pytest tests -q` 執行測試，macOS 與 Linux 上用 `python3 -m pytest tests -q`。skills 無法自動測試，所以相關改動要對照 [docs/manual-checklist.md](docs/manual-checklist.md) 人工走一次。
 
 ## 授權
 

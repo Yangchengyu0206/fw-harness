@@ -55,7 +55,7 @@ fw-harness/
 
 兩份 marketplace manifest 指向同一個 `plugins/fw-c-harness` 目錄，skills 只維護一份。
 
-`fw-harness-init` 會在韌體 repo 寫入 `extraKnownMarketplaces`（`.claude/settings.json` 與 `.github/copilot-settings.json`），團隊成員 clone 之後就會被提示安裝這個 plugin。
+`fw-harness-init` 會在韌體 repo 的 `.claude/settings.json` 寫入 `extraKnownMarketplaces` 與 `enabledPlugins`。VS Code 上的 GitHub Copilot、Claude Code、Copilot CLI 都會讀這個檔案，所以成員 clone 之後會被提示安裝 plugin；但沒有一個工具會自動安裝。
 
 **分工原則**：plugin 只放應該跟著 plugin 版本更新的東西（skills 和範本）。規則、狀態、閘門腳本與 git hooks **寫進韌體 repo 並 commit**，所以沒裝 plugin 的人、手動 commit 的人和 CI 都遵守同一套規則。
 

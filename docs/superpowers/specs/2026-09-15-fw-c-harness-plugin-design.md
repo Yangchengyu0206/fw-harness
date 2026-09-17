@@ -55,7 +55,7 @@ fw-harness/
 
 Both marketplace manifests point at the same `plugins/fw-c-harness` directory, so the skills are maintained once.
 
-`fw-harness-init` writes `extraKnownMarketplaces` into the firmware repo (`.claude/settings.json` and `.github/copilot-settings.json`), so team members are prompted to install the plugin after cloning.
+`fw-harness-init` writes `extraKnownMarketplaces` and `enabledPlugins` into the firmware repo's `.claude/settings.json`. GitHub Copilot in VS Code, Claude Code, and Copilot CLI all read that file, so team members are prompted to install the plugin after cloning; none installs it silently.
 
 **Division of responsibility:** the plugin carries only what should update with the plugin version (skills and templates). Rules, state, gate scripts, and git hooks are **written into the firmware repo and committed**, so people without the plugin, people committing by hand, and CI all follow the same rules.
 
