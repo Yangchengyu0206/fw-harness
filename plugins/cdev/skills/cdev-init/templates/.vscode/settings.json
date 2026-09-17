@@ -1,0 +1,10 @@
+{
+  "files.readonlyInclude": {{READ_ONLY_GLOBS}},
+  "chat.tools.terminal.autoApprove": {
+    "/^git\s+(push|clean|reset\s+--hard|rebase|filter-branch|checkout\s+--)\b/": false,
+    "rm": false,
+    "rmdir": false,
+    "del": false,
+    "Remove-Item": false
+  }
+}

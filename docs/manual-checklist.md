@@ -49,20 +49,26 @@ Record the date, the tool, its version, and who ran it in the table at the end.
 
 Run once in GitHub Copilot in VS Code and once in Claude Code, each on scratch repositories.
 
-- [ ] Installing `cdev@fw-harness` succeeds, and all eleven skills are listed.
+- [ ] Installing `cdev@fw-harness` succeeds, and all twelve skills are listed.
 - [ ] `cdev-init` detects the right domain set on one repository per domain: plain C, firmware, Linux driver, Windows driver, Python.
 - [ ] On a mixed repository (firmware with Python test tooling), the detected set holds both domains.
 - [ ] `cdev-init` runs to the end without asking anything, then asks one question over the whole result.
 - [ ] With an existing `AGENTS.md`, the file is untouched and `AGENTS.md.cdev-proposed` appears.
 - [ ] No `{{` placeholder is left in any generated file.
+- [ ] Every folder ARCHITECTURE.md has `## Files` and `## Flows`, and `py -3 tools/doc_check.py` reports no drift right after `cdev-init`.
+- [ ] In VS Code, a file in a read-only folder opens read-only, and `git push` asked for by the agent waits for your approval.
+- [ ] Editing a file under a code folder attaches `architecture.instructions.md` to the Copilot request (visible in the references list).
+- [ ] A new conversation, with no skill typed, opens by reporting `## Now`, the features, and `doc_check`, then asks which feature to take.
 - [ ] `cdev-session-start` proposes a feature and stops for your answer before writing code.
+- [ ] On a project that builds in a vendor IDE, `cdev-implement` stops at `verifying` and writes a checklist under `Waiting on the user` in `## Now`.
+- [ ] `cdev-checkpoint` writes the facts found in the conversation into `## Now`, and a new conversation continues from them.
 - [ ] `cdev-implement` writes a failing test first and uses the build and test commands from AGENTS.md.
 - [ ] On a repository with no tests, `cdev-init` writes `Test: none`, and `cdev-implement` and `cdev-debug` add no test framework, yet still show a real run with its output.
 - [ ] `cdev-debug` on a plain bug takes the shortcut and says so; on a hard one it shows a loop going red before any fix.
 - [ ] `fw-c-review` and `cdev-review` list the changed interfaces with their callers, label each finding rule or judgement, and report nothing the formatter or linters already catch.
 - [ ] `cdev-review` writes a report into `docs/reviews/` with the two axes kept separate.
 - [ ] `cdev-target-verify` stores a log under `docs/evidence/` and records it on the feature.
-- [ ] `cdev-done` updates `## Now` in PROGRESS.md and hands you a commit message rather than committing.
+- [ ] `cdev-done` fixes document drift, asks before setting `done`, updates `## Now` in PROGRESS.md, and hands you a commit message rather than committing.
 - [ ] `cdev-guide` names the skill you actually needed.
 - [ ] `py -3 tools/feature.py check` fails loudly on a hand-broken `feature_list.json`.
 

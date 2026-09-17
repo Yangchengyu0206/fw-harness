@@ -41,18 +41,22 @@ Write the smallest change that delivers the behaviour, following the rules in th
 
 ### 4. Build, test, and run
 
-Run the build command from AGENTS.md, the test command when there is one, and the change itself on the step 2 input. Fix what they report. A new dependency between folders that ARCHITECTURE.md does not describe is a design question, so take it to the user rather than working around it.
+Run the build command from AGENTS.md, the test command when there is one, and the change itself on the step 2 input. Fix what they report. Send long output to a file and read the errors and the tail.
+
+When AGENTS.md says the build or the run happens outside this editor, write the checklist for the user under `Waiting on the user` in `## Now` of PROGRESS.md instead: what to build, what to flash or load, what to do, what output shows success, and what shows failure. Fix what the user reports back. A new dependency between folders that ARCHITECTURE.md does not describe is a design question, so take it to the user rather than working around it.
 
 Any scratch script you wrote to run the change goes in a folder git ignores. When it finishes, ask the user whether to keep it in the repository as an example, or delete it.
 
-**Done when:** the build succeeds with no new warnings, every test passes where there are tests, and you have shown the command and the output of the run.
+**Done when:** the build succeeds with no new warnings, every test passes where there are tests, and you have shown the command and the output of the run; or the checklist is written and the user has it.
 
-### 5. Update the feature
+### 5. Update the documents and the feature
+
+Update the ARCHITECTURE.md of every folder whose files, flows, or dependencies the change altered, and run `py -3 tools/doc_check.py`.
 
 ```bash
-py -3 tools/feature.py set F-NNN --status done --notes "checked on <input>: <result>"
+py -3 tools/feature.py set F-NNN --status verifying --next "<the step>" --notes "checked on <input>: <result>"
 ```
 
-Use `done` when the behaviour was observed and the feature has no `verification` step still owed. When a step is still owed, such as one that needs real hardware, use `--status verifying --next "<the step>"` instead.
+When the behaviour has been observed and no `verification` step is still owed, show the user the evidence and propose closing the feature with cdev-done. The feature becomes `done` on the user's confirmation.
 
-**Done when:** the feature's status says what is left, and you have told the user about any `verification` step still owed.
+**Done when:** `doc_check` reports no drift, the feature's status says what is left, and the user knows what is owed or has the proposal to close it.

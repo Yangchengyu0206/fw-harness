@@ -32,6 +32,6 @@ Statuses: `backlog`, `next`, `active`, `verifying`, `done`, `blocked`. Any statu
 
 ## Moving a feature to done
 
-Move a feature to `done` when its behaviour has been observed in a run, every entry in `verification` (if any) has been run, and the result is recorded in PROGRESS.md. When the code works but a verification entry is still owed, the feature stays `verifying` with that entry as its `next_step`.
+Move a feature to `done` when its behaviour has been observed in a run (by the agent, or reported by the user after a build or a test outside the editor), every entry in `verification` (if any) has passed, the architecture documents of the folders it changed match the code, the result is recorded in PROGRESS.md, and the user has confirmed it. When the code works but a verification entry is still owed, the feature stays `verifying` with that entry as its `next_step`.
 
 **Done when:** the command exits zero and you have read the feature's new state back to the user.

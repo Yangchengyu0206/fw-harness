@@ -31,7 +31,10 @@ def test_review_checklist_has_the_three_severities(domain):
 
 def test_every_template_placeholder_is_explained_by_cdev_init():
     skill = (INIT / "SKILL.md").read_text(encoding="utf-8")
-    for template in (INIT / "templates").glob("*.md"):
+    templates = [path for path in (INIT / "templates").rglob("*")
+                 if path.is_file() and path.suffix in (".md", ".json") and "tools" not in path.parts]
+    assert any(".github" in path.parts for path in templates) and any(".vscode" in path.parts for path in templates)
+    for template in templates:
         for name in PLACEHOLDER_RE.findall(template.read_text(encoding="utf-8")):
             token = "{{" + name + "}}"
             assert token in skill, f"{template.name}: {token} is not explained in cdev-init"

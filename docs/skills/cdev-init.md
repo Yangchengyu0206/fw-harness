@@ -4,7 +4,7 @@ User-invoked. Type `/cdev-init`.
 
 ## What it does
 
-Detects which domains the repository belongs to, then writes AGENTS.md, CLAUDE.md, PROGRESS.md, `feature_list.json` with `tools/feature.py`, and an ARCHITECTURE.md for the root and every code folder. It runs the whole generation without stopping and hands you the finished result to review in one pass.
+Detects which domains the repository belongs to, then writes AGENTS.md (every rule, with CLAUDE.md importing it), PROGRESS.md, `feature_list.json` with `tools/feature.py` and `tools/doc_check.py`, an ARCHITECTURE.md for the root and every code folder with a line per file and the flows through it, and the VS Code files that guard read-only folders and keep the documents in the agent's view. It runs the whole generation without stopping and hands you the finished result to review in one pass.
 
 ## When to reach for it
 
@@ -18,8 +18,10 @@ Once per repository, on a clean working tree.
 
 **My project has no tests.** That is fine. It writes `Test: none` into AGENTS.md, and no cdev skill adds a test framework unless you ask. Changes are checked by running the code on a real input instead.
 
+**My project builds in AndeSight, Keil, or another vendor IDE.** AGENTS.md then says the build and flashing happen outside the editor. Each feature stops at `verifying` with a checklist for you, and you report the result back. When the IDE's toolchain also runs from a command line, put that command into the Build line and the agent compiles before handing over.
+
 **What if I already have an AGENTS.md?** It is left alone. The generated version lands as `AGENTS.md.cdev-proposed` for you to compare.
 
 ## It is working if
 
-Every code folder has an ARCHITECTURE.md whose responsibility line describes what the folder does, AGENTS.md names the right domains, build command, run command, and whether the repository has tests, and everything lands in one commit you made.
+Every code folder has an ARCHITECTURE.md whose responsibility line describes what the folder does and whose flows name real functions, `doc_check` reports no drift, AGENTS.md names the right domains, build command, run command, and whether the repository has tests, and everything lands in one commit you made.

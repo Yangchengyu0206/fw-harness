@@ -4,11 +4,11 @@ User-invoked. Type `/cdev-session-start`.
 
 ## What it does
 
-Reads AGENTS.md and CLAUDE.md, reads where PROGRESS.md says the work stopped, lists the features, proposes the one to take with its behaviour read back, and marks it active once you agree.
+The full version of the opening every conversation already does. Reads where PROGRESS.md says the work stopped and the newest log entry, lists the features, runs `doc_check` and offers to fix any drift, proposes the feature to take with its behaviour read back, and marks it active once you agree.
 
 ## When to reach for it
 
-At the start of every session, before any code.
+When you want that full pass: after a long break, or when the documents may have drifted. A plain new conversation already reads `## Now` and asks which feature to take.
 
 ## Common questions
 

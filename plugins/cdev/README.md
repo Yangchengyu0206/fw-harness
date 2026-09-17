@@ -41,17 +41,33 @@ Then, in your repository, open agent chat and type `/cdev-init` once.
 ## What lands in your repository
 
 ```
-AGENTS.md            entry point: domains, where to work, guardrails, the loop
-CLAUDE.md            working rules, what done means, decisions and why
-ARCHITECTURE.md      the map of the repository
+AGENTS.md            every rule: domains, where to work, how to open a conversation,
+                     how to answer questions, the feature loop, what done means
+CLAUDE.md            one line, @AGENTS.md, so Claude Code reads the same rules
+ARCHITECTURE.md      the map of the repository, and decisions with their reasons
 <folder>/ARCHITECTURE.md
-PROGRESS.md          where you are now, then a dated log
+                     responsibility, one line per file, flows, entry points, dependencies
+PROGRESS.md          ## Now (where the work is, confirmed facts, what waits on you), then a dated log
 feature_list.json    what is being built, the single source of truth
 tools/feature.py     keeps feature_list.json valid
+tools/doc_check.py   reports where the architecture documents no longer match the files
+.vscode/settings.json
+                     read-only folders cannot be edited; destructive commands need your approval
+.github/instructions/architecture.instructions.md
+                     reaches Copilot whenever it works on documented code
 docs/reviews/        review reports
 ```
 
-`tools/feature.py` is the only script. Everything else is Markdown, and nothing blocks a commit.
+The two scripts report; nothing blocks a commit.
+
+## A day of work in GitHub Copilot
+
+1. Open a conversation. The agent reads `## Now`, lists the features, runs `doc_check`, and asks which feature to take.
+2. Questions about the code are answered from the architecture documents as a map, then checked in the code, with each claim marked verified or not.
+3. While a feature is built, `## Now` is rewritten after every step, and confirmed facts go there as they are found, so a summarised conversation loses nothing.
+4. When the build or flashing happens in a vendor IDE, the feature stops at `verifying` with a checklist for you in `## Now`. You run it and report the result, in the same conversation or a new one.
+5. When the context usage runs high, type `/cdev-checkpoint`.
+6. When verification has passed, the agent shows the evidence and the documents it changed, and the feature becomes `done` on your confirmation.
 
 ## Tests are optional
 
@@ -60,7 +76,7 @@ A repository with no tests is a normal case, not a gap to fill. `cdev-init` then
 ## The skills
 
 Setting up: `cdev-init`.
-A day of work: `cdev-session-start`, `cdev-implement`, `cdev-target-verify`, `cdev-done`, with `cdev-feature` underneath.
+A day of work: `cdev-session-start`, `cdev-implement`, `cdev-target-verify`, `cdev-checkpoint`, `cdev-done`, with `cdev-feature` underneath.
 Looking at code: `cdev-review`, `cdev-test-gap`, `cdev-debug`.
 When the structure changes: `cdev-architecture-sync`.
 Router: `cdev-guide`.
@@ -73,7 +89,7 @@ One page per skill lives in [docs/skills](../../docs/skills).
 
 ## One difference between the two tools
 
-Five of the skills are meant for you to type: `cdev-init`, `cdev-session-start`, `cdev-target-verify`, `cdev-done`, and `cdev-guide`. They carry `disable-model-invocation: true`, which GitHub Copilot in VS Code and Claude Code both document as keeping the agent from starting them; you start them with `/` in chat. Copilot CLI does not document the key, so there an agent may still reach them on its own.
+Six of the skills are meant for you to type: `cdev-init`, `cdev-session-start`, `cdev-target-verify`, `cdev-checkpoint`, `cdev-done`, and `cdev-guide`. They carry `disable-model-invocation: true`, which GitHub Copilot in VS Code and Claude Code both document as keeping the agent from starting them; you start them with `/` in chat. Copilot CLI does not document the key, so there an agent may still reach them on its own.
 
 ## How it differs from fw-c-harness
 

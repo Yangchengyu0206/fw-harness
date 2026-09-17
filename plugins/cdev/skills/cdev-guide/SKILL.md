@@ -6,18 +6,21 @@ disable-model-invocation: true
 
 # cdev-guide
 
-Eleven skills is more than anyone remembers, so ask here instead. The ones marked "the agent reaches on its own" fire without you typing them; the rest you type.
+Twelve skills is more than anyone remembers, so ask here instead. The ones marked "the agent reaches on its own" fire without you typing them; the rest you type.
 
 ## Setting the repository up
 
-- **`/cdev-init`**: run once. It detects the repository's domains, writes AGENTS.md, CLAUDE.md, PROGRESS.md, the architecture documents, and the feature list, then hands you the whole result to review in one pass.
+- **`/cdev-init`**: run once. It detects the repository's domains, writes AGENTS.md, PROGRESS.md, the architecture documents, the feature list, and the VS Code settings that guard read-only code, then hands you the whole result to review in one pass.
 
 ## A day of work
 
-1. **`/cdev-session-start`**: begin here. It reads where the work stands and ends by agreeing with you on one feature.
+Every new conversation opens on its own: AGENTS.md tells the agent to read `## Now`, list the features, run `doc_check`, and ask which feature to take.
+
+1. **`/cdev-session-start`**: optional. The full version of that opening, with the drift fixed and the feature's behaviour read back.
 2. **`cdev-implement`** (the agent reaches on its own): a failing test first when the repository has tests, otherwise an input and the output you expect; then the smallest change, then the build and a real run.
-3. **`/cdev-target-verify`**: only when a feature needs real hardware or a real operating system to prove it: flashing a board, loading a driver, capturing the log. Pure algorithm work never needs it.
-4. **`/cdev-done`**: close the session. PROGRESS.md, the feature's status, and a commit message for you to run.
+3. **`/cdev-target-verify`**: only when a feature needs real hardware or a real operating system to prove it: flashing a board, loading a driver, capturing the log. Pure algorithm work never needs it. When the build and flashing happen in a vendor IDE, the agent writes you a checklist in `## Now` instead, and you report back.
+4. **`/cdev-checkpoint`**: when the context usage runs high, before a long break, or before a build in a vendor IDE. It saves what the conversation found into `## Now`, so a summary or a new conversation loses nothing.
+5. **`/cdev-done`**: close a feature or a session. The documents checked against the change, PROGRESS.md, the feature's status on your confirmation, and a commit message for you to run.
 
 **`cdev-feature`** (the agent reaches on its own) handles every change to `feature_list.json` underneath those steps, so you rarely call it yourself.
 
@@ -29,8 +32,8 @@ Eleven skills is more than anyone remembers, so ask here instead. The ones marke
 
 ## When the structure changes
 
-- **`cdev-architecture-sync`** (the agent reaches on its own): a folder appeared, or a folder's responsibility or dependencies changed.
+- **`cdev-architecture-sync`** (the agent reaches on its own): `doc_check` reported drift, a folder appeared, or a folder's files, flows, or dependencies changed.
 
 ## Where the rules live
 
-The skills are thin on purpose. The domain rules, review checklists, debugging anchors, and build commands live in one reference per domain under `cdev-implement/references/`. The repository's own facts live in its files: AGENTS.md for domains and commands, CLAUDE.md for working rules, each ARCHITECTURE.md for its folder, and `feature_list.json` for what is being built.
+The skills are thin on purpose. The domain rules, review checklists, debugging anchors, and build commands live in one reference per domain under `cdev-implement/references/`. The repository's own facts live in its files: AGENTS.md for domains, commands, and working rules (CLAUDE.md only imports it), each ARCHITECTURE.md for its folder's files and flows, PROGRESS.md for where the work stands, and `feature_list.json` for what is being built.

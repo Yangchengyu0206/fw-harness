@@ -9,9 +9,17 @@
   "homepage": "https://github.com/Yangchengyu0206/fw-harness",
   "repository": "https://github.com/Yangchengyu0206/fw-harness",
   "license": "MIT",
-  "keywords": ["c", "python", "firmware", "linux-driver", "windows-driver", "harness"],
+  "keywords": [
+    "c",
+    "python",
+    "firmware",
+    "linux-driver",
+    "windows-driver",
+    "harness"
+  ],
   "skills": [
     "./skills/cdev-architecture-sync",
+    "./skills/cdev-checkpoint",
     "./skills/cdev-debug",
     "./skills/cdev-done",
     "./skills/cdev-feature",

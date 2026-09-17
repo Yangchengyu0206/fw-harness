@@ -180,3 +180,21 @@ What each carries:
 
 1. **The name when Python stands alone.** `cdev` assumes Python here is tooling around C projects. If standalone Python projects are in scope, the prefix should change before anything is published.
 2. **Translation.** The Traditional Chinese version of this spec is written after the English content is approved, so it is translated once.
+
+## 10. Revision: GitHub Copilot first (2026-09-17)
+
+Field use on a firmware repository showed three gaps: answers about architecture and flows still meant reading the code from scratch, long conversations lost what they had found when the context was summarised, and build and flashing happen in a vendor IDE the agent cannot drive. GitHub Copilot in VS Code is now the primary target; Claude Code stays supported through a CLAUDE.md that only imports AGENTS.md.
+
+Changes:
+
+1. **One rules file.** Copilot loads AGENTS.md on its own and not CLAUDE.md, so every rule moves into AGENTS.md. CLAUDE.md is `@AGENTS.md`. The decisions table moves to the root ARCHITECTURE.md.
+2. **Opening without a skill.** AGENTS.md tells the agent to read `## Now`, run `feature.py show` and `doc_check.py`, report, and ask which feature to take. `cdev-session-start` stays as the full, optional pass.
+3. **Answering questions.** The architecture documents are a map; claims about behaviour are verified in the code, whole functions are read, vendor code is left out of broad searches and read directly when the question turns on it, and each claim is marked verified or taken from a document.
+4. **Documents that say how, not only where.** The folder template gains `## Files` (one line per file, globs allowed) and `## Flows` (numbered steps naming functions and files).
+5. **A second script, `tools/doc_check.py`.** It compares each `## Files` with the folder and the root map with the folder documents, using `git ls-files` so ignored build output is skipped. It reports and exits 1 on drift; nothing runs it as a gate. This relaxes the one-script constraint in section 1.
+6. **State that survives summarisation.** `## Now` gains `Confirmed facts` and `Waiting on the user`, is rewritten after every step, and receives confirmed facts as they are found. A new user-invoked skill, `cdev-checkpoint`, writes the whole conversation state there on demand. The agent does not suggest starting a new conversation; that stays the user's call.
+7. **Verification outside the editor.** When AGENTS.md says the build or the run happens in a vendor IDE, the feature stops at `verifying` with a checklist for the user under `Waiting on the user`.
+8. **`done` needs the user.** `cdev-implement` and `cdev-target-verify` propose closing a feature; it becomes `done` on the user's confirmation, and only when the touched folders' documents match the code.
+9. **Editor guards, not gates.** `cdev-init` writes `.vscode/settings.json` (`files.readonlyInclude` for read-only folders, `chat.tools.terminal.autoApprove` entries that keep destructive git and delete commands waiting for approval) and `.github/instructions/architecture.instructions.md`, whose `applyTo` covers the code folders so the document rules reach Copilot whenever it edits documented code. Git hooks remain a non-goal.
+
+Not done, pending a check of the Copilot version in use: subagents for reading code, and nested AGENTS.md files per folder.

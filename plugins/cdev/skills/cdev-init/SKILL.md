@@ -1,6 +1,6 @@
 ---
 name: cdev-init
-description: "Generate a markdown-first harness in this repository: AGENTS.md, CLAUDE.md, architecture documents, a progress log, and a feature list."
+description: "Generate a markdown-first harness in this repository: AGENTS.md, architecture documents, a progress log, a feature list, and the editor settings that guard read-only code."
 disable-model-invocation: true
 ---
 
@@ -38,11 +38,12 @@ Each domain has a reference the other cdev skills read: [c](../cdev-implement/re
 
 Nothing is committed yet, so the whole result stays a draft the user can change. Do all of this, then stop:
 
-1. Copy `templates/tools/feature.py` to `tools/feature.py` and `templates/feature_list.json` to `feature_list.json`.
+1. Copy `templates/tools/feature.py` and `templates/tools/doc_check.py` into `tools/`, and `templates/feature_list.json` to `feature_list.json`.
 2. Scan the code folders two levels deep. A folder named like `third_party`, `vendor`, `external`, or a vendor SDK, or whose files carry a generated marker in their first lines, is read-only.
-3. For each code folder, read its code and write `ARCHITECTURE.md` from `templates/ARCHITECTURE.folder.md`.
+3. For each code folder, read its code and write `ARCHITECTURE.md` from `templates/ARCHITECTURE.folder.md`. Read the functions a flow passes through before writing the flow.
 4. Write `ARCHITECTURE.md` at the root from `templates/ARCHITECTURE.root.md`, and `AGENTS.md`, `CLAUDE.md`, and `PROGRESS.md` from their templates.
-5. Run `py -3 tools/feature.py check`.
+5. Write `.vscode/settings.json` and `.github/instructions/architecture.instructions.md` from the templates of the same path. GitHub Copilot in VS Code reads both: the settings make read-only folders uneditable and keep destructive terminal commands from running without the user's approval, and the instructions reach the agent whenever it works on code a document describes.
+6. Run `py -3 tools/feature.py check` and `py -3 tools/doc_check.py`.
 
 Fill every placeholder from what you found:
 
@@ -52,30 +53,35 @@ Fill every placeholder from what you found:
 | `{{DOMAINS}}` | the detected set, comma separated, for example `firmware, python` |
 | `{{EDITABLE}}` | a bullet list of the folders the user owns |
 | `{{READ_ONLY}}` | a bullet list of vendor and generated folders, or `none` |
-| `{{BUILD}}` | the build command from the repository's build files; when there are none, the Build and test section of the domain's reference |
-| `{{TEST}}` | the test command from the repository's own test setup, or `none` when it has no tests. Never take it from a reference, and never add a test framework here |
-| `{{RUN}}` | the command that runs the program or its main example, from the README, the build files, or the entry point; `unknown` when none is found |
+| `{{BUILD}}` | the build command in backticks, from the repository's build files; when there are none, the Build and test section of the domain's reference. When the project builds only inside a vendor IDE (AndeSight, Keil, IAR, MCUXpresso, or any Eclipse-based IDE whose project files you find), write `in <IDE>, outside this editor; the user builds and reports the errors` |
+| `{{TEST}}` | the test command in backticks, from the repository's own test setup, or `none` when it has no tests. Never take it from a reference, and never add a test framework here |
+| `{{RUN}}` | the command in backticks that runs the program or its main example, from the README, the build files, or the entry point. For firmware flashed from a vendor IDE, write `flashed and run by the user; the agent writes the checklist`. Write `unknown` when none is found |
 | `{{FIRST_STEP}}` | with tests: `Write a failing test first.` With `Test: none`: `Write down the input you will run the change on and the output you expect.` |
 | `{{TEST_RULE}}` | with tests: `A failing test before the code. A test written after the code tends to check what the code does rather than what the feature asked for.` With `Test: none`: `No test framework is added unless the user asks for one. Each change is checked by running it on a real input and comparing the output with what was expected.` |
 | `{{DATE}}` | today's date, `YYYY-MM-DD` |
 | `{{MODULES}}` | a table of every code folder: folder, role, and what it depends on |
 | `{{FOLDER}}` | the folder's path from the repository root |
 | `{{RESPONSIBILITY}}` | one sentence on what the folder does, from reading its code rather than its file names |
+| `{{FILES}}` | one bullet per file directly in the folder: the name in backticks, a colon, and its role in a few words. A glob such as `hal_*.c` stands for a group with one role |
+| `{{FLOWS}}` | the sequences that run through the folder, each as a short numbered list naming the function and file at every step: start-up and initialisation, the interrupt or event path, the main loop, and the procedure behind each main feature. Write `none` for a folder of helpers with no sequence of its own |
 | `{{ENTRY_POINTS}}` | the functions or commands other code is meant to call |
 | `{{DEPENDS_ON}}` | the folders and libraries it includes or imports |
 | `{{NOTES}}` | what the domain needs recorded: interrupts, shared state, and stack for firmware; locking and context for drivers; external services and hardware for Python |
+| `{{READ_ONLY_GLOBS}}` | a JSON object with one `"<folder>/**": true` entry per read-only folder, or `{}` when there are none |
+| `{{CODE_GLOBS}}` | the editable code folders as comma-separated globs, for example `src/**,drivers/**` |
 
-**Done when:** every file exists, no `{{` remains in any file you wrote, and `feature.py check` passes.
+**Done when:** every file exists, no `{{` remains in any file you wrote, `feature.py check` passes, and `doc_check.py` reports no drift.
 
 ### 4. Hand the whole result over for review
 
 One message, with the finished work rather than a plan for it:
 
 - the domain set, and the file behind each domain
-- a table of code folders: role, depends on, read-only or not, and a Note column flagging every guess (a folder classified read-only from its name alone, a responsibility inferred from little code, a build command taken from a reference because the repository had none, a run command marked `unknown`)
+- a table of code folders: role, depends on, read-only or not, and a Note column flagging every guess (a folder classified read-only from its name alone, a responsibility inferred from little code, a flow written from part of its path, a build command taken from a reference because the repository had none, a run command marked `unknown`)
+- whether the build and the run happen in this editor or in a vendor IDE. When they happen in an IDE, say that each feature will stop at `verifying` with a checklist for the user, and ask whether the IDE's toolchain can be run from a command line
 - whether the repository has tests. When it has none, say plainly that the skills will not add any unless asked, and will run each change on a real input instead
 - every `.cdev-proposed` file, and why it exists
-- what is left to the user: the decisions table in CLAUDE.md and the first features
+- what is left to the user: the decisions table in the root ARCHITECTURE.md and the first features
 
 Then ask one question: what is wrong? One answer covering every row is the approval these documents need. `git diff` stays open to the user the whole time, so they read the real files. Apply each correction and show the difference it made.
 

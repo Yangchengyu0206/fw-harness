@@ -4,11 +4,11 @@ The agent reaches this one on its own.
 
 ## What it does
 
-Compares the code folders and their includes or imports with the architecture documents, then rewrites only what drifted: documents for new folders, removed folders taken off the map, and dependencies that changed.
+Runs `doc_check`, compares the code folders, their includes or imports, and the functions their flows name with the architecture documents, then rewrites only what drifted: documents for new folders, removed folders taken off the map, and the files, flows, and dependencies that changed.
 
 ## When to reach for it
 
-When a folder appears or disappears, when a folder starts depending on something new, or when the documents no longer describe the code.
+When `doc_check` reports drift, when a folder appears or disappears, when a folder starts depending on something new, or when the documents no longer describe the code.
 
 ## Common questions
 
@@ -18,4 +18,4 @@ When a folder appears or disappears, when a folder starts depending on something
 
 ## It is working if
 
-Every code folder has a document, the root map lists every folder, and the dependencies in each document match what the code includes.
+Every code folder has a document, the root map lists every folder, `doc_check` reports no drift, and the flows and dependencies in each document match the code.
