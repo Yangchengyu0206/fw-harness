@@ -1,6 +1,24 @@
 # fw-harness
 
-A harness and a set of skills for C firmware teams, for Claude Code and GitHub Copilot. Traditional Chinese: [README.zh-TW.md](README.zh-TW.md).
+Harnesses and skills for C and Python development, for Claude Code and GitHub Copilot. Traditional Chinese: [README.zh-TW.md](README.zh-TW.md).
+
+## Two plugins
+
+This marketplace holds two plugins. Install one per repository.
+
+| | `fw-c-harness` | `cdev` |
+|---|---|---|
+| For | a firmware team sharing one repository | one developer |
+| Languages and domains | C firmware | C and Python: plain C, firmware, Linux drivers, Windows drivers |
+| Verification | seven gates in `check`, git hooks, ratchets | none; the project's own build and test commands |
+| State | one ticket file per feature, with who changed what | one `feature_list.json` and a `PROGRESS.md` |
+| Review | by someone other than the author | self-review, with every finding re-verified |
+| Scripts written into the repository | the gate and state scripts | one, `tools/feature.py` |
+| Install | `/plugin install fw-c-harness@fw-harness` | `/plugin install cdev@fw-harness` |
+
+`cdev` is described in [plugins/cdev/README.md](plugins/cdev/README.md). The rest of this page describes `fw-c-harness`.
+
+## fw-c-harness
 
 One install gives a firmware team two things:
 

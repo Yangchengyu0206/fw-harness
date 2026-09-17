@@ -42,6 +42,24 @@ Record the date, the tool, its version, and who ran it in the table at the end.
 - [ ] `fw-harness-upgrade --dry-run` reports the version change and the four groups without writing.
 - [ ] After the real run, a locally edited script is untouched and its new version is a proposal.
 
+## cdev
+
+Run once in Claude Code and once in Copilot CLI, each on scratch repositories.
+
+- [ ] Installing `cdev@fw-harness` succeeds, and all eleven skills are listed.
+- [ ] `cdev-init` detects the right domain set on one repository per domain: plain C, firmware, Linux driver, Windows driver, Python.
+- [ ] On a mixed repository (firmware with Python test tooling), the detected set holds both domains.
+- [ ] `cdev-init` runs to the end without asking anything, then asks one question over the whole result.
+- [ ] With an existing `AGENTS.md`, the file is untouched and `AGENTS.md.cdev-proposed` appears.
+- [ ] No `{{` placeholder is left in any generated file.
+- [ ] `cdev-session-start` proposes a feature and stops for your answer before writing code.
+- [ ] `cdev-implement` writes a failing test first and uses the build and test commands from AGENTS.md.
+- [ ] `cdev-review` writes a report into `docs/reviews/` with the two axes kept separate.
+- [ ] `cdev-target-verify` stores a log under `docs/evidence/` and records it on the feature.
+- [ ] `cdev-done` updates `## Now` in PROGRESS.md and hands you a commit message rather than committing.
+- [ ] `cdev-guide` names the skill you actually needed.
+- [ ] `py -3 tools/feature.py check` fails loudly on a hand-broken `feature_list.json`.
+
 ## Record
 
 | Date | Tool and version | Who | Result |

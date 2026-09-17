@@ -113,7 +113,8 @@ def test_documented_ticket_commands_parse():
 
 
 # Every feature.py command line we ship must parse with the real CLI parser.
-FEATURE_LINE_RE = re.compile(r"feature\.py ([^`\n]+)")
+# Only real invocations count: a directory listing that mentions tools/feature.py is not a command.
+FEATURE_LINE_RE = re.compile(r"(?:py -3|python3?) \S*feature\.py ([^`\n]+)")
 FEATURE_PLACEHOLDERS = {"F-NNN": "F-001", "...": "x", "<id>": "F-001", "<status>": "active"}
 
 

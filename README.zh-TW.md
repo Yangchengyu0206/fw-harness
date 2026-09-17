@@ -1,6 +1,24 @@
 # fw-harness
 
-給 C 韌體團隊的 harness 與技能組，同時支援 Claude Code 與 GitHub Copilot。English: [README.md](README.md)。
+給 C 與 Python 開發用的 harness 與技能組，同時支援 Claude Code 與 GitHub Copilot。English: [README.md](README.md)。
+
+## 兩個 plugin
+
+這個 marketplace 裡有兩個 plugin，每個 repo 裝其中一個。
+
+| | `fw-c-harness` | `cdev` |
+|---|---|---|
+| 適用 | 共用同一個 repo 的韌體團隊 | 單人開發 |
+| 語言與領域 | C 韌體 | C 與 Python：一般 C、韌體、Linux 驅動、Windows 驅動 |
+| 驗證 | `check` 七道閘門、git hooks、棘輪 | 無；使用專案自己的建置與測試指令 |
+| 狀態 | 一票一檔，記錄誰改了什麼 | 一份 `feature_list.json` 加一份 `PROGRESS.md` |
+| 審查 | 必須由作者以外的人審 | 自我審查，每個發現都重新驗證 |
+| 寫進 repo 的腳本 | 閘門與狀態腳本 | 只有 `tools/feature.py` |
+| 安裝 | `/plugin install fw-c-harness@fw-harness` | `/plugin install cdev@fw-harness` |
+
+`cdev` 的說明在 [plugins/cdev/README.md](plugins/cdev/README.md)。本頁其餘內容說明 `fw-c-harness`。
+
+## fw-c-harness
 
 裝一次，團隊會得到兩樣東西：
 
