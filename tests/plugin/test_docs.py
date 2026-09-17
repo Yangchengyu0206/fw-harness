@@ -57,8 +57,10 @@ def test_notices_credit_every_adapted_source():
     text = NOTICES.read_text(encoding="utf-8")
     for source in ("github/awesome-copilot", "mattpocock/skills", "MIT"):
         assert source in text
-    for path in ("expert-embedded-c-engineer.agent.md", "debug.agent.md", "test-gap-audit",
-                 "security-review", "code-review-generic.instructions.md", "code-review"):
+    for path in ("expert-embedded-c-engineer.agent.md", "test-gap-audit", "security-review",
+                 "code-review-generic.instructions.md", "code-review", "diagnosing-bugs",
+                 "hitl-loop.template.sh", "bug-reproduction-brief", "gem-debugger.agent.md",
+                 "gem-reviewer.agent.md"):
         assert path in text, f"{path} is adapted but not credited"
     for plugin in PLUGINS:
         assert f"plugins/{plugin}/" in text, f"{plugin} has adapted files and no entry"

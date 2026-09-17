@@ -89,7 +89,7 @@ fw-harness/
 | `fw-c-implement` | agent | `agents/expert-embedded-c-engineer.agent.md` | 讀票與相關 ARCHITECTURE.md → 寫 Unity 測試並確認它失敗 → 實作 → 跑 `check` → 記錄 evidence。references：`embedded-c-rules.md`（fixed-width 型別、`const`、`static`、macro、錯誤回傳碼）、`isr-concurrency.md`（`volatile`、臨界區、ISR 內要避免的事）、`memory-budget.md`（動態配置限制、stack、map 預算）、`module-template.md`（`.h`/`.c` 樣板）。 |
 | `fw-c-review` | agent | `instructions/code-review-generic.instructions.md`（分級與格式）、`skills/security-review/SKILL.md`（自我驗證）、mattpocock `code-review`（兩軸） | 兩軸 review，每軸各用一個 sub-agent，並列回報（第 7 節）。 |
 | `fw-c-test-gap` | agent | `skills/test-gap-audit/SKILL.md` | 只讀的測試缺口稽核，嚴重度 P0 到 P3。沿用來源的證據標準：引用的那一行必須真的含有所指的內容，每個數字都附上產生它的指令。 |
-| `fw-c-debug` | agent | `agents/debug.agent.md` | 先重現再修。加上 HardFault 暫存器解讀、stack overflow、ISR 競態與 `git bisect`。每個修正都附回歸測試。 |
+| `fw-c-debug` | agent | `skills/engineering/diagnosing-bugs`（mattpocock/skills），並參考 `skills/bug-reproduction-brief` 與 `agents/gem-debugger.agent.md` | 先建立能穩定重現的驗證迴圈再推測原因，列出可推翻的假設並逐一證實。加上 HardFault 暫存器解讀、stack overflow、ISR 競態、`git bisect`，以及需要人手操作板子時用的腳本。每個修正都附回歸測試。 |
 | `fw-misra-deviation` | agent | `expert-embedded-c-engineer` 的 deviation 段落 | 必須偏離 MISRA 規則時，產生 `docs/deviations/DEV-NNNN.md`（規則編號、理由、風險、範圍、核准人）。核准人必須是作者以外的人。 |
 | `fw-guide` | 人 | mattpocock `ask-matt`（router 模式） | Router：列出其他所有 skill 以及各自的使用時機，讓人只需要記住一個 skill，而不是十三個。 |
 
