@@ -1,0 +1,26 @@
+{
+  "name": "cdev",
+  "version": "0.1.0",
+  "description": "A markdown-first harness for one developer working in C and Python: AGENTS.md, architecture documents, a progress log, a feature list, and skills with depth for firmware, Linux drivers, and Windows drivers.",
+  "author": {
+    "name": "fw-harness contributors",
+    "url": "https://github.com/Yangchengyu0206/fw-harness"
+  },
+  "homepage": "https://github.com/Yangchengyu0206/fw-harness",
+  "repository": "https://github.com/Yangchengyu0206/fw-harness",
+  "license": "MIT",
+  "keywords": ["c", "python", "firmware", "linux-driver", "windows-driver", "harness"],
+  "skills": [
+    "./skills/cdev-architecture-sync",
+    "./skills/cdev-debug",
+    "./skills/cdev-done",
+    "./skills/cdev-feature",
+    "./skills/cdev-guide",
+    "./skills/cdev-implement",
+    "./skills/cdev-init",
+    "./skills/cdev-review",
+    "./skills/cdev-session-start",
+    "./skills/cdev-target-verify",
+    "./skills/cdev-test-gap"
+  ]
+}

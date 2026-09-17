@@ -110,3 +110,40 @@ def test_documented_ticket_commands_parse():
         except SystemExit:
             broken.append(f"{name}: ticket.py {line}")
     assert broken == []
+
+
+# Every feature.py command line we ship must parse with the real CLI parser.
+FEATURE_LINE_RE = re.compile(r"feature\.py ([^`\n]+)")
+FEATURE_PLACEHOLDERS = {"F-NNN": "F-001", "...": "x", "<id>": "F-001", "<status>": "active"}
+
+
+def documented_feature_commands():
+    import shlex
+    found = []
+    for path in prose_files():
+        for match in FEATURE_LINE_RE.finditer(path.read_text(encoding="utf-8")):
+            text = match.group(1).strip().rstrip("`.,")
+            if not text or text.startswith("--file"):
+                continue
+            tokens = []
+            for token in shlex.split(text):
+                token = token.strip("[]")
+                if token:
+                    tokens.append(FEATURE_PLACEHOLDERS.get(token, re.sub(r"<[^>]*>", "x", token)))
+            found.append((path.name, text, tokens))
+    return found
+
+
+def test_documented_feature_commands_parse():
+    import sys
+    from helpers import ROOT
+    sys.path.insert(0, str(ROOT / "plugins" / "cdev" / "skills" / "cdev-init" / "templates" / "tools"))
+    from feature import build_parser
+    parser = build_parser()
+    broken = []
+    for name, text, argv in documented_feature_commands():
+        try:
+            parser.parse_args(argv)
+        except SystemExit:
+            broken.append(f"{name}: feature.py {text}")
+    assert broken == []

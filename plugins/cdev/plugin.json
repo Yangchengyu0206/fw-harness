@@ -1,0 +1,14 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "cdev",
+  "version": "0.1.0",
+  "description": "A markdown-first harness for one developer working in C and Python: AGENTS.md, architecture documents, a progress log, a feature list, and skills with depth for firmware, Linux drivers, and Windows drivers.",
+  "author": {
+    "name": "fw-harness contributors",
+    "url": "https://github.com/Yangchengyu0206/fw-harness"
+  },
+  "homepage": "https://github.com/Yangchengyu0206/fw-harness",
+  "repository": "https://github.com/Yangchengyu0206/fw-harness",
+  "license": "MIT",
+  "keywords": ["c", "python", "firmware", "linux-driver", "windows-driver", "harness"]
+}
