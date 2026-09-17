@@ -59,7 +59,7 @@ Both marketplace manifests point at the same `plugins/fw-c-harness` directory, s
 
 **Division of responsibility:** the plugin carries only what should update with the plugin version (skills and templates). Rules, state, gate scripts, and git hooks are **written into the firmware repo and committed**, so people without the plugin, people committing by hand, and CI all follow the same rules.
 
-## 3. Skills (13)
+## 3. Skills (14)
 
 Every skill uses the `SKILL.md` format and follows the authoring conventions in section 3.4.
 
@@ -82,16 +82,17 @@ Every skill uses the `SKILL.md` format and follows the authoring conventions in 
 
 ### 3.3 Implementation and review
 
-Adapted from awesome-copilot (MIT); each file credits its source.
+Adapted from awesome-copilot, mattpocock/skills, and obra/superpowers (all MIT); each file credits its source.
 
 | Skill | Invocation | Source | Purpose |
 |---|---|---|---|
 | `fw-c-implement` | model | `agents/expert-embedded-c-engineer.agent.md` | Read the ticket and the relevant ARCHITECTURE.md → write a Unity test and watch it fail → implement → run `check` → record evidence. References: `embedded-c-rules.md` (fixed-width types, `const`, `static`, macros, error return codes), `isr-concurrency.md` (`volatile`, critical sections, what an ISR must avoid), `memory-budget.md` (dynamic allocation limits, stack, map budget), `module-template.md` (`.h`/`.c` skeleton). |
 | `fw-c-review` | model | `instructions/code-review-generic.instructions.md` (severity and format), `skills/security-review/SKILL.md` (self-verification), mattpocock `code-review` (two axes) | Two-axis review, each axis in its own sub-agent, reported side by side (section 7). |
+| `fw-review-respond` | model | `skills/receiving-code-review` (obra/superpowers) | The author's side of a review: check every finding against the code, fix, decline with evidence, or leave for the user; fix one at a time with host tests after each; append an Author response table to the report; hand back for re-review. Records no review evidence, since the assignee's would be self-review. |
 | `fw-c-test-gap` | model | `skills/test-gap-audit/SKILL.md` | Read-only test gap audit with P0 to P3 severity. Keeps the source's evidence standard: a cited line must contain what it is cited for, and every number comes with the command that produced it. |
 | `fw-c-debug` | model | `skills/engineering/diagnosing-bugs` (mattpocock/skills), with `skills/bug-reproduction-brief` and `agents/gem-debugger.agent.md` | Build a loop that goes red before hypothesising, rank falsifiable hypotheses, prove one. Adds HardFault register decoding, stack overflow, ISR races, `git bisect`, and a human-in-the-loop script for board steps. Every fix lands with a regression test. |
 | `fw-misra-deviation` | model | deviation section of `expert-embedded-c-engineer` | When a MISRA rule must be broken, writes `docs/deviations/DEV-NNNN.md` (rule number, rationale, risk, scope, approver). The approver is someone other than the author. |
-| `fw-guide` | user | mattpocock `ask-matt` (router pattern) | Router: names every other skill and when to reach for it, so people remember one skill instead of thirteen. |
+| `fw-guide` | user | mattpocock `ask-matt` (router pattern) | Router: names every other skill and when to reach for it, so people remember one skill instead of fourteen. |
 
 ### 3.4 Skill authoring conventions
 

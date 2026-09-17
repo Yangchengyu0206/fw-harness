@@ -5,7 +5,7 @@ description: Diagnose and then fix a defect in C or Python code. Build a loop th
 
 # cdev-debug
 
-The phases are adapted from `diagnosing-bugs` in [mattpocock/skills](https://github.com/mattpocock/skills) (MIT). The defect record is adapted from `skills/bug-reproduction-brief/SKILL.md` and the stopping rule from `agents/gem-debugger.agent.md`, both in [github/awesome-copilot](https://github.com/github/awesome-copilot) (MIT).
+The phases are adapted from `diagnosing-bugs` in [mattpocock/skills](https://github.com/mattpocock/skills) (MIT). The defect record is adapted from `skills/bug-reproduction-brief/SKILL.md` and the stopping rule from `agents/gem-debugger.agent.md`, both in [github/awesome-copilot](https://github.com/github/awesome-copilot) (MIT). The comparison with working code, the trace back to the source, and the three-fix limit are adapted from `skills/systematic-debugging` in [obra/superpowers](https://github.com/obra/superpowers) (MIT).
 
 A fix for a defect nobody reproduced is a guess, and a guess usually passes the test and fails later. Most of the work is step 2: once a loop goes red on this defect, the rest is mechanical.
 
@@ -67,6 +67,8 @@ Build settings are experiments, not clutter. When the defect vanishes at `-O0`, 
 
 ### 4. Rank hypotheses, then prove one
 
+**Compare with code that works.** Find the closest thing that does work: the same driver on another port, the same routine before the regression, or, for an algorithm, the reference implementation it was ported from, such as a MATLAB or NumPy version, run on the same input with intermediate values printed side by side. List every difference between the two, however small, before deciding one cannot matter. The differences are the first hypotheses.
+
 Write three to five hypotheses, most likely first, each with the prediction that would falsify it:
 
 > If <cause>, then <change> makes the defect disappear, and <other change> makes it worse.
@@ -93,9 +95,13 @@ Stop once one hypothesis is confirmed. A check that cannot change the diagnosis 
 
 Check the seam first. A good seam exercises the defect the way it happens at the real call site. A unit test that cannot reproduce the thread interleaving, or a single-caller test for a defect that needs two callers, gives false confidence.
 
+Fix where the fault starts, not where it shows. When a bad value surfaces deep in a call chain, follow it backwards, caller by caller, to the first place it goes wrong, and change that place. A guard added at the symptom hides the defect from the next caller.
+
 - **With `Test: none` in AGENTS.md**: add no test framework. Make the smallest change that addresses the confirmed cause and watch the shrunken loop turn green. Then ask the user whether to keep the loop script in the repository as a check for this defect, or delete it.
 - **With a good seam**: turn the shrunken reproduction into a test, watch it fail on the defect, make the smallest change that addresses the confirmed cause, and watch it pass.
 - **With no seam off the target**: add the check to the feature with `py -3 tools/feature.py set F-NNN --verify "..."` and say so. When the architecture is what rules out a seam, tell the user, because that is a finding in its own right.
+
+When the fix does not turn the loop green, revert it rather than stacking another change on top, and go back to step 4 with what it taught you. After three fixes that did not hold, stop and talk it through with the user before a fourth. When each fix exposes a new problem somewhere else, the design around the defect is the likely cause, and patching symptoms will not converge.
 
 Then run the build command from AGENTS.md, the test command when there is one, and the step 2 loop again against the original, unshrunk scenario.
 

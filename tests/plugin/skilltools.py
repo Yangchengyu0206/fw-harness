@@ -9,7 +9,7 @@ PLUGINS = {
         "skills": (
             "fw-harness-init", "fw-harness-upgrade", "fw-architecture-sync", "fw-session-start",
             "fw-ticket", "fw-hil-verify", "fw-done", "fw-c-implement", "fw-c-review",
-            "fw-c-test-gap", "fw-c-debug", "fw-misra-deviation", "fw-guide",
+            "fw-c-test-gap", "fw-c-debug", "fw-misra-deviation", "fw-review-respond", "fw-guide",
         ),
         "user_invoked": {
             "fw-harness-init", "fw-harness-upgrade", "fw-session-start",

@@ -34,7 +34,7 @@ Run `fw-harness-init` once in the firmware repository, then start each session w
 
 Lifecycle: `fw-harness-init`, `fw-harness-upgrade`, `fw-architecture-sync`.
 Work loop: `fw-session-start`, `fw-ticket`, `fw-hil-verify`, `fw-done`.
-Code: `fw-c-implement`, `fw-c-review`, `fw-c-test-gap`, `fw-c-debug`, `fw-misra-deviation`.
+Code: `fw-c-implement`, `fw-c-review`, `fw-review-respond`, `fw-c-test-gap`, `fw-c-debug`, `fw-misra-deviation`.
 Router: `fw-guide`.
 
 One page per skill lives in [docs/skills](../../docs/skills).

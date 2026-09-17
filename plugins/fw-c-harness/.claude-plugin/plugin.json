@@ -9,7 +9,14 @@
   "homepage": "https://github.com/Yangchengyu0206/fw-harness",
   "repository": "https://github.com/Yangchengyu0206/fw-harness",
   "license": "MIT",
-  "keywords": ["firmware", "embedded", "c", "misra", "code-review", "harness"],
+  "keywords": [
+    "firmware",
+    "embedded",
+    "c",
+    "misra",
+    "code-review",
+    "harness"
+  ],
   "skills": [
     "./skills/fw-architecture-sync",
     "./skills/fw-c-debug",
@@ -22,6 +29,7 @@
     "./skills/fw-harness-upgrade",
     "./skills/fw-hil-verify",
     "./skills/fw-misra-deviation",
+    "./skills/fw-review-respond",
     "./skills/fw-session-start",
     "./skills/fw-ticket"
   ]

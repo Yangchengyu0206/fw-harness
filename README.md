@@ -106,6 +106,7 @@ Windows, macOS, and Linux. On Windows the scripts run under `py -3`, read and wr
 | `fw-done` | you type it | Handoff, progress note, ticket, commit message |
 | `fw-c-implement` | the agent reaches it | Test-first implementation |
 | `fw-c-review` | the agent reaches it | Two-axis review, Standards and Spec |
+| `fw-review-respond` | the agent reaches it | Check, fix, or decline review findings, then hand back for re-review |
 | `fw-c-test-gap` | the agent reaches it | What has no test, P0 to P3 |
 | `fw-c-debug` | the agent reaches it | Reproduce, then fix |
 | `fw-misra-deviation` | the agent reaches it | Record a deviation with an approver |

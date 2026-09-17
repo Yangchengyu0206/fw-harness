@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # fw-guide
 
-Thirteen skills is more than anyone remembers, so ask here instead. The ones marked "the agent reaches on its own" fire without you typing them; the rest you type.
+Fourteen skills is more than anyone remembers, so ask here instead. The ones marked "the agent reaches on its own" fire without you typing them; the rest you type.
 
 ## Setting the repository up
 
@@ -25,6 +25,7 @@ Thirteen skills is more than anyone remembers, so ask here instead. The ones mar
 ## Looking at code
 
 - **`fw-c-review`** (the agent reaches on its own): the two-axis review, Standards and Spec, written into `harness/reviews/`. Reach for it before merging, and remember that a review by the author counts for nothing at the Definition of Done.
+- **`fw-review-respond`** (the agent reaches on its own): a review of your ticket came back. It checks each finding against the code, fixes or declines it with evidence, writes the answer into the report, and hands the change back for re-review.
 - **`fw-c-test-gap`** (the agent reaches on its own): what has no test, ranked P0 to P3, read-only. Reach for it when the question is coverage rather than correctness.
 - **`fw-c-debug`** (the agent reaches on its own): reproduce, shrink, then fix. Reach for it for a hang, a HardFault, or anything intermittent.
 

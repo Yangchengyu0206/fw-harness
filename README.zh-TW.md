@@ -106,6 +106,7 @@ Python 3.9 以上、git，以及你在 `harness/config.json` 指定的工具鏈�
 | `fw-done` | 你自己輸入 | handoff、進度紀錄、更新票、commit 訊息 |
 | `fw-c-implement` | agent 自己會用 | 測試先行的實作 |
 | `fw-c-review` | agent 自己會用 | Standards 與 Spec 兩軸審查 |
+| `fw-review-respond` | agent 自己會用 | 逐條查證審查意見，修正或附理由婉拒，再交回重審 |
 | `fw-c-test-gap` | agent 自己會用 | 哪些行為沒有測試，P0 到 P3 |
 | `fw-c-debug` | agent 自己會用 | 先重現，再修 |
 | `fw-misra-deviation` | agent 自己會用 | 記錄偏差並取得核准人 |

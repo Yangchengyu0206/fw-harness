@@ -7,7 +7,7 @@ Record the date, the tool, its version, and who ran it in the table at the end.
 ## Install
 
 - [ ] `/plugin marketplace add <owner>/fw-harness` in Claude Code, or `copilot plugin marketplace add <owner>/fw-harness` in Copilot CLI, succeeds.
-- [ ] Installing the plugin succeeds, and all thirteen skills are listed.
+- [ ] Installing the plugin succeeds, and all fourteen skills are listed.
 - [ ] In Claude Code, `claude plugin validate . --strict` passes in a clone of this repository.
 - [ ] In Copilot CLI, the skills are discovered from the plugin's `skills/` folder. If they are not, the plugin manifest needs an explicit list and this checklist item becomes a bug report.
 
@@ -26,6 +26,7 @@ Record the date, the tool, its version, and who ran it in the table at the end.
 - [ ] `fw-c-implement` writes the failing test first and shows you the failure before implementing.
 - [ ] `check --record FW-NNNN` refuses to run on a dirty working tree.
 - [ ] `fw-c-review` produces two separate axes in `harness/reviews/`, and its counts match its findings.
+- [ ] `fw-review-respond` shows a verdict per finding before editing, declines at least one wrong finding with evidence, appends an Author response table, and leaves the ticket's review evidence untouched.
 - [ ] The agent declines to move a ticket to `done`, and `ticket.py move <id> done` asks for typed confirmation in a terminal.
 - [ ] `fw-hil-verify` stores a log under `harness/evidence/` and records hil evidence.
 - [ ] `fw-done` writes the handoff and the progress note, and hands you a commit message rather than committing.

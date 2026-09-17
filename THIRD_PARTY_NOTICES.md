@@ -39,6 +39,16 @@ https://github.com/mattpocock/skills, MIT.
 | `plugins/cdev/skills/cdev-guide/SKILL.md` | the router pattern in `skills/engineering/ask-matt` |
 | The authoring conventions every SKILL.md follows | `skills/productivity/writing-for-agents` |
 
+## obra/superpowers
+
+https://github.com/obra/superpowers, MIT.
+
+| Our file | Adapted from |
+|---|---|
+| `plugins/fw-c-harness/skills/fw-review-respond/SKILL.md` | `skills/receiving-code-review` |
+| `plugins/fw-c-harness/skills/fw-c-debug/SKILL.md` | the comparison with working code, the trace back to the source, and the three-fix limit in `skills/systematic-debugging` |
+| `plugins/cdev/skills/cdev-debug/SKILL.md` | the comparison with working code, the trace back to the source, and the three-fix limit in `skills/systematic-debugging` |
+
 ## Standards referenced, not included
 
 MISRA C:2012 is a copyrighted standard. This project ships no rule text. It refers to rules by number, with our own one line summaries, and the mode is configured in `harness/review-policy.json`.

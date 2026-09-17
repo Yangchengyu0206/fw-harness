@@ -60,7 +60,8 @@ def test_notices_credit_every_adapted_source():
     for path in ("expert-embedded-c-engineer.agent.md", "test-gap-audit", "security-review",
                  "code-review-generic.instructions.md", "code-review", "diagnosing-bugs",
                  "hitl-loop.template.sh", "bug-reproduction-brief", "gem-debugger.agent.md",
-                 "gem-reviewer.agent.md"):
+                 "gem-reviewer.agent.md", "obra/superpowers", "receiving-code-review",
+                 "systematic-debugging"):
         assert path in text, f"{path} is adapted but not credited"
     for plugin in PLUGINS:
         assert f"plugins/{plugin}/" in text, f"{plugin} has adapted files and no entry"
