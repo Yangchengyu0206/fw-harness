@@ -1,2 +1,5 @@
 __pycache__/
 .pytest_cache/
+
+# Implementation plans stay local; the design specs are published
+docs/superpowers/plans/
