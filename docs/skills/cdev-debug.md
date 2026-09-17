@@ -4,7 +4,7 @@ The agent reaches this one on its own.
 
 ## What it does
 
-Records the defect as expected against actual, builds a loop that goes red on it, shrinks the reproduction, ranks three to five falsifiable hypotheses using the debugging anchors of the repository's domains and shows them to you, proves one, writes a regression test that fails, fixes, and cleans up every tagged debug line.
+Records the defect as expected against actual, builds a loop that goes red on it, shrinks the reproduction, ranks three to five falsifiable hypotheses using the debugging anchors of the repository's domains and shows them to you, proves one, fixes, locks the fix down with a regression test or, in a repository without tests, a loop script you choose to keep or delete, and cleans up every tagged debug line.
 
 ## When to reach for it
 
@@ -13,6 +13,10 @@ A crash, a hang, a reset loop, corrupted data, a kernel oops, a Windows bugcheck
 ## Common questions
 
 **Why build a loop before looking for the cause?** A fix for a defect nobody reproduced usually passes the test and fails later. With a command that goes red on this exact defect, every hypothesis can be checked in seconds; without one, the agent is guessing.
+
+**Does a simple bug go through all of that?** No. When one run already shows the symptom and the cause is plain, the skill fixes it, reruns, and tells you it took the shortcut.
+
+**My project has no tests.** The loop is a scratch script that runs the code on the failing input and compares the output. No test framework is added, and after the fix you decide whether the script stays.
 
 **What if nothing reproduces it?** The skill stops, lists what it tried, and asks you for access to the setup, a captured log or crash dump, or permission to instrument a build you run. It does not guess a fix.
 
@@ -26,4 +30,4 @@ A crash, a hang, a reset loop, corrupted data, a kernel oops, a Windows bugcheck
 
 ## It is working if
 
-You saw the loop go red before any fix, you were shown the ranked hypotheses, a test or verification step now fails for the defect, no `DEBUG-` line is left behind, and you can name the root cause in one sentence.
+You saw the loop go red before the fix and green after it, no `DEBUG-` line is left behind, and you can name the root cause in one sentence.

@@ -28,11 +28,11 @@ py -3 tools/feature.py show
 
 ### 3. Propose the feature
 
-Propose, in this order: the `active` feature, then a `verifying` feature that still owes a step, then the first `next` feature. For the one you propose, read back its `behavior` and its `verification` list with `py -3 tools/feature.py show F-NNN`.
+Propose, in this order: the `active` feature, then a `verifying` feature that still owes a step, then the first `next` feature. For the one you propose, read back its `behavior`, and its `verification` list when it has one, with `py -3 tools/feature.py show F-NNN`.
 
-When there are no features yet, ask the user what to build and add it with `py -3 tools/feature.py add --title "..." --behavior "..." --verify "..."`.
+When there are no features yet, ask the user what to build and add it with `py -3 tools/feature.py add --title "..." --behavior "..."`. Add `--verify "..."` only for a check the user names or one that needs real hardware.
 
-**Done when:** the user has the proposal with its behaviour and verification in front of them.
+**Done when:** the user has the proposal with its behaviour in front of them.
 
 ### 4. Agree on it
 

@@ -16,8 +16,10 @@ Once per repository, on a clean working tree.
 
 **Why does it not ask me anything until the end?** Reviewing finished files is faster and more reliable than approving a plan for them. Nothing is committed until you say so, so `git diff` shows you the real result.
 
+**My project has no tests.** That is fine. It writes `Test: none` into AGENTS.md, and no cdev skill adds a test framework unless you ask. Changes are checked by running the code on a real input instead.
+
 **What if I already have an AGENTS.md?** It is left alone. The generated version lands as `AGENTS.md.cdev-proposed` for you to compare.
 
 ## It is working if
 
-Every code folder has an ARCHITECTURE.md whose responsibility line describes what the folder does, AGENTS.md names the right domains and build commands, and everything lands in one commit you made.
+Every code folder has an ARCHITECTURE.md whose responsibility line describes what the folder does, AGENTS.md names the right domains, build command, run command, and whether the repository has tests, and everything lands in one commit you made.

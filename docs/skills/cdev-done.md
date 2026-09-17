@@ -4,7 +4,7 @@ User-invoked. Type `/cdev-done`.
 
 ## What it does
 
-Closes a session: reads the diff, rewrites where PROGRESS.md says the work is, adds a dated log entry with the build and test result, updates the feature's status and next step, and drafts a commit message naming the feature.
+Closes a session: reads the diff, rewrites where PROGRESS.md says the work is, adds a dated log entry with what showed the work is right (the build, the tests when there are any, or a real run), updates the feature's status and next step, and drafts a commit message naming the feature.
 
 ## When to reach for it
 

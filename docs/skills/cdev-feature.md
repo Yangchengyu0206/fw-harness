@@ -16,6 +16,8 @@ Whenever what is being built changes: a new feature, a status change, a blocker,
 
 **Why are status changes not restricted?** One developer does not need a state machine to protect them from themselves. The list records where things stand.
 
+**Must every feature list verification steps?** No. `verification` is optional and usually empty for algorithm work, where running the code is the proof. Add an entry for a check that will not happen on its own, such as one on real hardware.
+
 **What makes a good `behavior`?** Something you could observe: "receives 4 KB at 115200 baud without dropping a byte", not "add DMA support".
 
 ## It is working if

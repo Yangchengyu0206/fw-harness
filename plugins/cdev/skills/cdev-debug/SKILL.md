@@ -1,6 +1,6 @@
 ---
 name: cdev-debug
-description: Diagnose and then fix a defect in C or Python code. Build a loop that reproduces it, rank hypotheses, prove one, and lock it down with a regression test. Use when the user reports a crash, a hang, a reset loop, corrupted data, a kernel oops, a bugcheck, an intermittent failure, a slowdown, or asks to debug.
+description: Diagnose and then fix a defect in C or Python code. Build a loop that reproduces it, rank hypotheses, prove one, and lock the fix down. Use when the user reports a crash, a hang, a reset loop, corrupted data, a kernel oops, a bugcheck, an intermittent failure, a slowdown, or asks to debug.
 ---
 
 # cdev-debug
@@ -9,7 +9,7 @@ The phases are adapted from `diagnosing-bugs` in [mattpocock/skills](https://git
 
 A fix for a defect nobody reproduced is a guess, and a guess usually passes the test and fails later. Most of the work is step 2: once a loop goes red on this defect, the rest is mechanical.
 
-**Shortcut.** When a test already fails with exactly the reported symptom and the cause is plain in the code it exercises, that test is your loop. Go straight to step 5, and tell the user you took the shortcut and why.
+**Shortcut.** Not every defect needs every step. When one run on the reported input already shows exactly the symptom, and the cause is plain in the code it exercises, that run is your loop: go straight to step 5, and tell the user you took the shortcut and why. Take the full path when the first fix does not turn the run green.
 
 **Redact.** Write passwords, keys, and tokens as `<REDACTED>` in anything you show, and quote only the log lines that carry the signal.
 
@@ -21,26 +21,26 @@ Before changing anything, write down:
 
 - **Expected**: what should be observable
 - **Actual**: what is observed, as the message, the crash, the wrong value, or the timing
-- **Build**: commit, compiler or interpreter version, flags, package versions that matter
-- **Target**: host OS, board, kernel or Windows build, virtual machine, attached hardware
+- **Input**: the data, arguments, or steps that trigger it
+- **Environment**, only the parts that could matter: commit, compiler or interpreter version, flags, and for hardware or drivers the board, kernel, or Windows build
 
 Keep the suspected cause out of Expected and Actual. Mark anything you only heard second hand as unverified.
 
-**Done when:** all four lines are filled from things you inspected, and every unknown is written as unknown.
+**Done when:** the lines are filled from things you inspected, and every unknown is written as unknown.
 
 ### 2. Build a loop that goes red
 
 Find one command that shows this defect. Try these roughly in order, cheapest first:
 
-1. **A unit test** at whatever seam reaches the defect: CTest or Unity for C, pytest for Python.
-2. **A CLI run** with a fixture input, its output diffed against a known good one.
-3. **A replay**: a captured serial log, packet capture, or input file fed through the code path on the host.
+1. **A scratch script** that calls the suspect function or program on the failing input and compares the output with the expected one, within a tolerance for floating point. For algorithm code this is usually the whole loop. Keep it in a folder git ignores (`git check-ignore -v <folder>` confirms it).
+2. **A unit test** at whatever seam reaches the defect, when the repository has tests: CTest or Unity for C, pytest for Python.
+3. **A replay**: a captured data file, serial log, or packet capture fed through the code path on the host.
 4. **A differential run**: the same input through the last good build and the current one, outputs diffed.
 5. **A sanitizer or fuzz loop**: an ASan, UBSan, or TSan build running the trigger, or many generated inputs (libFuzzer, Hypothesis) when the output is only sometimes wrong.
 6. **An on-target script**: flash and match the serial reply for firmware; load the driver and run a user-mode test program against it for a driver.
 7. **A debugger script**: a GDB batch file, a `cdb -c` command string, or `python -X faulthandler`, printing the state that shows the defect.
 8. **A bisect harness**: `git bisect run` with one of the above, when a known good commit exists.
-9. **A human in the loop**, last. When someone must press reset, move a cable, or click through a dialog, copy [scripts/hitl_loop.py](scripts/hitl_loop.py) into a folder git ignores (`git check-ignore -v <folder>` confirms it), edit its steps, and ask the user to run it in their own terminal with `--out docs/evidence/F-NNN/hitl-<YYYY-MM-DD>.txt`. Read their answers from that file.
+9. **A human in the loop**, last. When someone must press reset, move a cable, or click through a dialog, copy [scripts/hitl_loop.py](scripts/hitl_loop.py) into a folder git ignores, edit its steps, and ask the user to run it in their own terminal with `--out docs/evidence/F-NNN/hitl-<YYYY-MM-DD>.txt`. Read their answers from that file.
 
 A driver defect that takes the machine down belongs in a virtual machine you can snapshot and restore, with the crash dump as the loop's output: kdump for Linux, a memory dump for Windows.
 
@@ -71,7 +71,7 @@ Write three to five hypotheses, most likely first, each with the prediction that
 
 > If <cause>, then <change> makes the defect disappear, and <other change> makes it worse.
 
-A hypothesis with no prediction is a hunch: sharpen it or drop it. Show the ranked list to the user before testing, because they often know the recent change or the environment detail that settles it. If they are away, go ahead with your ranking.
+A hypothesis with no prediction is a hunch: sharpen it or drop it. Show the ranked list to the user and start testing the first one without waiting; they often know the recent change or the input detail that settles it, and can interrupt when they do.
 
 Read the `Domains:` line in AGENTS.md, then the `## Debugging anchors` section of each listed domain's reference. They name the failure modes worth putting on the list and the tools that show them: [c](../cdev-implement/references/c.md), [firmware](../cdev-implement/references/firmware.md), [linux-driver](../cdev-implement/references/linux-driver.md), [windows-driver](../cdev-implement/references/windows-driver.md), [python](../cdev-implement/references/python.md).
 
@@ -89,21 +89,22 @@ Stop once one hypothesis is confirmed. A check that cannot change the diagnosis 
 
 **Done when:** one hypothesis is confirmed by evidence you can show, and the others are ruled out, rather than a change merely appearing to fix it.
 
-### 5. Regression test first, then the fix
+### 5. Lock it down, then fix
 
 Check the seam first. A good seam exercises the defect the way it happens at the real call site. A unit test that cannot reproduce the thread interleaving, or a single-caller test for a defect that needs two callers, gives false confidence.
 
+- **With `Test: none` in AGENTS.md**: add no test framework. Make the smallest change that addresses the confirmed cause and watch the shrunken loop turn green. Then ask the user whether to keep the loop script in the repository as a check for this defect, or delete it.
 - **With a good seam**: turn the shrunken reproduction into a test, watch it fail on the defect, make the smallest change that addresses the confirmed cause, and watch it pass.
 - **With no seam off the target**: add the check to the feature with `py -3 tools/feature.py set F-NNN --verify "..."` and say so. When the architecture is what rules out a seam, tell the user, because that is a finding in its own right.
 
-Then run the build and test commands from AGENTS.md, and run the step 2 loop again against the original, unshrunk scenario.
+Then run the build command from AGENTS.md, the test command when there is one, and the step 2 loop again against the original, unshrunk scenario.
 
-**Done when:** the regression test or the recorded verification failed before the fix and passes after it, the original loop is green, and every other test passes.
+**Done when:** the loop, the regression test, or the recorded verification was red before the fix and is green after it, on the original scenario as well, and every other test passes where there are tests.
 
 ### 6. Clean up and hand over
 
 - Search for your debug prefix and remove every tagged line.
-- Delete the copied loop script and any throwaway harness.
+- Delete the loop script and any throwaway harness, unless the user chose to keep one.
 - State the confirmed hypothesis, so `cdev-done` can carry it into the commit message.
 
 **Done when:** the prefix search finds nothing, and you have told the user the root cause in one sentence, the evidence that confirmed it, and where else the same pattern appears in this repository.

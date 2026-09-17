@@ -10,7 +10,7 @@
 One install gives a single developer:
 
 1. **A context harness written into their repository**: AGENTS.md, CLAUDE.md, an ARCHITECTURE.md for the root and every code folder, a progress log, and a feature list. An agent reads these to know where it is and what to do next.
-2. **Skills for the whole loop**: start a session, pick a feature, implement test first, review, audit test gaps, debug, verify on real hardware, and wrap up.
+2. **Skills for the whole loop**: start a session, pick a feature, implement, review, audit test gaps, debug, verify on real hardware when there is any, and wrap up.
 3. **Domain depth where it matters**: rules that general coding skills do not carry, for five domains.
 
 Constraints:
@@ -19,6 +19,7 @@ Constraints:
 - One developer. No identity tracking, no ticket IDs to allocate, no merge conflict avoidance.
 - Markdown first. Exactly one script ships: the one that keeps `feature_list.json` valid.
 - Languages: C and Python. Nothing else in this version.
+- Tests are optional. Many users write algorithms and keep no test suite. When a repository has none, `cdev-init` records `Test: none`, and no skill adds a test framework unless the user asks. The one bar every change still meets is a real run on a real input, with the command and output shown.
 
 ### Non-goals
 
@@ -140,10 +141,10 @@ py -3 tools/feature.py check
 | `cdev-session-start` | user | Read AGENTS.md, the top of PROGRESS.md, and `feature_list.json`; propose the feature to work on; confirm it with the user before writing code |
 | `cdev-feature` | model | Add, update, and show features through `tools/feature.py` |
 | `cdev-architecture-sync` | model | Rewrite ARCHITECTURE.md for folders that changed or appeared |
-| `cdev-implement` | model | Test first, then implement, then run the project's own build and test commands |
+| `cdev-implement` | model | A failing test first when the repository has tests, otherwise a chosen input and expected output; then implement, build, and run |
 | `cdev-review` | model | Two axes, Standards and Spec, each in its own sub-agent; report into `docs/reviews/`. Self-review is allowed |
 | `cdev-test-gap` | model | Read-only audit of untested behaviour, P0 to P3 |
-| `cdev-debug` | model | Reproduce, shrink, confirm one hypothesis, regression test, fix |
+| `cdev-debug` | model | Build a loop that shows the defect, shrink it, rank and prove hypotheses, lock the fix down with a test or a kept script, clean up |
 | `cdev-target-verify` | user | Verification on real hardware or a real OS: flash or load the driver, capture the log, note it on the feature |
 | `cdev-done` | user | Update PROGRESS.md and the feature, draft the commit message |
 | `cdev-guide` | user | Router over the other ten |

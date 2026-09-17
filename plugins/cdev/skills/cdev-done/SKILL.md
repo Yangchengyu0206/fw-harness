@@ -23,17 +23,17 @@ git diff
 
 Rewrite `## Now` so it says where the work is at this moment: the feature, where it stopped, the next step, and anything blocking it.
 
-Add an entry at the top of `## Log` under today's date: what was done, what the build and tests reported (the command and its result), and anything the next session needs that is not in the code.
+Add an entry at the top of `## Log` under today's date: what was done, what showed it works (the build, the tests when there are any, or the run on a real input, each as the command and its result), and anything the next session needs that is not in the code.
 
-**Done when:** `## Now` names a next step specific enough to start from without this conversation, and the log entry quotes the build and test result.
+**Done when:** `## Now` names a next step specific enough to start from without this conversation, and the log entry quotes the command and output that showed the result.
 
 ### 3. Update the feature
 
 ```bash
-py -3 tools/feature.py set F-NNN --status verifying --next "run the on-board loopback"
+py -3 tools/feature.py set F-NNN --status done
 ```
 
-Use `verifying` when the code is written and a verification step is still owed, `done` when every step in the feature's `verification` has run, and leave it `active` when the work is unfinished.
+Use `done` when the behaviour was observed in a run and no `verification` step is still owed, `verifying` with `--next "<the step>"` when one is, and leave it `active` when the work is unfinished.
 
 **Done when:** `py -3 tools/feature.py show F-NNN` matches what PROGRESS.md says.
 

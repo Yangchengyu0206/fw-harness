@@ -10,7 +10,7 @@ This marketplace holds two plugins. Install one per repository.
 |---|---|---|
 | For | a firmware team sharing one repository | one developer |
 | Languages and domains | C firmware | C and Python: plain C, firmware, Linux drivers, Windows drivers |
-| Verification | seven gates in `check`, git hooks, ratchets | none; the project's own build and test commands |
+| Verification | seven gates in `check`, git hooks, ratchets | none enforced; the project's own build and tests when it has them, otherwise a real run with its output shown |
 | State | one ticket file per feature, with who changed what | one `feature_list.json` and a `PROGRESS.md` |
 | Review | by someone other than the author | self-review, with every finding re-verified |
 | Scripts written into the repository | the gate and state scripts | one, `tools/feature.py` |

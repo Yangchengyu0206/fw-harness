@@ -53,7 +53,10 @@ Fill every placeholder from what you found:
 | `{{EDITABLE}}` | a bullet list of the folders the user owns |
 | `{{READ_ONLY}}` | a bullet list of vendor and generated folders, or `none` |
 | `{{BUILD}}` | the build command from the repository's build files; when there are none, the Build and test section of the domain's reference |
-| `{{TEST}}` | the test command, found the same way |
+| `{{TEST}}` | the test command from the repository's own test setup, or `none` when it has no tests. Never take it from a reference, and never add a test framework here |
+| `{{RUN}}` | the command that runs the program or its main example, from the README, the build files, or the entry point; `unknown` when none is found |
+| `{{FIRST_STEP}}` | with tests: `Write a failing test first.` With `Test: none`: `Write down the input you will run the change on and the output you expect.` |
+| `{{TEST_RULE}}` | with tests: `A failing test before the code. A test written after the code tends to check what the code does rather than what the feature asked for.` With `Test: none`: `No test framework is added unless the user asks for one. Each change is checked by running it on a real input and comparing the output with what was expected.` |
 | `{{DATE}}` | today's date, `YYYY-MM-DD` |
 | `{{MODULES}}` | a table of every code folder: folder, role, and what it depends on |
 | `{{FOLDER}}` | the folder's path from the repository root |
@@ -69,7 +72,8 @@ Fill every placeholder from what you found:
 One message, with the finished work rather than a plan for it:
 
 - the domain set, and the file behind each domain
-- a table of code folders: role, depends on, read-only or not, and a Note column flagging every guess (a folder classified read-only from its name alone, a responsibility inferred from little code, a build or test command taken from a reference because the repository had none)
+- a table of code folders: role, depends on, read-only or not, and a Note column flagging every guess (a folder classified read-only from its name alone, a responsibility inferred from little code, a build command taken from a reference because the repository had none, a run command marked `unknown`)
+- whether the repository has tests. When it has none, say plainly that the skills will not add any unless asked, and will run each change on a real input instead
 - every `.cdev-proposed` file, and why it exists
 - what is left to the user: the decisions table in CLAUDE.md and the first features
 

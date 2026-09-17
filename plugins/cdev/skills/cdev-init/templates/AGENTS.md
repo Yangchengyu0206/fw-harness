@@ -33,10 +33,13 @@ Ask before any of these:
 
 1. Read `## Now` in PROGRESS.md and run `py -3 tools/feature.py show`.
 2. Work on one feature at a time.
-3. Write a failing test first.
+3. {{FIRST_STEP}}
 4. Build: `{{BUILD}}`
 5. Test: `{{TEST}}`
-6. Update the feature with `py -3 tools/feature.py set F-NNN --status verifying --next "..."`, and add an entry to PROGRESS.md.
+6. Run: `{{RUN}}`
+7. Update the feature with `py -3 tools/feature.py set F-NNN --status <status>`, and add an entry to PROGRESS.md.
+
+`Test: none` means this repository has no tests, and none are added unless the user asks. Each change is still run on a real input, with the command and its output shown.
 
 ## Windows notes
 

@@ -4,7 +4,7 @@ User-invoked. Type `/cdev-session-start`.
 
 ## What it does
 
-Reads AGENTS.md and CLAUDE.md, reads where PROGRESS.md says the work stopped, lists the features, proposes the one to take with its behaviour and verification read back, and marks it active once you agree.
+Reads AGENTS.md and CLAUDE.md, reads where PROGRESS.md says the work stopped, lists the features, proposes the one to take with its behaviour read back, and marks it active once you agree.
 
 ## When to reach for it
 

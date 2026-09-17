@@ -5,8 +5,8 @@ Working rules for {{PROJECT}}. [AGENTS.md](AGENTS.md) is the short entry point; 
 ## Working rules
 
 - One active feature at a time. Finishing one before starting the next keeps PROGRESS.md honest about where the work is.
-- A failing test before the code. A test written after the code tends to check what the code does rather than what the feature asked for.
-- Build and test before calling a feature done, with the commands in AGENTS.md.
+- {{TEST_RULE}}
+- Run the change before calling it done: the build, the tests when there are any, and the code itself on a real input, with the commands in AGENTS.md. A change nobody ran is only a claim.
 - Generated and vendor code stays as it came. Upgrade it from its source.
 - A new source file goes into the build as well as onto disk.
 - `feature_list.json` changes through `tools/feature.py`, which validates the file before every write.
@@ -15,11 +15,11 @@ Working rules for {{PROJECT}}. [AGENTS.md](AGENTS.md) is the short entry point; 
 
 A feature is done when:
 
-- the behaviour in its `behavior` field can be observed, not only reasoned about
-- every step in its `verification` list has been run, including the ones that need real hardware or a real operating system
-- the result, with the build and test output that showed it, is recorded in PROGRESS.md
+- the behaviour in its `behavior` field has been observed in a run, not only reasoned about
+- every step in its `verification` list, if it has one, has been run
+- the result, with the command and output that showed it, is recorded in PROGRESS.md
 
-When the code is written but a verification step is still owed, the feature stays `verifying`, and the step it owes is its `next_step`.
+`verification` is optional. Leave it empty when running the code is proof enough. When a listed step is still owed, such as one that needs real hardware, the feature stays `verifying`, and the step it owes is its `next_step`.
 
 ## Decisions and why
 

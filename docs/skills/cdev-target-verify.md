@@ -8,7 +8,7 @@ Walks one verification step that needs real hardware or a real operating system:
 
 ## When to reach for it
 
-When a feature's verification list has a step only the target can prove.
+When a feature's verification list has a step only the target can prove. Pure algorithm work never needs it.
 
 ## Common questions
 

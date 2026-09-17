@@ -54,6 +54,9 @@ Run once in Claude Code and once in Copilot CLI, each on scratch repositories.
 - [ ] No `{{` placeholder is left in any generated file.
 - [ ] `cdev-session-start` proposes a feature and stops for your answer before writing code.
 - [ ] `cdev-implement` writes a failing test first and uses the build and test commands from AGENTS.md.
+- [ ] On a repository with no tests, `cdev-init` writes `Test: none`, and `cdev-implement` and `cdev-debug` add no test framework, yet still show a real run with its output.
+- [ ] `cdev-debug` on a plain bug takes the shortcut and says so; on a hard one it shows a loop going red before any fix.
+- [ ] `fw-c-review` and `cdev-review` list the changed interfaces with their callers, label each finding rule or judgement, and report nothing the formatter or linters already catch.
 - [ ] `cdev-review` writes a report into `docs/reviews/` with the two axes kept separate.
 - [ ] `cdev-target-verify` stores a log under `docs/evidence/` and records it on the feature.
 - [ ] `cdev-done` updates `## Now` in PROGRESS.md and hands you a commit message rather than committing.

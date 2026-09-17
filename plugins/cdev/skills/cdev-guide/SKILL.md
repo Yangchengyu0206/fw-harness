@@ -15,8 +15,8 @@ Eleven skills is more than anyone remembers, so ask here instead. The ones marke
 ## A day of work
 
 1. **`/cdev-session-start`**: begin here. It reads where the work stands and ends by agreeing with you on one feature.
-2. **`cdev-implement`** (the agent reaches on its own): a failing test first, then the smallest change, then the project's own build and test commands.
-3. **`/cdev-target-verify`**: when a feature needs real hardware or a real operating system to prove it: flashing a board, loading a driver, capturing the log.
+2. **`cdev-implement`** (the agent reaches on its own): a failing test first when the repository has tests, otherwise an input and the output you expect; then the smallest change, then the build and a real run.
+3. **`/cdev-target-verify`**: only when a feature needs real hardware or a real operating system to prove it: flashing a board, loading a driver, capturing the log. Pure algorithm work never needs it.
 4. **`/cdev-done`**: close the session. PROGRESS.md, the feature's status, and a commit message for you to run.
 
 **`cdev-feature`** (the agent reaches on its own) handles every change to `feature_list.json` underneath those steps, so you rarely call it yourself.
@@ -25,7 +25,7 @@ Eleven skills is more than anyone remembers, so ask here instead. The ones marke
 
 - **`cdev-review`** (the agent reaches on its own): a two-axis review, Standards and Spec, written into `docs/reviews/`. Reviewing your own work is expected here, so it verifies every finding against the code before reporting it.
 - **`cdev-test-gap`** (the agent reaches on its own): what has no test, ranked P0 to P3, read-only. Reach for it when the question is coverage rather than correctness.
-- **`cdev-debug`** (the agent reaches on its own): reproduce, shrink, then fix. Reach for it for a crash, a hang, an oops, a bugcheck, or anything intermittent.
+- **`cdev-debug`** (the agent reaches on its own): make the defect show on demand, prove its cause, then fix. Reach for it for a crash, a hang, an oops, a bugcheck, or anything intermittent.
 
 ## When the structure changes
 

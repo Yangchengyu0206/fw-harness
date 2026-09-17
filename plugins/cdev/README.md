@@ -45,6 +45,10 @@ docs/reviews/        review reports
 
 `tools/feature.py` is the only script. Everything else is Markdown, and nothing blocks a commit.
 
+## Tests are optional
+
+A repository with no tests is a normal case, not a gap to fill. `cdev-init` then writes `Test: none` into AGENTS.md, and the skills add no test framework unless you ask. What they still do is run each change on a real input and show you the command and its output, because an agent that did not run its change is only guessing that it works. A feature's `verification` list is optional too, and `cdev-target-verify` matters only for firmware and drivers.
+
 ## The skills
 
 Setting up: `cdev-init`.
