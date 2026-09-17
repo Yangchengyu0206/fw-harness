@@ -1,6 +1,6 @@
 ---
 name: fw-c-debug
-description: Diagnose and then fix a firmware defect. Build a loop that reproduces it, rank hypotheses, prove one, and lock it down with a regression test. Use when the user reports a hang, a reset loop, a HardFault, corrupted data, a peripheral that works intermittently, a missed deadline, or asks to debug embedded C.
+description: "Diagnose and then fix a firmware defect. Build a loop that reproduces it, rank hypotheses, prove one, and lock it down with a regression test. Use when the user reports a hang, a reset loop, a HardFault, corrupted data, a peripheral that works intermittently, a missed deadline, or asks to debug embedded C."
 ---
 
 # fw-c-debug

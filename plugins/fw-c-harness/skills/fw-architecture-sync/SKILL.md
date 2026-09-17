@@ -1,6 +1,6 @@
 ---
 name: fw-architecture-sync
-description: Refresh harness/architecture.json and the generated block in every ARCHITECTURE.md from the real directory tree. Use when arch_check fails, when a new folder of C sources appears, when a generated architecture block disagrees with the json, or when the user asks to update the architecture documents.
+description: "Refresh harness/architecture.json and the generated block in every ARCHITECTURE.md from the real directory tree. Use when arch_check fails, when a new folder of C sources appears, when a generated architecture block disagrees with the json, or when the user asks to update the architecture documents."
 ---
 
 # fw-architecture-sync

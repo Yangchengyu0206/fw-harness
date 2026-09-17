@@ -1,6 +1,6 @@
 ---
 name: fw-c-test-gap
-description: Audit which behaviour in this firmware has no test, ranked P0 to P3, read-only. Use when the user asks what is untested, whether coverage is enough, what regression test a fix needs, or how to prove a change is safe.
+description: "Audit which behaviour in this firmware has no test, ranked P0 to P3, read-only. Use when the user asks what is untested, whether coverage is enough, what regression test a fix needs, or how to prove a change is safe."
 ---
 
 # fw-c-test-gap

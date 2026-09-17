@@ -1,6 +1,6 @@
 ---
 name: fw-guide
-description: Ask which fw-harness skill fits your situation.
+description: "Ask which fw-harness skill fits your situation."
 disable-model-invocation: true
 ---
 

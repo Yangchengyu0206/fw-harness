@@ -1,6 +1,6 @@
 ---
 name: fw-review-respond
-description: Work through review findings on your own change. Check each one against the code, then fix it, decline it with evidence, or raise it with the user, and hand the result back for re-review. Use when a report in harness/reviews covers the user's ticket, when the user pastes review or pull request comments, or asks to address, fix, or answer review findings.
+description: "Work through review findings on your own change. Check each one against the code, then fix it, decline it with evidence, or raise it with the user, and hand the result back for re-review. Use when a report in harness/reviews covers the user's ticket, when the user pastes review or pull request comments, or asks to address, fix, or answer review findings."
 ---
 
 # fw-review-respond

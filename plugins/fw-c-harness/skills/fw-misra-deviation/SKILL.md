@@ -1,6 +1,6 @@
 ---
 name: fw-misra-deviation
-description: Record a MISRA deviation in docs/deviations when a rule cannot be met. Use when the user says a MISRA rule must be broken, when a review finds a required-rule violation the code needs to keep, or when someone asks how to document a deviation.
+description: "Record a MISRA deviation in docs/deviations when a rule cannot be met. Use when the user says a MISRA rule must be broken, when a review finds a required-rule violation the code needs to keep, or when someone asks how to document a deviation."
 ---
 
 # fw-misra-deviation

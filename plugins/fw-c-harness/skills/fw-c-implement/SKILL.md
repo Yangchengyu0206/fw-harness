@@ -1,6 +1,6 @@
 ---
 name: fw-c-implement
-description: Implement a firmware ticket in C, test first, inside the module's approved layering. Use when the user asks to implement a ticket, write or extend a driver, add a module, or change embedded C behaviour.
+description: "Implement a firmware ticket in C, test first, inside the module's approved layering. Use when the user asks to implement a ticket, write or extend a driver, add a module, or change embedded C behaviour."
 ---
 
 # fw-c-implement

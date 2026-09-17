@@ -1,6 +1,6 @@
 ---
 name: fw-harness-init
-description: Generate the fw-c-harness in this firmware repository: entry documents, state folders, verification gates, git hooks, and an ARCHITECTURE.md for every folder of C sources.
+description: "Generate the fw-c-harness in this firmware repository: entry documents, state folders, verification gates, git hooks, and an ARCHITECTURE.md for every folder of C sources."
 disable-model-invocation: true
 ---
 

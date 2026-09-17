@@ -1,6 +1,6 @@
 ---
 name: fw-session-start
-description: Start a firmware session: verify the environment, read your handoff and the recent history, and agree with the user which ticket you are taking.
+description: "Start a firmware session: verify the environment, read your handoff and the recent history, and agree with the user which ticket you are taking."
 disable-model-invocation: true
 ---
 

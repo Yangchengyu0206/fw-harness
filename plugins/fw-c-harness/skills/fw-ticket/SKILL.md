@@ -1,6 +1,6 @@
 ---
 name: fw-ticket
-description: Create, claim, move, and add evidence to the tickets in harness/tickets. Use when the user asks for a new ticket, asks to claim or move one, mentions an FW-NNNN id, or when a check run or a review produces evidence that belongs on a ticket.
+description: "Create, claim, move, and add evidence to the tickets in harness/tickets. Use when the user asks for a new ticket, asks to claim or move one, mentions an FW-NNNN id, or when a check run or a review produces evidence that belongs on a ticket."
 ---
 
 # fw-ticket

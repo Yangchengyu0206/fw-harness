@@ -1,6 +1,6 @@
 ---
 name: fw-hil-verify
-description: Pay off the board verification a ticket still owes: flash it, capture the serial log, and record the evidence.
+description: "Pay off the board verification a ticket still owes: flash it, capture the serial log, and record the evidence."
 disable-model-invocation: true
 ---
 

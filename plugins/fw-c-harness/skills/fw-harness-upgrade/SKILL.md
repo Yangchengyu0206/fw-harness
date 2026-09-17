@@ -1,6 +1,6 @@
 ---
 name: fw-harness-upgrade
-description: Update this repository's harness after a plugin update, applying managed files and reviewing team-owned changes one at a time.
+description: "Update this repository's harness after a plugin update, applying managed files and reviewing team-owned changes one at a time."
 disable-model-invocation: true
 ---
 

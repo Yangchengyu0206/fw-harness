@@ -2,7 +2,7 @@ import re
 
 import pytest
 
-from skilltools import (PLUGINS, all_skills, body, existing_skills, frontmatter, prose_files,
+from skilltools import (PLUGINS, all_skills, body, existing_skills, frontmatter, prose_files, split,
                         skill_path, skills_dir)
 
 NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
@@ -42,6 +42,18 @@ def test_invocation_matches_the_plan(plugin, name):
     else:
         assert "disable-model-invocation" not in fields
         assert "Use when" in fields["description"], "a model-invoked description names its triggers"
+
+
+@pytest.mark.parametrize("plugin,name", existing_skills())
+def test_frontmatter_is_strict_yaml(plugin, name):
+    # Kilo Code and other tools parse frontmatter with a strict YAML parser, where an
+    # unquoted value holding ": " is an error and the skill silently fails to load.
+    block, _ = split(skill_path(plugin, name))
+    for line in block.splitlines():
+        key, _, value = line.partition(": ")
+        quoted = len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'"
+        assert quoted or (": " not in value and not value.startswith(("'", '"', "[", "{", "&", "*", "!", "|", ">", "%", "@", "`"))), \
+            f"{name}: quote the {key} value"
 
 
 @pytest.mark.parametrize("plugin,name", existing_skills())

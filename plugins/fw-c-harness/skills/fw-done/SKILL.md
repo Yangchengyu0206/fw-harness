@@ -1,6 +1,6 @@
 ---
 name: fw-done
-description: Wrap up a session: update your handoff, add a progress note, update the ticket, and draft the commit message for the user to run.
+description: "Wrap up a session: update your handoff, add a progress note, update the ticket, and draft the commit message for the user to run."
 disable-model-invocation: true
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: fw-c-review
-description: Review changed C code along two axes, Standards and Spec, each in its own sub-agent, and write the report into harness/reviews. Use when the user asks for a code review, asks to review a branch or a ticket's changes, or wants a review before merging.
+description: "Review changed C code along two axes, Standards and Spec, each in its own sub-agent, and write the report into harness/reviews. Use when the user asks for a code review, asks to review a branch or a ticket's changes, or wants a review before merging."
 ---
 
 # fw-c-review
