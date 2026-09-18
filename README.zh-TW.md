@@ -2,14 +2,15 @@
 
 給 C 與 Python 開發用的 harness 與技能組，支援 VS Code 上的 GitHub Copilot 與 Claude Code。English: [README.md](README.md)。
 
-## 目前狀態：0.1 預覽版
+## 目前狀態：預覽版
 
-兩個 plugin 的內容都已完成，腳本也有自動化測試，但 skill 還沒有實際讓 agent 從頭到尾跑過。使用上可能會遇到不順的地方，歡迎到 [GitHub issues](https://github.com/Yangchengyu0206/fw-harness/issues) 回報。
+`cdev` 目前是 0.2.0，`fw-c-harness` 是 0.1.0。兩個 plugin 的內容都已完成，腳本也有自動化測試，但 skill 還沒有實際讓 agent 從頭到尾跑過。使用上可能會遇到不順的地方，歡迎到 [GitHub issues](https://github.com/Yangchengyu0206/fw-harness/issues) 回報。
 
 這個版本已知的限制：
 
 - **只檢查過格式，還沒實際使用過。** 測試能確認每個 skill 格式正確、連結有效、文件裡的指令都能解析，但無法確認 agent 會照 skill 做。還需要人工試過的項目列在 [docs/manual-checklist.md](docs/manual-checklist.md)。
-- **還沒在工具裡實際試過。** 安裝方式與每個 skill 都依照 VS Code 上的 GitHub Copilot、Claude Code、Copilot CLI 公開的格式撰寫，但都還沒實際執行過。主要目標是 VS Code。
+- **還沒在工具裡實際試過。** 安裝方式與每個 skill 都依照 VS Code 上的 GitHub Copilot、Claude Code、Copilot CLI 公開的格式撰寫，但都還沒實際執行過。主要目標是 VS Code 上的 GitHub Copilot：`cdev` 把所有規則放在 Copilot 會自動載入的 AGENTS.md，CLAUDE.md 只是匯入它給 Claude Code 用。
+- **`cdev` 寫出的編輯器設定還沒驗證過。** `.vscode/settings.json` 用 `files.readonlyInclude` 把 vendor 資料夾設為唯讀，用 `chat.tools.terminal.autoApprove` 讓具破壞性的指令必須經你同意。兩者都是照文件寫的，還沒有在實際執行的 VS Code 上確認過，請當成未驗證來看待。
 - **指令以 Windows 寫法為準。** skill 裡要 agent 用 `py -3` 執行 Python；在 macOS 與 Linux 上請改用 `python3`。腳本本身三個平台都能執行。
 - **驅動參考資料還沒經過審閱。** `cdev` 裡 Linux 與 Windows 驅動的內容還沒有請驅動工程師看過，歡迎指正。
 
@@ -21,13 +22,17 @@
 |---|---|---|
 | 適用 | 共用同一個 repo 的韌體團隊 | 單人開發 |
 | 語言與領域 | C 韌體 | C 與 Python：一般 C、韌體、Linux 驅動、Windows 驅動 |
-| 驗證 | `check` 七道閘門、git hooks、棘輪 | 不強制；專案有測試就跑它的建置與測試，沒有就實際跑一次並附上輸出 |
+| 驗證 | `check` 七道閘門、git hooks、棘輪 | AGENTS.md 裡一行 `Verification:`，可設為 `off`、`light`、`full`，預設 `off`；任何等級都不會擋住 commit |
 | 狀態 | 一票一檔，記錄誰改了什麼 | 一份 `feature_list.json` 加一份 `PROGRESS.md` |
 | 審查 | 必須由作者以外的人審 | 自我審查，每個發現都重新驗證 |
-| 寫進 repo 的腳本 | 閘門與狀態腳本 | 只有 `tools/feature.py` |
-| 安裝 | 在 VS Code 的 `@agentPlugins` 安裝 `fw-c-harness` | 在 VS Code 的 `@agentPlugins` 安裝 `cdev` |
+| 長對話中不遺失的狀態 | 票務檔案與交接文件 | PROGRESS.md 的 `## Now`，每完成一步就重寫，另有 `/cdev-checkpoint` 補存 |
+| 寫進 repo 的腳本 | 閘門與狀態腳本 | 兩個，`tools/feature.py` 與 `tools/doc_check.py`，都只回報 |
+| 安裝 | 在 VS Code 的 `@agentPlugins` 安裝 `fw-c-harness` | 在 VS Code 的 `@agentPlugins` 安裝 `cdev`，或在連不到 marketplace 的機器上用 zip 安裝 |
+| 讓既有 repo 跟上新版 | `/fw-harness-upgrade` | `/cdev-upgrade` |
 
-`cdev` 的中文說明在 [plugins/cdev/README.zh-TW.md](plugins/cdev/README.zh-TW.md)，英文版在 [plugins/cdev/README.md](plugins/cdev/README.md)。本頁其餘內容說明 `fw-c-harness`。
+`cdev` 的中文說明在 [plugins/cdev/README.zh-TW.md](plugins/cdev/README.zh-TW.md)，英文版在 [plugins/cdev/README.md](plugins/cdev/README.md)。要給連不到 marketplace 的人，執行 `py -3 scripts/pack_cdev.py`，把產生的 `dist/cdev-<版本>.zip` 交給對方，對方照 [plugins/cdev/INSTALL.zh-TW.md](plugins/cdev/INSTALL.zh-TW.md) 安裝。
+
+本頁其餘內容說明 `fw-c-harness`。
 
 ## fw-c-harness
 
