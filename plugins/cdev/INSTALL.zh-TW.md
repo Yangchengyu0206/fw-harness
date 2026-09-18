@@ -59,6 +59,26 @@ py -3 C:\tools\cdev\install_local.py --repo D:\work\my-project
 
 先讀 [README.zh-TW.md](README.zh-TW.md) 了解它實際會怎麼運作。
 
+## 日常開發時要打什麼
+
+**大多數時候什麼都不用打。** 規則寫在 AGENTS.md，Copilot 每次對話都會自動載入，所以開新對話時 agent 應該會自己讀 PROGRESS.md 的 `## Now`、列出功能清單、跑一次文件檢查，然後問你要做哪個功能。開發過程中，它也會自己更新 `## Now` 和架構文件。
+
+要你打的指令只有這些，而且都是偶爾才用：
+
+| 指令 | 什麼時候 |
+|---|---|
+| `/cdev-init` | 這個 repo 第一次使用，只跑一次 |
+| `/cdev-upgrade` | plugin 更新後，每個 repo 跑一次 |
+| `/cdev-checkpoint` | 上下文用量偏高，或要離開一段時間之前 |
+| `/cdev-done` | 想完整收尾時：檢查文件、更新紀錄、產生 commit 訊息 |
+| `/cdev-session-start` | 想要完整版開場時（平常不需要，開對話本來就會做簡短版） |
+| `/cdev-target-verify` | 需要在實際硬體上驗證，而且驗證等級設成 `full` 時 |
+| `/cdev-guide` | 忘記該用哪個指令時 |
+
+`cdev-implement`、`cdev-review`、`cdev-debug`、`cdev-test-gap`、`cdev-architecture-sync`、`cdev-feature` 這幾個由 agent 自行判斷要不要用，你不用記。
+
+有一件事它不會自己做：AGENTS.md 裡記的 build、test、run 指令如果變了，要你或你叫它去改。
+
 ## 之後要更新
 
 **用方式一的人**：拿到新的一包後，解壓覆蓋掉舊資料夾，重開 VS Code。
@@ -71,4 +91,5 @@ py -3 C:\tools\cdev\install_local.py --repo D:\work\my-project
 
 - **打 `/` 看不到 cdev 指令**：確認 `chat.pluginLocations` 裡的路徑用的是正斜線（`C:/tools/cdev`），資料夾裡有 `plugin.json`，並且重開過 VS Code。
 - **`py -3` 找不到**：改用 `python`，或先安裝 Python 3。
-- **skills 會自己跑起來**：`cdev-implement`、`cdev-review`、`cdev-debug` 這幾個是設計成由 agent 自行判斷要不要用的。其他七個要你自己打 `/`。
+- **agent 開場沒有回報狀態**：規則在 AGENTS.md 裡，Copilot 會載入它，但照不照做由模型決定。這時候打一次 `/cdev-session-start` 就會完整走一遍。
+- **skills 會自己跑起來**：`cdev-implement`、`cdev-review`、`cdev-debug` 這幾個是設計成由 agent 自行判斷要不要用的。
