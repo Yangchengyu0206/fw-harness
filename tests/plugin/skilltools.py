@@ -18,12 +18,13 @@ PLUGINS = {
     },
     "cdev": {
         "skills": (
-            "cdev-init", "cdev-session-start", "cdev-feature", "cdev-architecture-sync",
+            "cdev-init", "cdev-upgrade", "cdev-session-start", "cdev-feature", "cdev-architecture-sync",
             "cdev-implement", "cdev-review", "cdev-test-gap", "cdev-debug",
-            "cdev-target-verify", "cdev-done", "cdev-guide",
+            "cdev-target-verify", "cdev-checkpoint", "cdev-done", "cdev-guide",
         ),
         "user_invoked": {
-            "cdev-init", "cdev-session-start", "cdev-target-verify", "cdev-done", "cdev-guide",
+            "cdev-init", "cdev-upgrade", "cdev-session-start", "cdev-target-verify", "cdev-checkpoint",
+            "cdev-done", "cdev-guide",
         },
     },
 }

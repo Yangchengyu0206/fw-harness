@@ -14,6 +14,8 @@ Two axes, each in its own sub-agent so neither pollutes the other, reported side
 
 Reviewing your own work is expected here. That is why step 5 re-reads every finding against the code: the verification pass carries the weight a second reviewer would.
 
+Follow the reading rules in AGENTS.md while you work: search first and then read the function the search found, leave read-only folders out of broad searches, and send long command output to a file and read the errors and the tail. Two sub-agents plus a diff fill a context quickly.
+
 ## Process
 
 ### 1. Pin the range

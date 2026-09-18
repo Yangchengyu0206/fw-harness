@@ -3,3 +3,6 @@ __pycache__/
 
 # Implementation plans stay local; the design specs are published
 docs/superpowers/plans/
+
+# Offline packages built by scripts/pack_cdev.py
+dist/

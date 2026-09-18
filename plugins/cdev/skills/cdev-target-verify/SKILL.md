@@ -8,6 +8,8 @@ disable-model-invocation: true
 
 Host tests prove logic. Some behaviour only shows on the target: a board, a loaded kernel driver, an installed Windows driver. You run the target; this skill supplies the commands, keeps the log, and records what it showed.
 
+It belongs to `Verification: full`. When AGENTS.md says `off` or `light`, say so and record the result in one line on the feature and in PROGRESS.md instead, unless the user asks for the full pass anyway.
+
 ## Process
 
 ### 1. Pick the step
@@ -48,6 +50,6 @@ Save the whole capture to that path, including timestamps and any failing lines,
 py -3 tools/feature.py set F-NNN --notes "on board: 4 KB loopback passed, docs/evidence/F-NNN/loopback-2026-09-17.log"
 ```
 
-When every `verification` step has now run, move the feature to `done`; otherwise set `--next` to the step still owed. Add the result to today's entry in PROGRESS.md.
+When every `verification` step has now passed, show the user the evidence and propose closing the feature; it becomes `done` on their confirmation. Otherwise set `--next` to the step still owed. Add the result to today's entry in PROGRESS.md.
 
 **Done when:** the feature's notes point at the log, its status says what is left, and you have quoted the evidence lines to the user.

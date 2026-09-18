@@ -180,3 +180,38 @@ What each carries:
 
 1. **The name when Python stands alone.** `cdev` assumes Python here is tooling around C projects. If standalone Python projects are in scope, the prefix should change before anything is published.
 2. **Translation.** The Traditional Chinese version of this spec is written after the English content is approved, so it is translated once.
+
+## 10. Revision: GitHub Copilot first (2026-09-17)
+
+Field use on a firmware repository showed three gaps: answers about architecture and flows still meant reading the code from scratch, long conversations lost what they had found when the context was summarised, and build and flashing happen in a vendor IDE the agent cannot drive. GitHub Copilot in VS Code is now the primary target; Claude Code stays supported through a CLAUDE.md that only imports AGENTS.md.
+
+Changes:
+
+1. **One rules file.** Copilot loads AGENTS.md on its own and not CLAUDE.md, so every rule moves into AGENTS.md. CLAUDE.md is `@AGENTS.md`. The decisions table moves to the root ARCHITECTURE.md.
+2. **Opening without a skill.** AGENTS.md tells the agent to read `## Now`, run `feature.py show` and `doc_check.py`, report, and ask which feature to take. `cdev-session-start` stays as the full, optional pass.
+3. **Answering questions.** The architecture documents are a map; claims about behaviour are verified in the code, whole functions are read, vendor code is left out of broad searches and read directly when the question turns on it, and each claim is marked verified or taken from a document.
+4. **Documents that say how, not only where.** The folder template gains `## Files` (one line per file, globs allowed) and `## Flows` (numbered steps naming functions and files).
+5. **A second script, `tools/doc_check.py`.** It compares each `## Files` with the folder and the root map with the folder documents, using `git ls-files` so ignored build output is skipped. It reports and exits 1 on drift; nothing runs it as a gate. This relaxes the one-script constraint in section 1.
+6. **State that survives summarisation.** `## Now` gains `Confirmed facts` and `Waiting on the user`, is rewritten after every step, and receives confirmed facts as they are found. A new user-invoked skill, `cdev-checkpoint`, writes the whole conversation state there on demand. The agent does not suggest starting a new conversation; that stays the user's call.
+7. **Verification outside the editor.** When AGENTS.md says the build or the run happens in a vendor IDE, the feature stops at `verifying` with a checklist for the user under `Waiting on the user`.
+8. **`done` needs the user.** `cdev-implement` and `cdev-target-verify` propose closing a feature; it becomes `done` on the user's confirmation, and only when the touched folders' documents match the code.
+9. **Editor guards, not gates.** `cdev-init` writes `.vscode/settings.json` (`files.readonlyInclude` for read-only folders, `chat.tools.terminal.autoApprove` entries that keep destructive git and delete commands waiting for approval) and `.github/instructions/architecture.instructions.md`, whose `applyTo` covers the code folders so the document rules reach Copilot whenever it edits documented code. Git hooks remain a non-goal.
+
+Not done, pending a check of the Copilot version in use: subagents for reading code, and nested AGENTS.md files per folder.
+
+### 10.1 Verification levels (2026-09-18)
+
+Bringing up a new chip spends weeks before anything runs on a board, and asking for hardware evidence in that phase is friction with nothing behind it. The alternative considered was a second plugin with the verification stage removed; it was rejected because the two would differ in one stage and share the other ninety percent, and `fw-c-harness` and `cdev` already show what parallel copies cost.
+
+`AGENTS.md` carries `Verification: off | light | full`. `cdev-init` writes `off` for every repository and offers the other two inside its single review question. `cdev-implement`, `cdev-done`, `cdev-target-verify`, and `cdev-feature` read the line; `cdev-target-verify` belongs to `full`.
+
+What no level removes: `done` needs the user's confirmation, and `## Log` records how the feature was checked, including what was left unchecked on hardware.
+
+### 10.2 Upgrades, large repositories, and the remaining skills (2026-09-18)
+
+Four gaps left by 10.1, closed together.
+
+1. **`cdev-upgrade`.** `cdev-init` never overwrites, so a repository set up by an older plugin keeps the older shape, and every template change would otherwise cost a manual merge of `.cdev-proposed` files. The skill checks what the repository holds rather than a version number, which keeps section 1's markdown-first constraint and the non-goal on version tracking: it replaces the two plugin-owned scripts, adds missing sections from the templates, and leaves every sentence the user wrote. Running it twice changes nothing the second time.
+2. **Documents written where the work is.** Reading every folder of a repository with a vendor SDK to write `## Files` and `## Flows` can fill a context before `cdev-init` finishes. Init now writes full documents for the folders the user works in, up to about five, and `ARCHITECTURE.stub.md` elsewhere. `doc_check` reports a stub as waiting rather than as drift, AGENTS.md has the agent fill a stub before working in or answering about that folder, and `cdev-architecture-sync` gained that single-folder mode.
+3. **The reading rules reach the remaining skills.** `cdev-review`, `cdev-test-gap`, and `cdev-debug` now point at the reading rules in AGENTS.md. `cdev-debug` also writes each phase's confirmed facts into `## Now`, since it reads the most code and produces the most output of any loop here.
+4. **A Traditional Chinese `cdev` README**, paired with the English one and checked by a test, so the plugin reads in the language its first users work in.

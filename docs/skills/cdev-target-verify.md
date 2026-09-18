@@ -8,6 +8,8 @@ Walks one verification step that needs real hardware or a real operating system:
 
 ## When to reach for it
 
+Only under `Verification: full` in AGENTS.md. At `off` and `light`, a target result is recorded in one line on the feature and in PROGRESS.md instead.
+
 When a feature's verification list has a step only the target can prove. Pure algorithm work never needs it.
 
 ## Common questions

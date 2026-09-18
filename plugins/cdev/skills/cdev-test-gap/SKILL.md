@@ -9,6 +9,8 @@ Adapted from `skills/test-gap-audit/SKILL.md` in [github/awesome-copilot](https:
 
 Read-only. Add tests only when the user asks, and then through `cdev-implement`.
 
+Follow the reading rules in AGENTS.md: search first and then read the function the search found, and leave read-only folders out of broad searches. An audit that reads every file finds no more gaps than one that reads what the searches point at.
+
 ## Scope
 
 When the user names a feature, a folder, or a branch, audit that and the code paths it reaches. When they name nothing, audit every editable folder listed in AGENTS.md, breadth first, and say which ones you inspected deeply and which you only surveyed.
