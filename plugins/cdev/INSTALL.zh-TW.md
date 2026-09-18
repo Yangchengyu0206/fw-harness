@@ -6,7 +6,16 @@ English: [INSTALL.md](INSTALL.md)
 
 需要 Python 3（Windows 上用 `py -3` 執行）。
 
-## 方式一：裝成 plugin（推薦，所有專案都能用）
+## 先選一種
+
+| 你的情況 | 選哪一種 |
+|---|---|
+| 和別人共用同一個專案，大家都要用 | **方式二**：skills 放進那個 repo。之後 harness 更新，大家 pull 就拿到新版，不用重發一包、也不用各自改設定 |
+| 你有好幾個專案都想用 | **方式一**：裝成 plugin，每個 workspace 都有 |
+
+兩種可以並用，但同一個 repo 只選一種，免得同一個 skill 被載入兩次。
+
+## 方式一：裝成 plugin（所有專案都能用）
 
 1. 把這包解壓到一個**不會被刪掉**的位置，例如 `C:\tools\cdev`。VS Code 會一直從這裡讀取，所以不要放在下載或暫存資料夾。
 
@@ -52,7 +61,11 @@ py -3 C:\tools\cdev\install_local.py --repo D:\work\my-project
 
 ## 之後要更新
 
-拿到新的一包後，解壓覆蓋掉舊資料夾，重開 VS Code。如果某個 repo 的 harness 檔案也需要跟著更新，在那個 repo 跑一次 `/cdev-upgrade`。
+**用方式一的人**：拿到新的一包後，解壓覆蓋掉舊資料夾，重開 VS Code。
+
+**用方式二的人**：什麼都不用做。維護的人更新完 `.github/skills/` 並 commit，你 `git pull` 就是新版。
+
+兩種情況下，如果某個 repo 的 harness 檔案（AGENTS.md、架構文件那些）也需要跟著更新，在那個 repo 跑一次 `/cdev-upgrade`。通常由一個人跑完 commit，其他人 pull 就好，不必每個人各跑一次。
 
 ## 遇到問題
 

@@ -6,6 +6,15 @@ This package is the whole cdev plugin. It needs no marketplace and no access to 
 
 Python 3 is required (`py -3` on Windows).
 
+## Which route
+
+| Your situation | Route |
+|---|---|
+| You share one project with other people, and all of you want it | **Option 2**: the skills live in that repository. A later update reaches everyone through `git pull`, with no new package and no settings to change |
+| You have several projects that want it | **Option 1**: install it as a plugin, and every workspace has it |
+
+Both can coexist, though one repository should use one of them, so a skill is not loaded twice.
+
 ## Option 1: as a plugin, for every workspace
 
 1. Unzip it somewhere that stays put, such as `C:\tools\cdev`. VS Code reads it from there every time, so keep it out of a downloads or temporary folder.
@@ -52,7 +61,11 @@ Read [README.md](README.md) for how the whole thing works.
 
 ## Updating later
 
-Unzip the new package over the old folder and restart VS Code. When a repository's own harness files need the update too, run `/cdev-upgrade` in that repository.
+**On option 1**: unzip the new package over the old folder and restart VS Code.
+
+**On option 2**: nothing to do. Whoever maintains it updates `.github/skills/` and commits, and `git pull` brings it to you.
+
+Either way, when a repository's own harness files (AGENTS.md, the architecture documents) need the update too, run `/cdev-upgrade` in that repository. One person usually runs it and commits the result, so the others only pull.
 
 ## When something is wrong
 
