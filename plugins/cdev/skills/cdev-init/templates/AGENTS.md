@@ -48,7 +48,7 @@ Before the first answer in a new conversation:
 
 The architecture documents are a map for finding the code. The code is the source of truth.
 
-1. Read the root ARCHITECTURE.md and the one in each folder the question touches. Use their `## Files` and `## Flows` to decide what to open.
+1. Read the root ARCHITECTURE.md and the one in each folder the question touches. Use their `## Files` and `## Flows` to decide what to open. When a folder's document says it is not documented yet, read that folder and write its document first, with cdev-architecture-sync.
 2. Verify every claim about behaviour in the code. Read whole functions, follow definitions and callers, and follow interrupt handlers and shared state when the path crosses them.
 3. Leave read-only folders out of broad searches. Read vendor code directly when the question turns on it: a HAL call, a register sequence, an SDK driver's locking.
 4. Say where each part of the answer came from: verified in the code (with file and function), or taken from a document without checking.
@@ -68,9 +68,10 @@ The architecture documents are a map for finding the code. The code is the sourc
 4. Test: {{TEST}}
 5. Run: {{RUN}}
 6. After each step, rewrite `## Now` in PROGRESS.md: what is done, the facts confirmed so far, and the next step. Write a confirmed fact (an address, a timing, a call order) there the moment it is confirmed; a long conversation gets summarised and loses details that live only in chat.
-7. When a change adds, removes, or renames a file, changes what a folder depends on, or changes a flow a document describes, update that folder's ARCHITECTURE.md in the same change.
-8. When the code is written and a step is still owed, set the feature to `verifying` with `py -3 tools/feature.py set F-NNN --status verifying --next "<the step>"`, as far as the `Verification:` line above asks. Under `full`, and whenever the build, flashing, or the run happens outside this editor, write a checklist for the user under `Waiting on the user` in `## Now`: what to build, what to flash or load, what to do, what output shows success, and what shows failure.
-9. Propose closing the feature, and show the commands and output (or the user's reported result) and the documents you changed. Under `off`, say in the same message what has not been checked on real hardware. The user confirms before the feature becomes `done`.
+7. Before the first change inside a folder whose document says it is not documented yet, write that document with cdev-architecture-sync.
+8. When a change adds, removes, or renames a file, changes what a folder depends on, or changes a flow a document describes, update that folder's ARCHITECTURE.md in the same change.
+9. When the code is written and a step is still owed, set the feature to `verifying` with `py -3 tools/feature.py set F-NNN --status verifying --next "<the step>"`, as far as the `Verification:` line above asks. Under `full`, and whenever the build, flashing, or the run happens outside this editor, write what the user has to run under `Waiting on the user` in `## Now`: what to build, what to flash or load, what to do, what output shows success, and what shows failure.
+10. Propose closing the feature, and show the commands and output (or the user's reported result) and the documents you changed. Under `off`, say in the same message what has not been checked on real hardware. The user confirms before the feature becomes `done`.
 
 {{TEST_RULE}}
 

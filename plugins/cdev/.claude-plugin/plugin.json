@@ -29,6 +29,7 @@
     "./skills/cdev-review",
     "./skills/cdev-session-start",
     "./skills/cdev-target-verify",
-    "./skills/cdev-test-gap"
+    "./skills/cdev-test-gap",
+    "./skills/cdev-upgrade"
   ]
 }

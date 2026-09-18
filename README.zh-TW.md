@@ -27,7 +27,7 @@
 | 寫進 repo 的腳本 | 閘門與狀態腳本 | 只有 `tools/feature.py` |
 | 安裝 | 在 VS Code 的 `@agentPlugins` 安裝 `fw-c-harness` | 在 VS Code 的 `@agentPlugins` 安裝 `cdev` |
 
-`cdev` 的說明在 [plugins/cdev/README.md](plugins/cdev/README.md)。本頁其餘內容說明 `fw-c-harness`。
+`cdev` 的中文說明在 [plugins/cdev/README.zh-TW.md](plugins/cdev/README.zh-TW.md)，英文版在 [plugins/cdev/README.md](plugins/cdev/README.md)。本頁其餘內容說明 `fw-c-harness`。
 
 ## fw-c-harness
 

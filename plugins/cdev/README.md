@@ -4,6 +4,8 @@ A markdown-first harness for one developer working in C and Python, for GitHub C
 
 It gives an agent what it needs to know where it is and what to do next, and gives the code the domain rules general coding skills do not carry: firmware, Linux drivers, Windows drivers, plain C, and Python.
 
+繁體中文: [README.zh-TW.md](README.zh-TW.md)
+
 ## Install
 
 Install for the repositories that use it, not for every project: wherever the plugin is active, the skills the agent reaches on its own are loaded too.
@@ -36,7 +38,7 @@ copilot plugin marketplace add Yangchengyu0206/fw-harness
 copilot plugin install cdev@fw-harness
 ```
 
-Then, in your repository, open agent chat and type `/cdev-init` once.
+Then, in your repository, open agent chat and type `/cdev-init` once. After a later plugin update, type `/cdev-upgrade` once per repository.
 
 ## What lands in your repository
 
@@ -59,6 +61,8 @@ docs/reviews/        review reports
 ```
 
 The two scripts report; nothing blocks a commit.
+
+A large repository is not documented all at once: `cdev-init` writes the folders you work in in full and leaves the rest as stubs. `doc_check` reports a stub as waiting rather than as drift, and `cdev-architecture-sync` fills one when the work reaches that folder.
 
 ## A day of work in GitHub Copilot
 
@@ -83,7 +87,7 @@ A repository with no tests is a normal case, not a gap to fill. `cdev-init` then
 
 ## The skills
 
-Setting up: `cdev-init`.
+Setting up: `cdev-init`, then `cdev-upgrade` after a plugin update.
 A day of work: `cdev-session-start`, `cdev-implement`, `cdev-target-verify`, `cdev-checkpoint`, `cdev-done`, with `cdev-feature` underneath.
 Looking at code: `cdev-review`, `cdev-test-gap`, `cdev-debug`.
 When the structure changes: `cdev-architecture-sync`.
@@ -97,7 +101,7 @@ One page per skill lives in [docs/skills](../../docs/skills).
 
 ## One difference between the two tools
 
-Six of the skills are meant for you to type: `cdev-init`, `cdev-session-start`, `cdev-target-verify`, `cdev-checkpoint`, `cdev-done`, and `cdev-guide`. They carry `disable-model-invocation: true`, which GitHub Copilot in VS Code and Claude Code both document as keeping the agent from starting them; you start them with `/` in chat. Copilot CLI does not document the key, so there an agent may still reach them on its own.
+Seven of the skills are meant for you to type: `cdev-init`, `cdev-upgrade`, `cdev-session-start`, `cdev-target-verify`, `cdev-checkpoint`, `cdev-done`, and `cdev-guide`. They carry `disable-model-invocation: true`, which GitHub Copilot in VS Code and Claude Code both document as keeping the agent from starting them; you start them with `/` in chat. Copilot CLI does not document the key, so there an agent may still reach them on its own.
 
 ## How it differs from fw-c-harness
 

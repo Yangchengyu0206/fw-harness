@@ -50,6 +50,17 @@ def test_readme_pair_covers_the_same_sections():
     assert "README.zh-TW.md" in english and "README.md" in chinese
 
 
+def test_the_cdev_readme_pair_covers_the_same_sections():
+    english = (plugin_dir("cdev") / "README.md").read_text(encoding="utf-8")
+    chinese = (plugin_dir("cdev") / "README.zh-TW.md").read_text(encoding="utf-8")
+    assert not has_cjk(english.replace("README.zh-TW.md", "").replace("繁體中文", ""))
+    assert has_cjk(chinese)
+    for fragment in ("cdev-init", "cdev-upgrade", "cdev-checkpoint", "Verification: off",
+                     "chat.plugins.marketplaces", "tools/doc_check.py", "MIT"):
+        assert fragment in english and fragment in chinese, fragment
+    assert "README.zh-TW.md" in english and "README.md" in chinese
+
+
 def test_readme_is_english_and_the_translation_is_not():
     assert not has_cjk(README.read_text(encoding="utf-8"))
     assert has_cjk(README_ZH.read_text(encoding="utf-8"))

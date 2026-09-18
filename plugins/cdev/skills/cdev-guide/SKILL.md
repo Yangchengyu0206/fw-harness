@@ -6,11 +6,12 @@ disable-model-invocation: true
 
 # cdev-guide
 
-Twelve skills is more than anyone remembers, so ask here instead. The ones marked "the agent reaches on its own" fire without you typing them; the rest you type.
+Thirteen skills is more than anyone remembers, so ask here instead. The ones marked "the agent reaches on its own" fire without you typing them; the rest you type.
 
 ## Setting the repository up
 
 - **`/cdev-init`**: run once. It detects the repository's domains, writes AGENTS.md, PROGRESS.md, the architecture documents, the feature list, and the VS Code settings that guard read-only code, then hands you the whole result to review in one pass.
+- **`/cdev-upgrade`**: run after a plugin update. It adds what the current version expects to a repository set up by an older one, and leaves what you wrote alone.
 
 ## A day of work
 

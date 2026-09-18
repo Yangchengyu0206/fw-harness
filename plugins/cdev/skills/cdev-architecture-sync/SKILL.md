@@ -1,13 +1,15 @@
 ---
 name: cdev-architecture-sync
-description: "Bring ARCHITECTURE.md back in line with the code. Use when doc_check reports drift, a new code folder appears, a folder is removed, a folder's files, flows, responsibility, or dependencies change, or the user asks to update the architecture documents."
+description: "Bring ARCHITECTURE.md back in line with the code, and write the document for a folder that has none yet. Use when doc_check reports drift or a folder not documented yet, when work or a question first reaches such a folder, when a code folder appears or is removed, when a folder's files, flows, responsibility, or dependencies change, or when the user asks to update the architecture documents."
 ---
 
 # cdev-architecture-sync
 
 The architecture documents are written from reading the code, so they drift when the code moves. This skill rereads what changed and rewrites only what is out of date, leaving what a person wrote alone where it still holds.
 
-The folder template is [ARCHITECTURE.folder.md](../cdev-init/templates/ARCHITECTURE.folder.md).
+`cdev-init` documents the folders the work starts in and leaves the rest as stubs, so a large repository finishes its setup in one pass. Filling one of those stubs is this skill's other job, and the cheaper way in: when the user names a folder, or work or a question first reaches one, do only step 2 for that folder and then step 3.
+
+The templates are [ARCHITECTURE.folder.md](../cdev-init/templates/ARCHITECTURE.folder.md) and [ARCHITECTURE.stub.md](../cdev-init/templates/ARCHITECTURE.stub.md).
 
 ## Process
 
@@ -23,7 +25,7 @@ It lists files missing from or added to each `## Files`, and folder documents th
 
 ### 2. Rewrite what drifted
 
-- **A new folder**: read its code and write its ARCHITECTURE.md from the folder template.
+- **A new folder, or one whose document says it is not documented yet**: read its code and write its ARCHITECTURE.md from the folder template. Read the whole of the files it names in `## Files` and the functions each flow passes through; leave the folders around it for when the work reaches them.
 - **A removed folder**: remove it from the root map.
 - **A changed folder**: update `## Files`, `## Flows`, and `## Depends on`, and `## Responsibility` or `## Entry points` only where the code no longer matches them. Read the functions a flow passes through before rewriting it. Keep sentences a person wrote when they are still true.
 

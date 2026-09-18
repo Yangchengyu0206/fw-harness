@@ -11,6 +11,7 @@ DEFAULT_ROOT = Path(__file__).resolve().parents[1]
 DOC = "ARCHITECTURE.md"
 UNLISTED = {DOC, "AGENTS.md"}
 FILE_LINE_RE = re.compile(r"^\s*[-*]\s+`([^`]+)`")
+STUB = "Not documented yet"
 LINK_RE = re.compile(r"\]\(([^)#\s]*ARCHITECTURE\.md)\)")
 
 
@@ -42,9 +43,12 @@ def section(text, heading):
 
 
 def listed_patterns(text):
+    """The globs a document lists, None when it has no ## Files, or STUB when the folder is not documented yet."""
     lines = section(text, "## Files")
     if lines is None:
         return None
+    if any(STUB in line for line in lines):
+        return STUB
     return [match.group(1) for match in map(FILE_LINE_RE.match, lines) if match]
 
 
@@ -52,6 +56,7 @@ def check(root):
     root = Path(root)
     files = repository_files(root)
     problems = []
+    waiting = []
     folder_docs = [name for name in files if PurePosixPath(name).name == DOC and "/" in name]
 
     for doc in folder_docs:
@@ -59,6 +64,9 @@ def check(root):
         patterns = listed_patterns((root / doc).read_text(encoding="utf-8"))
         if patterns is None:
             problems.append(f"{doc}: has no ## Files section")
+            continue
+        if patterns == STUB:
+            waiting.append(folder)
             continue
         present = [PurePosixPath(name).name for name in files
                    if str(PurePosixPath(name).parent) == folder and PurePosixPath(name).name not in UNLISTED]
@@ -80,7 +88,7 @@ def check(root):
         for doc in folder_docs:
             if doc not in linked:
                 problems.append(f"{DOC}: the map does not link {doc}")
-    return problems
+    return problems, sorted(waiting)
 
 
 def main(argv=None):
@@ -90,7 +98,10 @@ def main(argv=None):
     parser = argparse.ArgumentParser(prog="doc_check.py", description=__doc__)
     parser.add_argument("--root", default=str(DEFAULT_ROOT), help="repository root")
     args = parser.parse_args(argv)
-    problems = check(args.root)
+    problems, waiting = check(args.root)
+    if waiting:
+        print(f"doc_check: {len(waiting)} folder(s) not documented yet: {', '.join(waiting)}")
+        print("  Fix: run cdev-architecture-sync for a folder before working in it or answering about it")
     if not problems:
         print("doc_check: the architecture documents match the files")
         return 0

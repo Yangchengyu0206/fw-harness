@@ -13,6 +13,8 @@ A fix for a defect nobody reproduced is a guess, and a guess usually passes the 
 
 **Redact.** Write passwords, keys, and tokens as `<REDACTED>` in anything you show, and quote only the log lines that carry the signal.
 
+**Keep the context and the record.** Debugging reads more code and produces more output than any other loop here, and a summarised conversation drops exactly the values you worked to find. So: send each loop run to a file (`<command> > run.log 2>&1`) and read the failing lines and the tail, filter captures and dumps before reading them, search first and then read the function the search found, and after every phase write into `## Now` in PROGRESS.md what the phase confirmed, the hypotheses still open, and the next thing to try. A confirmed address, register value, or timing goes there the moment you have it.
+
 ## Process
 
 ### 1. Record the defect

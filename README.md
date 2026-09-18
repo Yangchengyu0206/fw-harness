@@ -27,7 +27,7 @@ This marketplace holds two plugins. Install one per repository.
 | Scripts written into the repository | the gate and state scripts | one, `tools/feature.py` |
 | Install | `fw-c-harness` from `@agentPlugins` in VS Code | `cdev` from `@agentPlugins` in VS Code |
 
-`cdev` is described in [plugins/cdev/README.md](plugins/cdev/README.md). The rest of this page describes `fw-c-harness`.
+`cdev` is described in [plugins/cdev/README.md](plugins/cdev/README.md), with a Traditional Chinese version at [plugins/cdev/README.zh-TW.md](plugins/cdev/README.zh-TW.md). The rest of this page describes `fw-c-harness`.
 
 ## fw-c-harness
 

@@ -206,3 +206,12 @@ Bringing up a new chip spends weeks before anything runs on a board, and asking 
 `AGENTS.md` carries `Verification: off | light | full`. `cdev-init` writes `off` for every repository and offers the other two inside its single review question. `cdev-implement`, `cdev-done`, `cdev-target-verify`, and `cdev-feature` read the line; `cdev-target-verify` belongs to `full`.
 
 What no level removes: `done` needs the user's confirmation, and `## Log` records how the feature was checked, including what was left unchecked on hardware.
+
+### 10.2 Upgrades, large repositories, and the remaining skills (2026-09-18)
+
+Four gaps left by 10.1, closed together.
+
+1. **`cdev-upgrade`.** `cdev-init` never overwrites, so a repository set up by an older plugin keeps the older shape, and every template change would otherwise cost a manual merge of `.cdev-proposed` files. The skill checks what the repository holds rather than a version number, which keeps section 1's markdown-first constraint and the non-goal on version tracking: it replaces the two plugin-owned scripts, adds missing sections from the templates, and leaves every sentence the user wrote. Running it twice changes nothing the second time.
+2. **Documents written where the work is.** Reading every folder of a repository with a vendor SDK to write `## Files` and `## Flows` can fill a context before `cdev-init` finishes. Init now writes full documents for the folders the user works in, up to about five, and `ARCHITECTURE.stub.md` elsewhere. `doc_check` reports a stub as waiting rather than as drift, AGENTS.md has the agent fill a stub before working in or answering about that folder, and `cdev-architecture-sync` gained that single-folder mode.
+3. **The reading rules reach the remaining skills.** `cdev-review`, `cdev-test-gap`, and `cdev-debug` now point at the reading rules in AGENTS.md. `cdev-debug` also writes each phase's confirmed facts into `## Now`, since it reads the most code and produces the most output of any loop here.
+4. **A Traditional Chinese `cdev` README**, paired with the English one and checked by a test, so the plugin reads in the language its first users work in.
