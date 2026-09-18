@@ -198,3 +198,11 @@ Changes:
 9. **Editor guards, not gates.** `cdev-init` writes `.vscode/settings.json` (`files.readonlyInclude` for read-only folders, `chat.tools.terminal.autoApprove` entries that keep destructive git and delete commands waiting for approval) and `.github/instructions/architecture.instructions.md`, whose `applyTo` covers the code folders so the document rules reach Copilot whenever it edits documented code. Git hooks remain a non-goal.
 
 Not done, pending a check of the Copilot version in use: subagents for reading code, and nested AGENTS.md files per folder.
+
+### 10.1 Verification levels (2026-09-18)
+
+Bringing up a new chip spends weeks before anything runs on a board, and asking for hardware evidence in that phase is friction with nothing behind it. The alternative considered was a second plugin with the verification stage removed; it was rejected because the two would differ in one stage and share the other ninety percent, and `fw-c-harness` and `cdev` already show what parallel copies cost.
+
+`AGENTS.md` carries `Verification: off | light | full`. `cdev-init` writes `off` for every repository and offers the other two inside its single review question. `cdev-implement`, `cdev-done`, `cdev-target-verify`, and `cdev-feature` read the line; `cdev-target-verify` belongs to `full`.
+
+What no level removes: `done` needs the user's confirmation, and `## Log` records how the feature was checked, including what was left unchecked on hardware.

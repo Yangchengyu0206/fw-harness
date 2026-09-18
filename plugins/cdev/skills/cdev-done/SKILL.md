@@ -31,8 +31,10 @@ Fix every drift it reports. Then compare the change with `## Flows` and `## Depe
 
 ### 3. Decide the feature's status
 
-- **Verification is owed and runs outside this editor** (a build in a vendor IDE, flashing, a test on the board): set `verifying` with `--next "<the step>"`, and write the checklist for the user under `Waiting on the user` in `## Now`: what to build, what to flash or load, what to do, what output shows success, and what shows failure.
-- **Every verification step has passed**, run by you or reported by the user: show the user the evidence (the commands and their output, or the result they reported) and the documents you changed, and ask whether to close the feature.
+Read the `Verification:` line in AGENTS.md first. Under `off` no hardware step is owed, and the choice is between `active` and the proposal to close.
+
+- **A step the `Verification:` line asks for is owed and runs outside this editor** (a build in a vendor IDE, flashing, a test on the board): set `verifying` with `--next "<the step>"`, and write what the user has to run under `Waiting on the user` in `## Now`. Under `full` that is the whole checklist: what to build, what to flash or load, what to do, what output shows success, and what shows failure.
+- **Nothing is owed**, because every step passed or the mode asks for none: show the user the evidence (the commands and their output, or the result they reported, or under `off` the build and what you read in the code) and the documents you changed, and ask whether to close the feature.
 - **The work is unfinished**: leave it `active`.
 
 ```bash
@@ -47,7 +49,7 @@ Run that only after the user confirms.
 
 Rewrite `## Now`: the feature, where it stopped, the confirmed facts still needed, the next step, what is waiting on the user, and anything blocking it.
 
-Add an entry at the top of `## Log` under today's date: what was done, how it was verified (each command with its result, or the result the user reported), which documents changed, and each decision with its reason.
+Add an entry at the top of `## Log` under today's date: what was done, how it was verified (each command with its result, or the result the user reported), what was left unchecked on real hardware, which documents changed, and each decision with its reason.
 
 **Done when:** `## Now` names a next step specific enough to start from without this conversation, and the log entry quotes the evidence.
 

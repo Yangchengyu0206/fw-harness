@@ -41,8 +41,8 @@ Then, in your repository, open agent chat and type `/cdev-init` once.
 ## What lands in your repository
 
 ```
-AGENTS.md            every rule: domains, where to work, how to open a conversation,
-                     how to answer questions, the feature loop, what done means
+AGENTS.md            every rule: domains, verification level, where to work, how to open
+                     a conversation, how to answer questions, the feature loop, what done means
 CLAUDE.md            one line, @AGENTS.md, so Claude Code reads the same rules
 ARCHITECTURE.md      the map of the repository, and decisions with their reasons
 <folder>/ARCHITECTURE.md
@@ -68,6 +68,14 @@ The two scripts report; nothing blocks a commit.
 4. When the build or flashing happens in a vendor IDE, the feature stops at `verifying` with a checklist for you in `## Now`. You run it and report the result, in the same conversation or a new one.
 5. When the context usage runs high, type `/cdev-checkpoint`.
 6. When verification has passed, the agent shows the evidence and the documents it changed, and the feature becomes `done` on your confirmation.
+
+## Verification starts switched off
+
+`AGENTS.md` carries one line, `Verification: off`, and `cdev-init` offers the other two levels when it hands you the result. `off` asks for no hardware results and no checklists: a feature closes on the build and a run, and each log entry says what was left unchecked on real hardware. `light` adds the one step still owed as the feature's next step. `full` adds the checklist for you, the logs under `docs/evidence/`, and `cdev-target-verify`.
+
+Early work on a new chip rarely reaches hardware, so it starts at `off`. Changing the level is one word, and no reinstall.
+
+What stays at every level: a feature becomes `done` only when you confirm it, and `## Log` records how it was checked.
 
 ## Tests are optional
 

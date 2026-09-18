@@ -9,7 +9,7 @@ Keep each folder inside the dependencies its ARCHITECTURE.md describes, and fini
 
 ## Before you write
 
-Read the `Domains:` line in AGENTS.md, then read the reference for every domain it lists. Each holds the rules to write by, and the review checklist the code will be held to:
+Read the `Domains:` and `Verification:` lines in AGENTS.md, then read the reference for every domain it lists. Each holds the rules to write by, and the review checklist the code will be held to:
 
 - [c.md](references/c.md): C that runs as an ordinary process
 - [firmware.md](references/firmware.md): bare-metal and RTOS code on a microcontroller
@@ -43,7 +43,7 @@ Write the smallest change that delivers the behaviour, following the rules in th
 
 Run the build command from AGENTS.md, the test command when there is one, and the change itself on the step 2 input. Fix what they report. Send long output to a file and read the errors and the tail.
 
-When AGENTS.md says the build or the run happens outside this editor, write the checklist for the user under `Waiting on the user` in `## Now` of PROGRESS.md instead: what to build, what to flash or load, what to do, what output shows success, and what shows failure. Fix what the user reports back. A new dependency between folders that ARCHITECTURE.md does not describe is a design question, so take it to the user rather than working around it.
+When AGENTS.md says the build or the run happens outside this editor, write what the user has to run under `Waiting on the user` in `## Now` of PROGRESS.md instead, and fix what they report back. Under `Verification: full` that is the full checklist: what to build, what to flash or load, what to do, what output shows success, and what shows failure. Under `off` or `light` it is one line naming what to build and what to look for. A new dependency between folders that ARCHITECTURE.md does not describe is a design question, so take it to the user rather than working around it.
 
 Any scratch script you wrote to run the change goes in a folder git ignores. When it finishes, ask the user whether to keep it in the repository as an example, or delete it.
 
@@ -57,6 +57,8 @@ Update the ARCHITECTURE.md of every folder whose files, flows, or dependencies t
 py -3 tools/feature.py set F-NNN --status verifying --next "<the step>" --notes "checked on <input>: <result>"
 ```
 
-When the behaviour has been observed and no `verification` step is still owed, show the user the evidence and propose closing the feature with cdev-done. The feature becomes `done` on the user's confirmation.
+Use `verifying` for a step the `Verification:` line asks for and that is still owed. Under `off` no step is owed, so go straight to the proposal.
+
+Show the user the evidence and propose closing the feature with cdev-done. Under `off`, say in the same message what has not been checked on real hardware. The feature becomes `done` on the user's confirmation.
 
 **Done when:** `doc_check` reports no drift, the feature's status says what is left, and the user knows what is owed or has the proposal to close it.

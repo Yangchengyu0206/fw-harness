@@ -8,6 +8,8 @@ disable-model-invocation: true
 
 Host tests prove logic. Some behaviour only shows on the target: a board, a loaded kernel driver, an installed Windows driver. You run the target; this skill supplies the commands, keeps the log, and records what it showed.
 
+It belongs to `Verification: full`. When AGENTS.md says `off` or `light`, say so and record the result in one line on the feature and in PROGRESS.md instead, unless the user asks for the full pass anyway.
+
 ## Process
 
 ### 1. Pick the step

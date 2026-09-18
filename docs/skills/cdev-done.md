@@ -14,6 +14,8 @@ When a feature's verification has passed, or at the end of a session, before you
 
 **Why does it not commit?** Committing and pushing stay with you. The skill hands you the message and stops.
 
+**Does it always want a hardware result?** It wants what the `Verification:` line in AGENTS.md asks for. At `off` it closes on the build and the run, and records what was not checked on hardware.
+
 **Why does it ask before setting `done`?** An agent marking its own work finished makes `done` mean nothing. You see the evidence and decide.
 
 **Why both PROGRESS.md and the feature list?** They answer different questions. The feature list says what is being built and how far each piece is; PROGRESS.md says where you stopped and why, which is what the next session needs first.

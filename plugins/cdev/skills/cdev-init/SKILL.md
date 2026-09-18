@@ -51,6 +51,7 @@ Fill every placeholder from what you found:
 |---|---|
 | `{{PROJECT}}` | the repository's name, from its folder or its build files |
 | `{{DOMAINS}}` | the detected set, comma separated, for example `firmware, python` |
+| `{{VERIFICATION}}` | `off`. Every repository starts there, and step 4 offers the other two |
 | `{{EDITABLE}}` | a bullet list of the folders the user owns |
 | `{{READ_ONLY}}` | a bullet list of vendor and generated folders, or `none` |
 | `{{BUILD}}` | the build command in backticks, from the repository's build files; when there are none, the Build and test section of the domain's reference. When the project builds only inside a vendor IDE (AndeSight, Keil, IAR, MCUXpresso, or any Eclipse-based IDE whose project files you find), write `in <IDE>, outside this editor; the user builds and reports the errors` |
@@ -83,9 +84,11 @@ One message, with the finished work rather than a plan for it:
 - every `.cdev-proposed` file, and why it exists
 - what is left to the user: the decisions table in the root ARCHITECTURE.md and the first features
 
-Then ask one question: what is wrong? One answer covering every row is the approval these documents need. `git diff` stays open to the user the whole time, so they read the real files. Apply each correction and show the difference it made.
+Ask the verification question inside that same message, so it stays one question: the `Verification:` line in AGENTS.md starts at `off`, which keeps the agent from asking for hardware results and records in each log entry what was not checked on hardware; `light` adds the one step still owed as the feature's next step; `full` adds the checklist, the evidence files, and cdev-target-verify. Say which one you would pick for this repository and why, and that the line is one word to change later.
 
-**Done when:** the user has answered once, and every correction they named is applied.
+Then ask what is wrong? One answer covering every row is the approval these documents need. `git diff` stays open to the user the whole time, so they read the real files. Apply each correction and show the difference it made.
+
+**Done when:** the user has answered once, every correction they named is applied, and the `Verification:` line holds the mode they chose.
 
 ### 5. Commit
 

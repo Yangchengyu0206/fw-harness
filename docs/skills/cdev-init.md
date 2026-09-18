@@ -18,6 +18,8 @@ Once per repository, on a clean working tree.
 
 **My project has no tests.** That is fine. It writes `Test: none` into AGENTS.md, and no cdev skill adds a test framework unless you ask. Changes are checked by running the code on a real input instead.
 
+**How much verification does it set up?** `Verification: off`, every time. It offers `light` and `full` in the message that hands you the result, and the line is one word to change later. At `off` no skill asks for a board result; a feature still needs your confirmation to become `done`.
+
 **My project builds in AndeSight, Keil, or another vendor IDE.** AGENTS.md then says the build and flashing happen outside the editor. Each feature stops at `verifying` with a checklist for you, and you report the result back. When the IDE's toolchain also runs from a command line, put that command into the Build line and the agent compiles before handing over.
 
 **What if I already have an AGENTS.md?** It is left alone. The generated version lands as `AGENTS.md.cdev-proposed` for you to compare.

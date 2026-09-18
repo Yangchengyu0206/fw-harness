@@ -60,7 +60,9 @@ Run once in GitHub Copilot in VS Code and once in Claude Code, each on scratch r
 - [ ] Editing a file under a code folder attaches `architecture.instructions.md` to the Copilot request (visible in the references list).
 - [ ] A new conversation, with no skill typed, opens by reporting `## Now`, the features, and `doc_check`, then asks which feature to take.
 - [ ] `cdev-session-start` proposes a feature and stops for your answer before writing code.
-- [ ] On a project that builds in a vendor IDE, `cdev-implement` stops at `verifying` and writes a checklist under `Waiting on the user` in `## Now`.
+- [ ] `cdev-init` writes `Verification: off` and offers `light` and `full` in the message that hands over the result.
+- [ ] At `Verification: off`, no skill asks for a board result, and the log entry says what was left unchecked on hardware.
+- [ ] At `Verification: full` on a project that builds in a vendor IDE, `cdev-implement` stops at `verifying` and writes a checklist under `Waiting on the user` in `## Now`.
 - [ ] `cdev-checkpoint` writes the facts found in the conversation into `## Now`, and a new conversation continues from them.
 - [ ] `cdev-implement` writes a failing test first and uses the build and test commands from AGENTS.md.
 - [ ] On a repository with no tests, `cdev-init` writes `Test: none`, and `cdev-implement` and `cdev-debug` add no test framework, yet still show a real run with its output.

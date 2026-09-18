@@ -8,6 +8,16 @@ Domains: {{DOMAINS}}
 
 The cdev skills read the matching domain reference for each domain listed here before they write, review, or debug code. Change this line when the repository gains or loses a domain.
 
+## Verification
+
+Verification: {{VERIFICATION}}
+
+- `off`: leave every `verification` list empty and write no checklist. A feature closes when it builds and its behaviour looks right in a run or in the code, and its `## Log` entry says plainly what was checked and what was not checked on real hardware.
+- `light`: name the one step still owed as the feature's next step, in a line such as `on the board: confirm the retry fires after 3 ms`. No checklist, no evidence files.
+- `full`: write the checklist described in step 8 below, keep the logs the user captures under `docs/evidence/F-NNN/`, and use cdev-target-verify for each step.
+
+Change this line as the project moves on, most often from `off` to `light` once the board runs the code.
+
 ## Where to work
 
 Editable:
@@ -59,8 +69,8 @@ The architecture documents are a map for finding the code. The code is the sourc
 5. Run: {{RUN}}
 6. After each step, rewrite `## Now` in PROGRESS.md: what is done, the facts confirmed so far, and the next step. Write a confirmed fact (an address, a timing, a call order) there the moment it is confirmed; a long conversation gets summarised and loses details that live only in chat.
 7. When a change adds, removes, or renames a file, changes what a folder depends on, or changes a flow a document describes, update that folder's ARCHITECTURE.md in the same change.
-8. When the code is written and verification is owed, set the feature to `verifying` with `py -3 tools/feature.py set F-NNN --status verifying --next "<the step>"`. When the build, flashing, or the run happens outside this editor, write a checklist for the user under `Waiting on the user` in `## Now`: what to build, what to flash or load, what to do, what output shows success, and what shows failure.
-9. When every verification step has passed, propose closing the feature and show the commands and output (or the user's reported result) and the documents you changed. The user confirms before the feature becomes `done`.
+8. When the code is written and a step is still owed, set the feature to `verifying` with `py -3 tools/feature.py set F-NNN --status verifying --next "<the step>"`, as far as the `Verification:` line above asks. Under `full`, and whenever the build, flashing, or the run happens outside this editor, write a checklist for the user under `Waiting on the user` in `## Now`: what to build, what to flash or load, what to do, what output shows success, and what shows failure.
+9. Propose closing the feature, and show the commands and output (or the user's reported result) and the documents you changed. Under `off`, say in the same message what has not been checked on real hardware. The user confirms before the feature becomes `done`.
 
 {{TEST_RULE}}
 
@@ -68,7 +78,7 @@ The architecture documents are a map for finding the code. The code is the sourc
 
 A feature is done when:
 
-- the behaviour in its `behavior` field has been observed in a run, by the agent or reported by the user
+- the behaviour in its `behavior` field has been observed, in a run by the agent, in a result the user reports, or under `off` in the code and the build
 - every step in its `verification` list, if it has one, has passed
 - the ARCHITECTURE.md of every folder it changed matches the code
 - a `## Log` entry in PROGRESS.md records what was done, how it was verified, and any decision with its reason
