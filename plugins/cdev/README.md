@@ -40,6 +40,14 @@ copilot plugin install cdev@fw-harness
 
 Then, in your repository, open agent chat and type `/cdev-init` once. After a later plugin update, type `/cdev-upgrade` once per repository.
 
+**Without a marketplace**, on a machine that cannot reach one, build a package from a checkout:
+
+```bash
+py -3 scripts/pack_cdev.py
+```
+
+It writes `dist/cdev-<version>.zip`, which holds the plugin, both READMEs, the licence, and an installer. Whoever receives it unzips it and follows [INSTALL.md](INSTALL.md): either registering the folder with the `chat.pluginLocations` setting, or copying the skills into one repository with `py -3 install_local.py --repo <path>`.
+
 ## What lands in your repository
 
 ```

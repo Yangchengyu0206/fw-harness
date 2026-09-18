@@ -40,6 +40,14 @@ copilot plugin install cdev@fw-harness
 
 接著在你的 repository 打開 agent chat，輸入一次 `/cdev-init`。之後 plugin 更新過，每個 repository 再輸入一次 `/cdev-upgrade`。
 
+**沒有 marketplace 可用時**（例如同事的機器連不到），從 checkout 打包一份：
+
+```bash
+py -3 scripts/pack_cdev.py
+```
+
+它會產生 `dist/cdev-<版本>.zip`，裡面有 plugin 本體、兩份 README、授權，以及安裝腳本。收到的人解壓後照 [INSTALL.zh-TW.md](INSTALL.zh-TW.md) 做：用 `chat.pluginLocations` 設定註冊那個資料夾，或用 `py -3 install_local.py --repo <路徑>` 把 skills 放進單一 repository。
+
 ## 會寫進你 repository 的東西
 
 ```
