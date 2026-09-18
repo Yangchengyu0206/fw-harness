@@ -1,6 +1,6 @@
 {
   "name": "cdev",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A markdown-first harness for one developer working in C and Python: AGENTS.md, architecture documents, a progress log, a feature list, and skills with depth for firmware, Linux drivers, and Windows drivers.",
   "author": {
     "name": "fw-harness contributors",
