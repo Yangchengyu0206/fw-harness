@@ -41,15 +41,35 @@ Both can coexist, though one repository should use one of them, so a skill is no
 
 ## Option 2: inside one repository, travelling with it
 
-This suits a team: everyone who clones the repository has the skills without touching their settings.
+This suits a team: everyone who clones the repository has the skills without touching their settings. It is also the simplest route, and it needs no Python.
+
+**Copy the folders:**
+
+1. Make a `.github\skills` folder in your repository.
+2. Copy every folder inside the unzipped `cdev\skills\` (`cdev-init`, `cdev-debug`, and the rest of the 13) into it.
+3. Copy `LICENSE` and `THIRD_PARTY_NOTICES.md` in beside them, so the licence travels with the skills.
+4. Restart VS Code and type `/` in agent chat to see the commands.
+5. Commit them, and a clone carries them.
+
+The result:
+
+```
+your-project\
+└─ .github\skills\
+   ├─ cdev-init\SKILL.md
+   ├─ cdev-debug\SKILL.md
+   └─ ... (13 in total)
+```
+
+**To do the same without copying by hand:**
 
 ```
 py -3 C:\tools\cdev\install_local.py --repo D:\work\my-project
 ```
 
-The skills land in that repository's `.github/skills/`. Commit them, and a clone carries them.
-
 For Claude Code, add `--tool claude`, which writes `.claude/skills/` instead.
+
+This step carries the skills only. The hooks, the explorer agent, and the VS Code settings are written by `/cdev-init`, described next.
 
 ## After installing
 

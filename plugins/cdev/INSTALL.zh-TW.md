@@ -41,15 +41,35 @@ English: [INSTALL.md](INSTALL.md)
 
 ## 方式二：放進單一 repository（跟著 repo 走）
 
-適合讓每個 clone 這個 repo 的人都自動拿到 skills，不必各自改設定。
+適合讓每個 clone 這個 repo 的人都自動拿到 skills，不必各自改設定。這是最簡單的做法，連 Python 都不需要。
+
+**直接複製資料夾：**
+
+1. 在你的 repo 裡建一個 `.github\skills` 資料夾。
+2. 把解壓出來的 `cdev\skills\` 裡面**每一個資料夾**（`cdev-init`、`cdev-debug` 等 13 個）複製進去。
+3. 順手把 `LICENSE` 和 `THIRD_PARTY_NOTICES.md` 也複製進 `.github\skills\`，讓授權資訊跟著走。
+4. 重開 VS Code，在 agent chat 打 `/` 確認指令出現。
+5. commit 進去，之後每個 clone 的人都有。
+
+完成後長這樣：
+
+```
+你的專案\
+└─ .github\skills\
+   ├─ cdev-init\SKILL.md
+   ├─ cdev-debug\SKILL.md
+   └─ ...（共 13 個）
+```
+
+**不想手動複製的話**，用腳本做同一件事：
 
 ```
 py -3 C:\tools\cdev\install_local.py --repo D:\work\my-project
 ```
 
-這會把 skills 複製到那個 repo 的 `.github/skills/`。把它們 commit 進去，之後每個人 clone 下來就有。
-
 用 Claude Code 的人加上 `--tool claude`，skills 會複製到 `.claude/skills/`。
+
+這一步只放 skills。hooks、explorer agent、VS Code 設定那些檔案是 `/cdev-init` 產生的，見下一節。
 
 ## 安裝完之後
 

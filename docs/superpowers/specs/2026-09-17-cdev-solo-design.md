@@ -215,3 +215,14 @@ Four gaps left by 10.1, closed together.
 2. **Documents written where the work is.** Reading every folder of a repository with a vendor SDK to write `## Files` and `## Flows` can fill a context before `cdev-init` finishes. Init now writes full documents for the folders the user works in, up to about five, and `ARCHITECTURE.stub.md` elsewhere. `doc_check` reports a stub as waiting rather than as drift, AGENTS.md has the agent fill a stub before working in or answering about that folder, and `cdev-architecture-sync` gained that single-folder mode.
 3. **The reading rules reach the remaining skills.** `cdev-review`, `cdev-test-gap`, and `cdev-debug` now point at the reading rules in AGENTS.md. `cdev-debug` also writes each phase's confirmed facts into `## Now`, since it reads the most code and produces the most output of any loop here.
 4. **A Traditional Chinese `cdev` README**, paired with the English one and checked by a test, so the plugin reads in the language its first users work in.
+
+### 10.3 Hooks and a reading agent (2026-09-22)
+
+Everything in 10.1 that made a conversation open with the state of the work, and kept the documents true, was a rule in AGENTS.md: loaded every time, followed at the model's discretion. VS Code documents two mechanisms that move part of that onto the tool.
+
+1. **Agent hooks** (`.github/hooks/cdev.json`, Preview). `SessionStart` runs `tools/hooks.py session-start`, which returns `## Now`, the feature list, and the state of the architecture documents as `additionalContext`, capped at 4000 characters, so the agent holds the state before its first answer whether or not it chooses to read PROGRESS.md. `Stop` reports document drift as a `systemMessage`. Neither blocks: any failure prints `continue: true` and stays out of the way, and the AGENTS.md opening rules remain for tools where hooks are unavailable.
+2. **A reading agent** (`.github/agents/cdev-explorer.agent.md`). Read-only, delegable by the main agent, briefed to answer with a conclusion and `path:line` citations rather than quoted files. Reading several files for one question is the largest avoidable context cost in a repository with a vendor SDK, and this moves it out of the main conversation.
+
+Both are written by `cdev-init` and added by `cdev-upgrade`. `tools/hooks.py` is the third plugin-owned script, so the one-script constraint in section 1 now reads: the scripts the plugin owns stay few, and none of them gates a commit.
+
+The install guide also leads with copying the skill folders by hand, which needs no Python and is what most people reach for first.
