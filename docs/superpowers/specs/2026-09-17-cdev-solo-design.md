@@ -226,3 +226,13 @@ Everything in 10.1 that made a conversation open with the state of the work, and
 Both are written by `cdev-init` and added by `cdev-upgrade`. `tools/hooks.py` is the third plugin-owned script, so the one-script constraint in section 1 now reads: the scripts the plugin owns stay few, and none of them gates a commit.
 
 The install guide also leads with copying the skill folders by hand, which needs no Python and is what most people reach for first.
+
+### 10.4 Reaching for a tool before answering (2026-09-22)
+
+MCP servers configured in a workspace were only ever used when the user asked for them by name. A model decides to call a tool from that tool's own description, written by the server's author for every project at once, and nothing in the harness said when a tool was the right move here.
+
+Listing the servers in AGENTS.md was rejected: servers are added over time, and a list written into a file goes stale the first time one is added.
+
+`## When this repository cannot answer` in AGENTS.md instead names the classes of question this repository cannot answer (another branch or project, a datasheet, an application note) and has the agent look through the tools it holds this session, use the one whose description covers the question, name the tool that answered, and ask the user only when nothing fits. `tools/mcp_list.py` prints the servers configured in `.vscode/mcp.json`, `.mcp.json`, and the user configuration, for the case where a tool exists but is not enabled.
+
+This stays a rule, so it is a nudge rather than a guarantee. A guarantee would mean calling the underlying command from a hook, which is worth doing for one specific answer the work always needs, and not for a general habit.

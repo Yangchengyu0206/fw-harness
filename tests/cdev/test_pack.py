@@ -29,6 +29,7 @@ REQUIRED = (
     "cdev/skills/cdev-init/templates/.github/hooks/cdev.json",
     "cdev/skills/cdev-init/templates/.github/agents/cdev-explorer.agent.md",
     "cdev/skills/cdev-init/templates/tools/hooks.py",
+    "cdev/skills/cdev-init/templates/tools/mcp_list.py",
 )
 
 

@@ -62,6 +62,7 @@ feature_list.json    正在做什麼，唯一的真實來源
 tools/feature.py     確保 feature_list.json 有效
 tools/doc_check.py   回報架構文件和實際檔案不一致的地方
 tools/hooks.py       回應 session hooks
+tools/mcp_list.py    列出這台機器與這個 repo 設定了哪些 MCP server
 .vscode/settings.json
                      唯讀資料夾改不動；具破壞性的指令要經過你同意
 .github/instructions/architecture.instructions.md
@@ -82,6 +83,7 @@ docs/reviews/        review 報告
 
 1. 開一個對話。session hook 會把 `## Now`、功能清單和文件檢查結果直接交給 agent，然後它問你要做哪個功能。hooks 不可用的環境下，AGENTS.md 的規則會讓它自己做一樣的事。
 2. 問程式碼的問題時，先用架構文件當地圖，再回到程式碼驗證，並標明哪些說法驗證過、哪些沒有。需要讀好幾個檔案的問題會交給 `cdev-explorer` agent，它在自己的上下文裡讀，只把結論和出處帶回來。
+3. 這個 repo 回答不了的問題（其他分支、datasheet、application note），agent 會先去翻這次 session 手上有哪些工具，而不是直接說不知道。之後新增 MCP server 不用改任何設定，因為規則指的是工具清單本身，不是寫死的 server 名單。
 3. 開發功能的過程中，`## Now` 每完成一步就重寫，確認到的事實當下就寫進去，這樣對話被摘要也不會遺失。
 4. build 或燒錄在廠商 IDE 裡進行時，功能會停在 `verifying`，`## Now` 裡留下要你做的事。你跑完回報結果，在原本的對話或新對話都可以。
 5. 上下文用量偏高時，輸入 `/cdev-checkpoint`。

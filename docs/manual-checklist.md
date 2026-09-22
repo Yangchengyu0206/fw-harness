@@ -62,6 +62,8 @@ Run once in GitHub Copilot in VS Code and once in Claude Code, each on scratch r
 - [ ] The `SessionStart` hook runs: the opening report appears without the agent reading PROGRESS.md itself. Hooks are in preview, so note the VS Code version that was tried.
 - [ ] The `Stop` hook reports drift after a session that renamed a file.
 - [ ] `cdev-explorer` appears in the agents picker, answers a question with `path:line` citations, and edits nothing.
+- [ ] With an MCP server configured, a question the repository cannot answer sends the agent to that server's tool without being told to, and the answer names the tool.
+- [ ] `py -3 tools/mcp_list.py` lists the servers from `.vscode/mcp.json` and from the user configuration.
 - [ ] `cdev-session-start` proposes a feature and stops for your answer before writing code.
 - [ ] `cdev-init` writes `Verification: off` and offers `light` and `full` in the message that hands over the result.
 - [ ] At `Verification: off`, no skill asks for a board result, and the log entry says what was left unchecked on hardware.

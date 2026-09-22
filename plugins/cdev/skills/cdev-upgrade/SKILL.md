@@ -22,7 +22,7 @@ Confirm the repository root with the user, and that `git status --porcelain` is 
 
 ### 2. Replace the scripts
 
-`tools/feature.py`, `tools/doc_check.py`, and `tools/hooks.py` belong to the plugin. Copy them from the templates over whatever is there, and add the ones the repository has none of.
+`tools/feature.py`, `tools/doc_check.py`, `tools/hooks.py`, and `tools/mcp_list.py` belong to the plugin. Copy them from the templates over whatever is there, and add the ones the repository has none of.
 
 When the user has edited one of them, do not overwrite it: copy the new version beside it as `<name>.cdev-proposed`, and say so in step 5.
 
@@ -43,6 +43,7 @@ Check each item. Add only the missing ones, taking the wording from the template
 | Editor settings | `.vscode/settings.json` holds `files.readonlyInclude` and `chat.tools.terminal.autoApprove` | the template's entries, merged into the existing file rather than replacing it |
 | Path instructions | `.github/instructions/architecture.instructions.md` exists | the template, with `applyTo` covering the editable folders AGENTS.md lists |
 | Session hooks | `.github/hooks/cdev.json` exists | the template, and `tools/hooks.py` with it |
+| Reaching for a tool | AGENTS.md has the section `## When this repository cannot answer` | the section, and `tools/mcp_list.py` with it |
 | Explorer agent | `.github/agents/cdev-explorer.agent.md` exists | the template |
 
 Ask the user which folders they work in when AGENTS.md does not already make it plain, and document those in full.

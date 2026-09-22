@@ -62,6 +62,7 @@ feature_list.json    what is being built, the single source of truth
 tools/feature.py     keeps feature_list.json valid
 tools/doc_check.py   reports where the architecture documents no longer match the files
 tools/hooks.py       answers the session hooks
+tools/mcp_list.py    lists the MCP servers configured here
 .vscode/settings.json
                      read-only folders cannot be edited; destructive commands need your approval
 .github/instructions/architecture.instructions.md
@@ -82,6 +83,7 @@ A large repository is not documented all at once: `cdev-init` writes the folders
 
 1. Open a conversation. The session hook hands the agent `## Now`, the features, and the state of the documents, and it asks which feature to take. Where hooks are unavailable, AGENTS.md has it do the same by hand.
 2. Questions about the code are answered from the architecture documents as a map, then checked in the code, with each claim marked verified or not. A question that means reading several files goes to the `cdev-explorer` agent, which reads in its own context and returns the answer with citations.
+3. A question this repository cannot answer, such as one about another branch, a datasheet, or an application note, sends the agent to the tools it holds this session before it answers that it does not know. New MCP servers are picked up without editing anything, because the rule points at the tool list rather than at a list of servers.
 3. While a feature is built, `## Now` is rewritten after every step, and confirmed facts go there as they are found, so a summarised conversation loses nothing.
 4. When the build or flashing happens in a vendor IDE, the feature stops at `verifying` with a checklist for you in `## Now`. You run it and report the result, in the same conversation or a new one.
 5. When the context usage runs high, type `/cdev-checkpoint`.

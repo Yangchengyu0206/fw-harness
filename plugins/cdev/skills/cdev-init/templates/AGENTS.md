@@ -63,6 +63,18 @@ The architecture documents are a map for finding the code. The code is the sourc
 - Send long build or run output to a file and read the errors and the tail: `<command> > build.log 2>&1`.
 - Filter logs and dumps before reading them.
 
+## When this repository cannot answer
+
+This repository holds one branch of one project. Other things live elsewhere, and this session may already carry a tool that reaches them: another branch or another project in git, a register or a timing in a datasheet, a recommended sequence in an application note.
+
+Before you answer that you do not know, or ask the user to paste something in:
+
+1. Look through the tools you were given this session and pick the one whose description covers the question. `py -3 tools/mcp_list.py` prints the MCP servers configured for this repository and this machine, which is worth running when you suspect a tool exists that is not enabled.
+2. Use it, and name the tool that answered, so the user can tell a documented fact from a guess.
+3. Ask the user only when no tool fits, and say what you looked for.
+
+Servers are added over time, so the tool list you hold this session is the source of truth, not any list written into this file.
+
 ## Working on a feature
 
 1. One active feature at a time.
