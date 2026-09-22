@@ -22,11 +22,11 @@ Confirm the repository root with the user, and that `git status --porcelain` is 
 
 ### 2. Replace the scripts
 
-`tools/feature.py` and `tools/doc_check.py` belong to the plugin. Copy both from the templates over whatever is there, and add `tools/doc_check.py` when the repository has none.
+`tools/feature.py`, `tools/doc_check.py`, and `tools/hooks.py` belong to the plugin. Copy them from the templates over whatever is there, and add the ones the repository has none of.
 
 When the user has edited one of them, do not overwrite it: copy the new version beside it as `<name>.cdev-proposed`, and say so in step 5.
 
-**Done when:** both scripts run: `py -3 tools/feature.py check` and `py -3 tools/doc_check.py`.
+**Done when:** all three run: `py -3 tools/feature.py check`, `py -3 tools/doc_check.py`, and `py -3 tools/hooks.py session-start`.
 
 ### 3. Add what is missing
 
@@ -42,6 +42,8 @@ Check each item. Add only the missing ones, taking the wording from the template
 | Folder documents | each folder ARCHITECTURE.md has `## Files` and `## Flows` | for the folders the user works in, read the code and write both; for the rest, the `## Files` line from [ARCHITECTURE.stub.md](../cdev-init/templates/ARCHITECTURE.stub.md), so `doc_check` reports them as waiting |
 | Editor settings | `.vscode/settings.json` holds `files.readonlyInclude` and `chat.tools.terminal.autoApprove` | the template's entries, merged into the existing file rather than replacing it |
 | Path instructions | `.github/instructions/architecture.instructions.md` exists | the template, with `applyTo` covering the editable folders AGENTS.md lists |
+| Session hooks | `.github/hooks/cdev.json` exists | the template, and `tools/hooks.py` with it |
+| Explorer agent | `.github/agents/cdev-explorer.agent.md` exists | the template |
 
 Ask the user which folders they work in when AGENTS.md does not already make it plain, and document those in full.
 
@@ -54,7 +56,7 @@ py -3 tools/feature.py check
 py -3 tools/doc_check.py
 ```
 
-**Done when:** `feature.py check` passes and `doc_check` reports drift only where the documents were already behind the code, with the stubs listed as waiting.
+**Done when:** `feature.py check` passes, `hooks.py session-start` prints JSON holding `## Now`, and `doc_check` reports drift only where the documents were already behind the code, with the stubs listed as waiting.
 
 ### 5. Hand it over
 

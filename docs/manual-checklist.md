@@ -59,6 +59,9 @@ Run once in GitHub Copilot in VS Code and once in Claude Code, each on scratch r
 - [ ] In VS Code, a file in a read-only folder opens read-only, and `git push` asked for by the agent waits for your approval.
 - [ ] Editing a file under a code folder attaches `architecture.instructions.md` to the Copilot request (visible in the references list).
 - [ ] A new conversation, with no skill typed, opens by reporting `## Now`, the features, and `doc_check`, then asks which feature to take.
+- [ ] The `SessionStart` hook runs: the opening report appears without the agent reading PROGRESS.md itself. Hooks are in preview, so note the VS Code version that was tried.
+- [ ] The `Stop` hook reports drift after a session that renamed a file.
+- [ ] `cdev-explorer` appears in the agents picker, answers a question with `path:line` citations, and edits nothing.
 - [ ] `cdev-session-start` proposes a feature and stops for your answer before writing code.
 - [ ] `cdev-init` writes `Verification: off` and offers `light` and `full` in the message that hands over the result.
 - [ ] At `Verification: off`, no skill asks for a board result, and the log entry says what was left unchecked on hardware.

@@ -1,0 +1,20 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "python3 tools/hooks.py session-start",
+        "windows": "py -3 tools/hooks.py session-start",
+        "timeout": 30
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "python3 tools/hooks.py stop",
+        "windows": "py -3 tools/hooks.py stop",
+        "timeout": 30
+      }
+    ]
+  }
+}

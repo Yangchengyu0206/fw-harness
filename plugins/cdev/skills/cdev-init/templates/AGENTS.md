@@ -37,7 +37,9 @@ Ask before any of these:
 
 ## Opening a conversation
 
-Before the first answer in a new conversation:
+The `SessionStart` hook in `.github/hooks/cdev.json` puts `## Now`, the feature list, and the state of the documents in front of you before your first answer. When that context is there, report it in a few lines and go to step 4.
+
+When it is not there, the hook is off or unsupported, so do it yourself:
 
 1. Read `## Now` in PROGRESS.md.
 2. Run `py -3 tools/feature.py show` and `py -3 tools/doc_check.py`.
@@ -56,6 +58,7 @@ The architecture documents are a map for finding the code. The code is the sourc
 
 ## Keeping the context small
 
+- Delegate a question that means reading several files to the `cdev-explorer` agent (`.github/agents/cdev-explorer.agent.md`). It reads in its own context and returns the answer with `path:line` citations, so this conversation keeps room for the work.
 - Search first, then read the function or section the search found.
 - Send long build or run output to a file and read the errors and the tail: `<command> > build.log 2>&1`.
 - Filter logs and dumps before reading them.

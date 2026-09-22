@@ -38,7 +38,7 @@ Each domain has a reference the other cdev skills read: [c](../cdev-implement/re
 
 Nothing is committed yet, so the whole result stays a draft the user can change. Do all of this, then stop:
 
-1. Copy `templates/tools/feature.py` and `templates/tools/doc_check.py` into `tools/`, and `templates/feature_list.json` to `feature_list.json`.
+1. Copy `templates/tools/feature.py`, `templates/tools/doc_check.py`, and `templates/tools/hooks.py` into `tools/`, and `templates/feature_list.json` to `feature_list.json`.
 2. Scan the code folders two levels deep. A folder named like `third_party`, `vendor`, `external`, or a vendor SDK, or whose files carry a generated marker in their first lines, is read-only.
 3. Write an `ARCHITECTURE.md` for each code folder, choosing the depth per folder so a large repository still finishes in one pass:
    - **The folders the user works in**, up to about five: read their code and write the full document from `templates/ARCHITECTURE.folder.md`. Read the functions a flow passes through before writing the flow.
@@ -46,7 +46,7 @@ Nothing is committed yet, so the whole result stays a draft the user can change.
 
    When the user has not said where they work, take the folders the build files name as the product's own code, and say in step 4 which ones you chose.
 4. Write `ARCHITECTURE.md` at the root from `templates/ARCHITECTURE.root.md`, and `AGENTS.md`, `CLAUDE.md`, and `PROGRESS.md` from their templates.
-5. Write `.vscode/settings.json` and `.github/instructions/architecture.instructions.md` from the templates of the same path. GitHub Copilot in VS Code reads both: the settings make read-only folders uneditable and keep destructive terminal commands from running without the user's approval, and the instructions reach the agent whenever it works on code a document describes.
+5. Write `.vscode/settings.json`, `.github/instructions/architecture.instructions.md`, `.github/hooks/cdev.json`, and `.github/agents/cdev-explorer.agent.md` from the templates of the same path. GitHub Copilot in VS Code reads all four: the settings make read-only folders uneditable and keep destructive terminal commands from running without the user's approval, the instructions reach the agent whenever it works on code a document describes, the hooks put the state of the work in front of the agent at the start of a session and report document drift at the end, and the explorer agent reads code in its own context so the main conversation keeps room.
 6. Run `py -3 tools/feature.py check` and `py -3 tools/doc_check.py`.
 
 Fill every placeholder from what you found:
@@ -75,7 +75,7 @@ Fill every placeholder from what you found:
 | `{{READ_ONLY_GLOBS}}` | a JSON object with one `"<folder>/**": true` entry per read-only folder, or `{}` when there are none |
 | `{{CODE_GLOBS}}` | the editable code folders as comma-separated globs, for example `src/**,drivers/**` |
 
-**Done when:** every file exists, no `{{` remains in any file you wrote, `feature.py check` passes, and `doc_check.py` reports no drift, listing the stubs as waiting.
+**Done when:** every file exists, no `{{` remains in any file you wrote, `feature.py check` passes, `doc_check.py` reports no drift, listing the stubs as waiting, and `py -3 tools/hooks.py session-start` prints JSON holding `## Now`.
 
 ### 4. Hand the whole result over for review
 
@@ -83,6 +83,7 @@ One message, with the finished work rather than a plan for it:
 
 - the domain set, and the file behind each domain
 - a table of code folders: role, depends on, read-only or not, documented in full or left as a stub for later, and a Note column flagging every guess (a folder classified read-only from its name alone, a responsibility inferred from little code, a flow written from part of its path, a build command taken from a reference because the repository had none, a run command marked `unknown`)
+- that agent hooks are in preview in VS Code: the session hook makes the opening automatic where it runs, and the rules in AGENTS.md cover the case where it does not
 - whether the build and the run happen in this editor or in a vendor IDE. When they happen in an IDE, say that each feature will stop at `verifying` with a checklist for the user, and ask whether the IDE's toolchain can be run from a command line
 - whether the repository has tests. When it has none, say plainly that the skills will not add any unless asked, and will run each change on a real input instead
 - every `.cdev-proposed` file, and why it exists

@@ -26,6 +26,9 @@ REQUIRED = (
     "cdev/skills/cdev-init/templates/tools/doc_check.py",
     "cdev/skills/cdev-init/templates/.vscode/settings.json",
     "cdev/skills/cdev-init/templates/.github/instructions/architecture.instructions.md",
+    "cdev/skills/cdev-init/templates/.github/hooks/cdev.json",
+    "cdev/skills/cdev-init/templates/.github/agents/cdev-explorer.agent.md",
+    "cdev/skills/cdev-init/templates/tools/hooks.py",
 )
 
 
