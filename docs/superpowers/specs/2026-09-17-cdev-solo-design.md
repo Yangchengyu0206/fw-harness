@@ -236,3 +236,11 @@ Listing the servers in AGENTS.md was rejected: servers are added over time, and 
 `## When this repository cannot answer` in AGENTS.md instead names the classes of question this repository cannot answer (another branch or project, a datasheet, an application note) and has the agent look through the tools it holds this session, use the one whose description covers the question, name the tool that answered, and ask the user only when nothing fits. `tools/mcp_list.py` prints the servers configured in `.vscode/mcp.json`, `.mcp.json`, and the user configuration, for the case where a tool exists but is not enabled.
 
 This stays a rule, so it is a nudge rather than a guarantee. A guarantee would mean calling the underlying command from a hook, which is worth doing for one specific answer the work always needs, and not for a general habit.
+
+### 10.5 Grilling a decision before the work (2026-09-23)
+
+Every skill in the plugin so far constrains the agent: reproduce before fixing, state the expected output before writing, verify a finding before reporting it. None of them questions the user. In a chip bring-up the costly mistakes are decided before any code exists, and they read as reasonable in a diff: a timing carried over from the previous part, a module switched off and forgotten, a sequence from an application note for a different chip.
+
+`cdev-grill` is user-invoked, adapted from the design tree, frontier, and round format in `skills/productivity/grilling` in mattpocock/skills (MIT, credited in THIRD_PARTY_NOTICES.md), with the question set pointed at this domain: where a value came from, what makes two parts the same, what the failure would look like on the board, the cheapest check before the full change, and what is being deferred.
+
+Two departures from the original. Facts are gathered through this harness: the architecture documents, the `cdev-explorer` agent, and the tools the session holds under `## When this repository cannot answer`. The session ends by writing each decision and its reason into `## Decisions and why` in the root ARCHITECTURE.md and turning deferred work into features, so the interview leaves something behind rather than living in one conversation.

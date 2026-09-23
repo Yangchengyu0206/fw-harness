@@ -89,6 +89,10 @@ A large repository is not documented all at once: `cdev-init` writes the folders
 5. When the context usage runs high, type `/cdev-checkpoint`.
 6. When verification has passed, the agent shows the evidence and the documents it changed, and the feature becomes `done` on your confirmation.
 
+## Deciding before building
+
+The expensive mistakes in a port are made before the code: a timing carried over from the previous chip, a module switched off with nobody left to remember, a sequence from an application note written for another part. `/cdev-grill` interviews you about a plan one round of questions at a time, looks up the facts itself rather than asking you for them, and writes what you decided, with the reason, into `## Decisions and why` in the root ARCHITECTURE.md.
+
 ## Verification starts switched off
 
 `AGENTS.md` carries one line, `Verification: off`, and `cdev-init` offers the other two levels when it hands you the result. `off` asks for no hardware results and no checklists: a feature closes on the build and a run, and each log entry says what was left unchecked on real hardware. `light` adds the one step still owed as the feature's next step. `full` adds the checklist for you, the logs under `docs/evidence/`, and `cdev-target-verify`.
@@ -104,6 +108,7 @@ A repository with no tests is a normal case, not a gap to fill. `cdev-init` then
 ## The skills
 
 Setting up: `cdev-init`, then `cdev-upgrade` after a plugin update.
+Before the work: `cdev-grill`.
 A day of work: `cdev-session-start`, `cdev-implement`, `cdev-target-verify`, `cdev-checkpoint`, `cdev-done`, with `cdev-feature` underneath.
 Looking at code: `cdev-review`, `cdev-test-gap`, `cdev-debug`.
 When the structure changes: `cdev-architecture-sync`.
@@ -117,7 +122,7 @@ One page per skill lives in [docs/skills](../../docs/skills).
 
 ## One difference between the two tools
 
-Seven of the skills are meant for you to type: `cdev-init`, `cdev-upgrade`, `cdev-session-start`, `cdev-target-verify`, `cdev-checkpoint`, `cdev-done`, and `cdev-guide`. They carry `disable-model-invocation: true`, which GitHub Copilot in VS Code and Claude Code both document as keeping the agent from starting them; you start them with `/` in chat. Copilot CLI does not document the key, so there an agent may still reach them on its own.
+Eight of the skills are meant for you to type: `cdev-init`, `cdev-upgrade`, `cdev-session-start`, `cdev-grill`, `cdev-target-verify`, `cdev-checkpoint`, `cdev-done`, and `cdev-guide`. They carry `disable-model-invocation: true`, which GitHub Copilot in VS Code and Claude Code both document as keeping the agent from starting them; you start them with `/` in chat. Copilot CLI does not document the key, so there an agent may still reach them on its own.
 
 ## How it differs from fw-c-harness
 

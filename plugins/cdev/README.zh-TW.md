@@ -89,6 +89,10 @@ docs/reviews/        review 報告
 5. 上下文用量偏高時，輸入 `/cdev-checkpoint`。
 6. 驗證通過後，agent 會列出證據和它改過的文件，功能要經你確認才會變成 `done`。
 
+## 動工之前先把假設攤開
+
+移植出錯，代價最大的通常不是寫錯 code，而是動工前就決定錯了：時序照抄上一顆晶片、某個模組先關掉然後沒人記得、暫存器序列來自另一顆的 application note。`/cdev-grill` 會在動工前一輪一輪追問你的計畫，需要的事實它自己去查而不是問你，最後把你的決定和理由寫進根目錄 ARCHITECTURE.md 的「決策與理由」表格。
+
 ## 驗證預設是關閉的
 
 `AGENTS.md` 有一行 `Verification: off`，`cdev-init` 把成果交給你時會說明另外兩個等級。`off` 不要求硬體結果、不寫清單：功能編得過、跑起來合理就可以關閉，每筆紀錄會註明哪些沒有在實際硬體上驗證。`light` 會把還欠的那一步寫成功能的下一步。`full` 會加上給你的清單、`docs/evidence/` 底下的 log，以及 `cdev-target-verify`。
@@ -104,6 +108,7 @@ docs/reviews/        review 報告
 ## Skills
 
 初始設定：`cdev-init`，plugin 更新後用 `cdev-upgrade`。
+動工之前：`cdev-grill`。
 日常工作：`cdev-session-start`、`cdev-implement`、`cdev-target-verify`、`cdev-checkpoint`、`cdev-done`，底下由 `cdev-feature` 支撐。
 看程式碼：`cdev-review`、`cdev-test-gap`、`cdev-debug`。
 結構改變時：`cdev-architecture-sync`。
@@ -117,7 +122,7 @@ docs/reviews/        review 報告
 
 ## 兩個工具的一個差異
 
-有七個 skill 是設計成由你輸入的：`cdev-init`、`cdev-upgrade`、`cdev-session-start`、`cdev-target-verify`、`cdev-checkpoint`、`cdev-done`、`cdev-guide`。它們帶著 `disable-model-invocation: true`，VS Code 的 GitHub Copilot 和 Claude Code 都記載這個欄位會阻止 agent 自行啟動它們；你在 chat 用 `/` 開始。Copilot CLI 沒有記載這個欄位，所以在那裡 agent 仍然可能自己叫用。
+有八個 skill 是設計成由你輸入的：`cdev-init`、`cdev-upgrade`、`cdev-session-start`、`cdev-grill`、`cdev-target-verify`、`cdev-checkpoint`、`cdev-done`、`cdev-guide`。它們帶著 `disable-model-invocation: true`，VS Code 的 GitHub Copilot 和 Claude Code 都記載這個欄位會阻止 agent 自行啟動它們；你在 chat 用 `/` 開始。Copilot CLI 沒有記載這個欄位，所以在那裡 agent 仍然可能自己叫用。
 
 ## 和 fw-c-harness 的差別
 

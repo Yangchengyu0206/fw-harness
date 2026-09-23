@@ -34,6 +34,7 @@ https://github.com/mattpocock/skills, MIT.
 | `plugins/fw-c-harness/skills/fw-c-debug/scripts/hitl_loop.py` | `skills/engineering/diagnosing-bugs/scripts/hitl-loop.template.sh`, rewritten in Python |
 | `plugins/fw-c-harness/skills/fw-guide/SKILL.md` | the router pattern in `skills/engineering/ask-matt` |
 | `plugins/cdev/skills/cdev-review/SKILL.md` and `report-format.md` | the two-axis split and the judgement-call baseline in `skills/engineering/code-review` |
+| `plugins/cdev/skills/cdev-grill/SKILL.md` | the design tree, the frontier, and the round format in `skills/productivity/grilling` |
 | `plugins/cdev/skills/cdev-debug/SKILL.md` | the diagnosis phases in `skills/engineering/diagnosing-bugs` |
 | `plugins/cdev/skills/cdev-debug/scripts/hitl_loop.py` | `skills/engineering/diagnosing-bugs/scripts/hitl-loop.template.sh`, rewritten in Python |
 | `plugins/cdev/skills/cdev-guide/SKILL.md` | the router pattern in `skills/engineering/ask-matt` |

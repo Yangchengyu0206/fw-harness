@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # cdev-guide
 
-Thirteen skills is more than anyone remembers, so ask here instead. The ones marked "the agent reaches on its own" fire without you typing them; the rest you type.
+Fourteen skills is more than anyone remembers, so ask here instead. The ones marked "the agent reaches on its own" fire without you typing them; the rest you type.
 
 ## Setting the repository up
 
@@ -18,10 +18,11 @@ Thirteen skills is more than anyone remembers, so ask here instead. The ones mar
 Every new conversation opens on its own: AGENTS.md tells the agent to read `## Now`, list the features, run `doc_check`, and ask which feature to take.
 
 1. **`/cdev-session-start`**: optional. The full version of that opening, with the drift fixed and the feature's behaviour read back.
-2. **`cdev-implement`** (the agent reaches on its own): a failing test first when the repository has tests, otherwise an input and the output you expect; then the smallest change, then the build and a real run.
-3. **`/cdev-target-verify`**: only when a feature needs real hardware or a real operating system to prove it: flashing a board, loading a driver, capturing the log. Pure algorithm work never needs it. When the build and flashing happen in a vendor IDE, the agent writes you a checklist in `## Now` instead, and you report back.
-4. **`/cdev-checkpoint`**: when the context usage runs high, before a long break, or before a build in a vendor IDE. It saves what the conversation found into `## Now`, so a summary or a new conversation loses nothing.
-5. **`/cdev-done`**: close a feature or a session. The documents checked against the change, PROGRESS.md, the feature's status on your confirmation, and a commit message for you to run.
+2. **`/cdev-grill`**: before the work, when the plan rests on assumptions nobody has said out loud. It interviews you a round at a time and records each decision with its reason.
+3. **`cdev-implement`** (the agent reaches on its own): a failing test first when the repository has tests, otherwise an input and the output you expect; then the smallest change, then the build and a real run.
+4. **`/cdev-target-verify`**: only when a feature needs real hardware or a real operating system to prove it: flashing a board, loading a driver, capturing the log. Pure algorithm work never needs it. When the build and flashing happen in a vendor IDE, the agent writes you a checklist in `## Now` instead, and you report back.
+5. **`/cdev-checkpoint`**: when the context usage runs high, before a long break, or before a build in a vendor IDE. It saves what the conversation found into `## Now`, so a summary or a new conversation loses nothing.
+6. **`/cdev-done`**: close a feature or a session. The documents checked against the change, PROGRESS.md, the feature's status on your confirmation, and a commit message for you to run.
 
 **`cdev-feature`** (the agent reaches on its own) handles every change to `feature_list.json` underneath those steps, so you rarely call it yourself.
 

@@ -23,6 +23,7 @@
     "./skills/cdev-debug",
     "./skills/cdev-done",
     "./skills/cdev-feature",
+    "./skills/cdev-grill",
     "./skills/cdev-guide",
     "./skills/cdev-implement",
     "./skills/cdev-init",

@@ -49,7 +49,7 @@ Record the date, the tool, its version, and who ran it in the table at the end.
 
 Run once in GitHub Copilot in VS Code and once in Claude Code, each on scratch repositories.
 
-- [ ] Installing `cdev@fw-harness` succeeds, and all thirteen skills are listed.
+- [ ] Installing `cdev@fw-harness` succeeds, and all fourteen skills are listed.
 - [ ] `cdev-init` detects the right domain set on one repository per domain: plain C, firmware, Linux driver, Windows driver, Python.
 - [ ] On a mixed repository (firmware with Python test tooling), the detected set holds both domains.
 - [ ] `cdev-init` runs to the end without asking anything, then asks one question over the whole result.
@@ -81,6 +81,7 @@ Run once in GitHub Copilot in VS Code and once in Claude Code, each on scratch r
 - [ ] `cdev-upgrade` run twice in a row changes nothing the second time.
 - [ ] `py -3 scripts/pack_cdev.py` builds a zip that installs on a second machine with `chat.pluginLocations` alone, and `/` then lists the cdev commands there.
 - [ ] `py -3 install_local.py --repo <path>` puts the skills in `.github/skills/`, and Copilot finds them in that workspace.
+- [ ] `cdev-grill` asks a round of numbered questions with a recommended answer each, looks facts up itself, and writes the decisions into the root ARCHITECTURE.md.
 - [ ] `cdev-guide` names the skill you actually needed.
 - [ ] `py -3 tools/feature.py check` fails loudly on a hand-broken `feature_list.json`.
 
