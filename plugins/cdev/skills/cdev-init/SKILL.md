@@ -64,7 +64,7 @@ Fill every placeholder from what you found:
 | `{{FIRST_STEP}}` | with tests: `Write a failing test first.` With `Test: none`: `Write down the input you will run the change on and the output you expect.` |
 | `{{TEST_RULE}}` | with tests: `A failing test before the code. A test written after the code tends to check what the code does rather than what the feature asked for.` With `Test: none`: `No test framework is added unless the user asks for one. Each change is checked by running it on a real input and comparing the output with what was expected.` |
 | `{{DATE}}` | today's date, `YYYY-MM-DD` |
-| `{{MODULES}}` | a table of every code folder: folder, role, and what it depends on |
+| `{{MODULES}}` | a table of every code folder: folder, role, and what it depends on. The decisions and terms tables below it stay empty; cdev-grill and the work fill them |
 | `{{FOLDER}}` | the folder's path from the repository root |
 | `{{RESPONSIBILITY}}` | one sentence on what the folder does, from reading its code rather than its file names |
 | `{{FILES}}` | one bullet per file directly in the folder: the name in backticks, a colon, and its role in a few words. A glob such as `hal_*.c` stands for a group with one role |

@@ -91,7 +91,7 @@ A large repository is not documented all at once: `cdev-init` writes the folders
 
 ## Deciding before building
 
-The expensive mistakes in a port are made before the code: a timing carried over from the previous chip, a module switched off with nobody left to remember, a sequence from an application note written for another part. `/cdev-grill` interviews you about a plan one round of questions at a time, looks up the facts itself rather than asking you for them, and writes what you decided, with the reason, into `## Decisions and why` in the root ARCHITECTURE.md.
+The expensive mistakes in a port are made before the code: a timing carried over from the previous chip, a module switched off with nobody left to remember, a sequence from an application note written for another part. `/cdev-grill` interviews you about a plan one round of questions at a time, looks up the facts itself rather than asking you for them, and writes what you decided, with the reason, into `## Decisions and why` in the root ARCHITECTURE.md. A word the interview showed the two of you were reading differently goes into `## Terms` beside it, which is where the abbreviations a tree uses in two senses end up.
 
 ## Verification starts switched off
 

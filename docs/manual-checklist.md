@@ -82,6 +82,7 @@ Run once in GitHub Copilot in VS Code and once in Claude Code, each on scratch r
 - [ ] `py -3 scripts/pack_cdev.py` builds a zip that installs on a second machine with `chat.pluginLocations` alone, and `/` then lists the cdev commands there.
 - [ ] `py -3 install_local.py --repo <path>` puts the skills in `.github/skills/`, and Copilot finds them in that workspace.
 - [ ] `cdev-grill` asks a round of numbered questions with a recommended answer each, looks facts up itself, and writes the decisions into the root ARCHITECTURE.md.
+- [ ] A term the interview had to clarify lands in `## Terms`, and a term nobody misread does not.
 - [ ] `cdev-guide` names the skill you actually needed.
 - [ ] `py -3 tools/feature.py check` fails loudly on a hand-broken `feature_list.json`.
 

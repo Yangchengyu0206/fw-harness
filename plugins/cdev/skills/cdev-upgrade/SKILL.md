@@ -38,6 +38,7 @@ Check each item. Add only the missing ones, taking the wording from the template
 | Verification level | AGENTS.md has a `Verification:` line | `Verification: off`, and tell the user in step 5 that `light` and `full` exist |
 | CLAUDE.md | it holds one line, `@AGENTS.md` | move any rule it still holds into the matching AGENTS.md section, then replace the file with `@AGENTS.md` |
 | Decisions table | the root ARCHITECTURE.md has `## Decisions and why` | the table, carrying over any rows from CLAUDE.md |
+| Terms table | the root ARCHITECTURE.md has `## Terms` | the empty table, for the words this project reads differently |
 | `## Now` fields | PROGRESS.md's `## Now` has `Confirmed facts` and `Waiting on the user` | the two fields, left as `none` |
 | Folder documents | each folder ARCHITECTURE.md has `## Files` and `## Flows` | for the folders the user works in, read the code and write both; for the rest, the `## Files` line from [ARCHITECTURE.stub.md](../cdev-init/templates/ARCHITECTURE.stub.md), so `doc_check` reports them as waiting |
 | Editor settings | `.vscode/settings.json` holds `files.readonlyInclude` and `chat.tools.terminal.autoApprove` | the template's entries, merged into the existing file rather than replacing it |

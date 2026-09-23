@@ -244,3 +244,9 @@ Every skill in the plugin so far constrains the agent: reproduce before fixing, 
 `cdev-grill` is user-invoked, adapted from the design tree, frontier, and round format in `skills/productivity/grilling` in mattpocock/skills (MIT, credited in THIRD_PARTY_NOTICES.md), with the question set pointed at this domain: where a value came from, what makes two parts the same, what the failure would look like on the board, the cheapest check before the full change, and what is being deferred.
 
 Two departures from the original. Facts are gathered through this harness: the architecture documents, the `cdev-explorer` agent, and the tools the session holds under `## When this repository cannot answer`. The session ends by writing each decision and its reason into `## Decisions and why` in the root ARCHITECTURE.md and turning deferred work into features, so the interview leaves something behind rather than living in one conversation.
+
+### 10.6 Terms, where they are earned (2026-09-23)
+
+`grill-with-docs` in mattpocock/skills pairs the interview with domain modelling, producing a glossary alongside the decisions. A glossary skill and a CONTEXT.md were considered and rejected: another document to keep true, mostly restating what `## Files` and `## Flows` already carry.
+
+Instead the root ARCHITECTURE.md gains `## Terms`, and `cdev-grill` writes a row only for a word the interview showed the two parties reading differently. The bar is that the term was actually misread: a word this project uses differently from the datasheet, an abbreviation with two meanings in the tree, or a name whose scope is narrower than it sounds. `cdev-architecture-sync` leaves the decisions and terms tables alone, since the code cannot contradict them, and AGENTS.md points the agent at `## Terms` when a question uses one.

@@ -17,3 +17,11 @@ Record a decision when the next reader would otherwise undo it.
 | Date | Decision | Reason |
 |---|---|---|
 | | | |
+
+## Terms
+
+A term belongs here once it has been misread: a word this project uses differently from the datasheet, an abbreviation with two meanings in the tree, or a name whose scope is narrower than it sounds. A term anyone would read correctly does not.
+
+| Term | What it means here |
+|---|---|
+| | |

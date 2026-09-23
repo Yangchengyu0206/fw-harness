@@ -60,6 +60,7 @@ Then wait. These are the questions worth asking in this domain:
 - **What is being deferred, and who remembers?** A module switched off, a limit hardcoded, a case not handled: each becomes a feature in the list or a line in the decisions table, or it is forgotten.
 - **What happens on the real board?** Interrupts, resets, power states, and the recovery path when an update is cut off.
 - **What would have to be true for the opposite choice to win?** When the user cannot answer this, the choice is a habit rather than a decision.
+- **What does that word mean here?** Ask when a term carries more than one meaning in this tree, when the project uses it differently from the datasheet, or when the answer you would give differs from the one the user would give. An interview that runs on two meanings of one word settles nothing.
 
 **Done when:** the user has answered the round, or has said which questions do not matter here.
 
@@ -79,4 +80,6 @@ Work that came out of the interview becomes features:
 py -3 tools/feature.py add --title "..." --behavior "..."
 ```
 
-**Done when:** every decision is in the table with its reason, every deferred item is a feature or a row, and the user has seen the list.
+Add to `## Terms` in the same document any word this round showed the two of you were reading differently: one you had to ask about, one the user corrected you on, or one that means something here other than what the datasheet calls it. A term that caused no confusion stays out.
+
+**Done when:** every decision is in the table with its reason, every term that was misread in this session is in `## Terms`, every deferred item is a feature or a row, and the user has seen the list.

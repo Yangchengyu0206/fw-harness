@@ -50,7 +50,7 @@ When it is not there, the hook is off or unsupported, so do it yourself:
 
 The architecture documents are a map for finding the code. The code is the source of truth.
 
-1. Read the root ARCHITECTURE.md and the one in each folder the question touches. Use their `## Files` and `## Flows` to decide what to open. When a folder's document says it is not documented yet, read that folder and write its document first, with cdev-architecture-sync.
+1. Read the root ARCHITECTURE.md, including `## Terms` where the question uses one of them, and the one in each folder the question touches. Use their `## Files` and `## Flows` to decide what to open. When a folder's document says it is not documented yet, read that folder and write its document first, with cdev-architecture-sync.
 2. Verify every claim about behaviour in the code. Read whole functions, follow definitions and callers, and follow interrupt handlers and shared state when the path crosses them.
 3. Leave read-only folders out of broad searches. Read vendor code directly when the question turns on it: a HAL call, a register sequence, an SDK driver's locking.
 4. Say where each part of the answer came from: verified in the code (with file and function), or taken from a document without checking.

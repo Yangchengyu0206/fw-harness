@@ -33,7 +33,7 @@ It lists files missing from or added to each `## Files`, and folder documents th
 
 ### 3. Update the root map
 
-Rewrite the table in the root ARCHITECTURE.md so every code folder appears once, with its role and what it depends on.
+Rewrite the table in the root ARCHITECTURE.md so every code folder appears once, with its role and what it depends on. Leave `## Decisions and why` and `## Terms` alone: a person wrote those rows, and the code does not contradict them.
 
 **Done when:** every code folder two levels deep has a document, and the root map lists each one.
 
