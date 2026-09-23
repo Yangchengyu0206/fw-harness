@@ -4,7 +4,7 @@ A markdown-first harness for one developer working in C and Python, for GitHub C
 
 It gives an agent what it needs to know where it is and what to do next, and gives the code the domain rules general coding skills do not carry: firmware, Linux drivers, Windows drivers, plain C, and Python.
 
-繁體中文: [README.zh-TW.md](README.zh-TW.md)
+繁體中文: [README.zh-TW.md](README.zh-TW.md). Trying it for the first time: [TESTING.md](TESTING.md).
 
 ## Install
 

@@ -19,6 +19,8 @@ REQUIRED = (
     "cdev/README.zh-TW.md",
     "cdev/INSTALL.md",
     "cdev/INSTALL.zh-TW.md",
+    "cdev/TESTING.md",
+    "cdev/TESTING.zh-TW.md",
     "cdev/LICENSE",
     "cdev/THIRD_PARTY_NOTICES.md",
     "cdev/install_local.py",

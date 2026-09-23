@@ -4,7 +4,7 @@
 
 它讓 agent 知道自己在哪裡、下一步要做什麼，並補上一般寫程式技能不會帶的領域規則：韌體、Linux 驅動、Windows 驅動、一般 C，以及 Python。
 
-English: [README.md](README.md)
+English: [README.md](README.md)。第一次試用請看 [TESTING.zh-TW.md](TESTING.zh-TW.md)。
 
 ## 安裝
 
