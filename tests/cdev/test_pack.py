@@ -32,6 +32,8 @@ REQUIRED = (
     "cdev/skills/cdev-init/templates/.github/agents/cdev-explorer.agent.md",
     "cdev/skills/cdev-init/templates/tools/hooks.py",
     "cdev/skills/cdev-init/templates/tools/mcp_list.py",
+    "cdev/skills/cdev-init/templates/NOTES.md",
+    "cdev/CHANGELOG.md",
 )
 
 
@@ -70,3 +72,13 @@ def test_the_install_guide_names_the_setting_and_both_routes():
         text = (PLUGIN / name).read_text(encoding="utf-8")
         assert "chat.pluginLocations" in text, name
         assert "--repo" in text and "cdev-init" in text and "cdev-upgrade" in text, name
+
+
+def test_the_install_guides_count_every_skill():
+    count = len(list((PLUGIN / "skills").glob("*/SKILL.md")))
+    for name in ("INSTALL.md", "INSTALL.zh-TW.md"):
+        text = (PLUGIN / name).read_text(encoding="utf-8")
+        assert f" {count}" in text, f"{name} does not say {count} skills"
+        for wrong in range(10, 30):
+            if wrong != count:
+                assert f"of the {wrong})" not in text and f"等 {wrong} 個" not in text, name

@@ -1,4 +1,4 @@
-"""Keep feature_list.json valid. The only script cdev writes into a repository."""
+"""Keep feature_list.json valid. Every change to the file goes through this script."""
 import argparse
 import json
 import os
@@ -65,7 +65,7 @@ def load(path):
     if not path.is_file():
         raise FeatureError(f"{path.name} not found. Fix: run cdev-init, or create it with feature.py add")
     try:
-        with open(path, encoding="utf-8") as f:
+        with open(path, encoding="utf-8-sig") as f:
             data = json.load(f)
     except (json.JSONDecodeError, UnicodeDecodeError) as exc:
         raise FeatureError(f"{path.name} is not valid JSON ({exc}). Fix: repair it or restore it from git") from exc

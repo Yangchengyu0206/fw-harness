@@ -46,7 +46,7 @@ copilot plugin install cdev@fw-harness
 py -3 scripts/pack_cdev.py
 ```
 
-它會產生 `dist/cdev-<版本>.zip`，裡面有 plugin 本體、兩份 README、授權，以及安裝腳本。收到的人解壓後照 [INSTALL.zh-TW.md](INSTALL.zh-TW.md) 做：用 `chat.pluginLocations` 設定註冊那個資料夾，或用 `py -3 install_local.py --repo <路徑>` 把 skills 放進單一 repository。
+它會產生 `dist/cdev-<版本>.zip`，裡面有 plugin 本體、中英兩版的 README／INSTALL／TESTING、授權，以及安裝腳本。收到的人解壓後照 [INSTALL.zh-TW.md](INSTALL.zh-TW.md) 做：用 `chat.pluginLocations` 設定註冊那個資料夾，或用 `py -3 install_local.py --repo <路徑>` 把 skills 放進單一 repository。
 
 ## 會寫進你 repository 的東西
 
@@ -63,6 +63,8 @@ tools/feature.py     確保 feature_list.json 有效
 tools/doc_check.py   回報架構文件和實際檔案不一致的地方
 tools/hooks.py       回應 session hooks
 tools/mcp_list.py    列出這台機器與這個 repo 設定了哪些 MCP server
+NOTES.md             feature 結束後仍有用的知識，一個主題一行，連到 docs/notes/<主題>.md：
+                     工具怎麼設、地雷、實測數字、該預期的誤報
 .vscode/settings.json
                      唯讀資料夾改不動；具破壞性的指令要經過你同意
 .github/instructions/architecture.instructions.md
@@ -75,7 +77,7 @@ tools/mcp_list.py    列出這台機器與這個 repo 設定了哪些 MCP server
 docs/reviews/        review 報告
 ```
 
-這兩個腳本只回報，不會擋住任何 commit。
+`tools/` 裡的腳本只回報，不會擋住任何 commit。
 
 大型 repository 不必一次全部寫完文件：`cdev-init` 把你實際工作的資料夾寫完整，其餘只留骨架。`doc_check` 會把骨架列為「尚未撰寫」而不是漂移，等工作真的碰到那個資料夾時，`cdev-architecture-sync` 再補上。
 
@@ -84,14 +86,20 @@ docs/reviews/        review 報告
 1. 開一個對話。session hook 會把 `## Now`、功能清單和文件檢查結果直接交給 agent，然後它問你要做哪個功能。hooks 不可用的環境下，AGENTS.md 的規則會讓它自己做一樣的事。
 2. 問程式碼的問題時，先用架構文件當地圖，再回到程式碼驗證，並標明哪些說法驗證過、哪些沒有。需要讀好幾個檔案的問題會交給 `cdev-explorer` agent，它在自己的上下文裡讀，只把結論和出處帶回來。
 3. 這個 repo 回答不了的問題（其他分支、datasheet、application note），agent 會先去翻這次 session 手上有哪些工具，而不是直接說不知道。之後新增 MCP server 不用改任何設定，因為規則指的是工具清單本身，不是寫死的 server 名單。
-3. 開發功能的過程中，`## Now` 每完成一步就重寫，確認到的事實當下就寫進去，這樣對話被摘要也不會遺失。
-4. build 或燒錄在廠商 IDE 裡進行時，功能會停在 `verifying`，`## Now` 裡留下要你做的事。你跑完回報結果，在原本的對話或新對話都可以。
-5. 上下文用量偏高時，輸入 `/cdev-checkpoint`。
-6. 驗證通過後，agent 會列出證據和它改過的文件，功能要經你確認才會變成 `done`。
+4. 開發功能的過程中，`## Now` 每完成一步就重寫，確認到的事實當下就寫進去，這樣對話被摘要也不會遺失。
+5. build 或燒錄在廠商 IDE 裡進行時，功能會停在 `verifying`，`## Now` 的 `Waiting on the user` 會寫明要 build 或燒錄什麼、看到什麼輸出算成功（`full` 等級則是完整清單）。你跑完回報結果，在原本的對話或新對話都可以。
+6. 上下文用量偏高時，輸入 `/cdev-checkpoint`。
+7. 驗證通過後，agent 會列出證據和它改過的文件，功能要經你確認才會變成 `done`。
+
+## feature 結束後還用得到的知識
+
+`## Now` 會隨著工作一直被重寫，`## Log` 只能按日期翻，所以三個月後想知道「某個工具當初怎麼設」「哪個指令在這裡絕對不能跑」，這兩個地方都不是 agent 會去找的位置。這類事實改寫進 `docs/notes/` 底下的筆記，一個主題一份，每份都寫明為什麼重要、怎麼用；NOTES.md 則是每份筆記一行的索引。session hook 開場時會把索引交給 agent，工作碰到某個主題時它再打開那份筆記。`/cdev-done` 收尾時會問有哪些確認過的事實在 feature 結束後還用得到，`doc_check` 會抓出沒列進索引的筆記，以及索引裡連不到的筆記。
+
+只有對每個 clone 這個 repo 的人都成立的事實才寫進去。某個人機器上的路徑、某台機器連不到的網路、帳密這類，都不進 repo，交給工具自己的記憶（如果它有的話）。
 
 ## 動工之前先把假設攤開
 
-移植出錯，代價最大的通常不是寫錯 code，而是動工前就決定錯了：時序照抄上一顆晶片、某個模組先關掉然後沒人記得、暫存器序列來自另一顆的 application note。`/cdev-grill` 會在動工前一輪一輪追問你的計畫，需要的事實它自己去查而不是問你，最後把你的決定和理由寫進根目錄 ARCHITECTURE.md 的「決策與理由」表格。追問過程中發現雙方理解不一致的術語，會記進旁邊的「術語」表格，這正是那些在同一棵樹裡有兩種意思的縮寫最後的歸處。
+移植出錯，代價最大的通常不是寫錯 code，而是動工前就決定錯了：時序照抄上一顆晶片、某個模組先關掉然後沒人記得、暫存器序列來自另一顆的 application note。`/cdev-grill` 會在動工前一輪一輪追問你的計畫，需要的事實它自己去查而不是問你，最後把你的決定和理由寫進根目錄 ARCHITECTURE.md 的 `## Decisions and why` 表格。追問過程中發現雙方理解不一致的術語，會記進旁邊的 `## Terms` 表格，這正是那些在同一棵樹裡有兩種意思的縮寫最後的歸處。
 
 ## 驗證預設是關閉的
 
@@ -114,7 +122,7 @@ docs/reviews/        review 報告
 結構改變時：`cdev-architecture-sync`。
 導覽：`cdev-guide`。
 
-每個 skill 各有一頁說明，放在 [docs/skills](../../docs/skills)。
+每個 skill 各有一頁說明，放在 [docs/skills](https://github.com/Yangchengyu0206/fw-harness/tree/main/docs/skills)。
 
 ## 領域
 
@@ -124,6 +132,8 @@ docs/reviews/        review 報告
 
 有八個 skill 是設計成由你輸入的：`cdev-init`、`cdev-upgrade`、`cdev-session-start`、`cdev-grill`、`cdev-target-verify`、`cdev-checkpoint`、`cdev-done`、`cdev-guide`。它們帶著 `disable-model-invocation: true`，VS Code 的 GitHub Copilot 和 Claude Code 都記載這個欄位會阻止 agent 自行啟動它們；你在 chat 用 `/` 開始。Copilot CLI 沒有記載這個欄位，所以在那裡 agent 仍然可能自己叫用。
 
+以 Claude Code plugin 安裝時，指令會帶命名空間：`/cdev:cdev-init`；沒有其他指令同名時，直接打 `/cdev-init` 也可以。session hook 和 explorer agent 放在只有 VS Code 會讀的 `.github/` 底下，所以在 Claude Code 裡，開場靠 AGENTS.md 的規則，讀程式碼則交給 Claude Code 內建的 Explore agent。
+
 ## 和 fw-c-harness 的差別
 
 同一個 marketplace 裡的 `fw-c-harness` 是給韌體團隊用的：會擋下不合格 commit 的驗證閘門、記錄誰改了什麼的 ticket 狀態，以及必須由他人 review 的規則。`cdev` 為了單人開發拿掉這些，並把領域從韌體擴大到 C 和 Python。
@@ -132,4 +142,4 @@ docs/reviews/        review 報告
 
 ## 授權
 
-MIT。改寫自其他專案的內容列在 [THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md)。
+MIT。改寫自其他專案的內容列在 [THIRD_PARTY_NOTICES.md](https://github.com/Yangchengyu0206/fw-harness/blob/main/THIRD_PARTY_NOTICES.md)。

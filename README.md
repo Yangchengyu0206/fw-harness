@@ -4,14 +4,15 @@ Harnesses and skills for C and Python development, for GitHub Copilot in VS Code
 
 ## Status: preview
 
-`cdev` is at 0.2.0 and `fw-c-harness` at 0.1.0. Both are complete and their scripts are covered by automated tests, but the skills have not yet been run end to end by a real agent. Expect rough edges, and please report them in [GitHub issues](https://github.com/Yangchengyu0206/fw-harness/issues).
+`cdev` is at 0.4.0 ([changes](CHANGELOG.md)) and `fw-c-harness` at 0.1.0. Both are complete and their scripts are covered by automated tests, but the skills have not yet been run end to end by a real agent. Expect rough edges, and please report them in [GitHub issues](https://github.com/Yangchengyu0206/fw-harness/issues).
 
 Known limits in this version:
 
 - **Checked by structure, not yet by use.** The tests prove every skill is well formed, every link resolves, and every documented command parses. They cannot prove an agent follows a skill. [docs/manual-checklist.md](docs/manual-checklist.md) lists what still has to be tried by hand.
 - **Not yet tried in the tools.** Installation and every skill follow the published formats for GitHub Copilot in VS Code, Claude Code, and Copilot CLI, and none has been run in them yet. GitHub Copilot in VS Code is the primary target: `cdev` puts every rule in AGENTS.md, which Copilot loads on its own, and CLAUDE.md imports it for Claude Code.
 - **The editor settings `cdev` writes are unverified.** `.vscode/settings.json` uses `files.readonlyInclude` and `chat.tools.terminal.autoApprove` to make vendor folders read-only and hold destructive commands for your approval. Both are written from the documented settings and neither has been confirmed in a running VS Code, so treat them as untested until you have seen them work.
-- **Commands are written for Windows.** The skills tell the agent to run Python as `py -3`. On macOS and Linux, use `python3` in its place; the scripts themselves run on all three.
+- **Agent hooks are a VS Code preview.** `cdev` opens a session through a `SessionStart` hook in `.github/hooks/`. VS Code marks hooks as preview, and Claude Code does not read that folder, so there the rule in AGENTS.md does the opening instead.
+- **Commands are written for Windows.** The skills tell the agent to run Python as `py -3`. On macOS and Linux, use `python3` in its place; the scripts themselves run on all three, and the `cdev` session hook calls `python3` there on its own.
 - **The driver references are unreviewed.** The Linux and Windows driver material in `cdev` has not yet been checked by a driver engineer. Corrections are welcome.
 
 ## Two plugins
@@ -23,10 +24,10 @@ This marketplace holds two plugins. Install one per repository.
 | For | a firmware team sharing one repository | one developer |
 | Languages and domains | C firmware | C and Python: plain C, firmware, Linux drivers, Windows drivers |
 | Verification | seven gates in `check`, git hooks, ratchets | one line in AGENTS.md, `Verification:` set to `off`, `light`, or `full`, starting at `off`; nothing blocks a commit at any level |
-| State | one ticket file per feature, with who changed what | one `feature_list.json` and a `PROGRESS.md` |
+| State | one ticket file per feature, with who changed what | one `feature_list.json`, a `PROGRESS.md`, and NOTES.md for what outlives a feature |
 | Review | by someone other than the author | self-review, with every finding re-verified |
 | State that survives a long conversation | the ticket files and handoffs | `## Now` in PROGRESS.md, rewritten after every step, with `/cdev-checkpoint` to save the rest |
-| Scripts written into the repository | the gate and state scripts | two, `tools/feature.py` and `tools/doc_check.py`, both reporting only |
+| Scripts written into the repository | the gate and state scripts | four in `tools/`: `feature.py`, `doc_check.py`, `hooks.py`, `mcp_list.py`, all reporting only |
 | Install | `fw-c-harness` from `@agentPlugins` in VS Code | `cdev` from `@agentPlugins` in VS Code, or from a zip on a machine with no marketplace |
 | Keeping a repository current | `/fw-harness-upgrade` | `/cdev-upgrade` |
 
@@ -84,7 +85,7 @@ Then open agent chat in the firmware repository and type `/fw-harness-init` once
 
 ### Joining a repository that already has the harness
 
-`fw-harness-init` writes this marketplace and the plugin into the repository's `.claude/settings.json`. Claude Code, GitHub Copilot in VS Code, and Copilot CLI all read that file, and none of them installs a plugin from it silently:
+`fw-harness-init` writes this marketplace and the plugin into the repository's `.claude/settings.json`. Claude Code, GitHub Copilot in VS Code, and Copilot CLI all read that file. VS Code and Claude Code ask before installing; Copilot CLI documents `enabledPlugins` as a declarative auto-install, so it may install the plugin without asking:
 
 - **VS Code** shows a notification the first time you send a chat message. Install from the Extensions view filtered by `@agentPlugins @recommended`.
 - **Claude Code** adds the marketplace once you trust the folder, reports the plugin as not installed, and prints the `claude plugin install` command to run.

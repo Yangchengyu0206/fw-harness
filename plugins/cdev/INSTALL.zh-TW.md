@@ -4,7 +4,7 @@
 
 English: [INSTALL.md](INSTALL.md)
 
-需要 Python 3（Windows 上用 `py -3` 執行）。
+需要 Python 3：Windows 上用 `py -3`，macOS 和 Linux 上用 `python3`。`/cdev-init` 寫進 repo 的腳本和 session hook 都靠它執行。
 
 ## 先選一種
 
@@ -29,24 +29,25 @@ English: [INSTALL.md](INSTALL.md)
 
    ```json
    {
+     "chat.plugins.enabled": true,
      "chat.pluginLocations": {
        "C:/tools/cdev": true
      }
    }
    ```
 
-3. 在 VS Code 按 Ctrl+Shift+P，執行 **Preferences: Open User Settings (JSON)**，把 `chat.pluginLocations` 這一項加進你的設定檔（如果已經有這個項目，就把那一行加進去）。
+3. 在 VS Code 按 Ctrl+Shift+P，執行 **Preferences: Open User Settings (JSON)**，把這兩項都加進你的設定檔（如果已經有 `chat.pluginLocations`，就把那一行加進去）。`chat.plugins.enabled` 沒設成 `true` 的話，plugin 不會啟用。
 
 4. 重開 VS Code。在 agent chat 輸入 `/` 應該會看到 `cdev-` 開頭的指令。
 
 ## 方式二：放進單一 repository（跟著 repo 走）
 
-適合讓每個 clone 這個 repo 的人都自動拿到 skills，不必各自改設定。這是最簡單的做法，連 Python 都不需要。
+適合讓每個 clone 這個 repo 的人都自動拿到 skills，不必各自改設定。這是最簡單的做法：複製本身不需要 Python。
 
 **直接複製資料夾：**
 
 1. 在你的 repo 裡建一個 `.github\skills` 資料夾。
-2. 把解壓出來的 `cdev\skills\` 裡面**每一個資料夾**（`cdev-init`、`cdev-debug` 等 13 個）複製進去。
+2. 把解壓出來的 `cdev\skills\` 裡面**每一個資料夾**（`cdev-init`、`cdev-debug` 等 14 個）複製進去。
 3. 順手把 `LICENSE` 和 `THIRD_PARTY_NOTICES.md` 也複製進 `.github\skills\`，讓授權資訊跟著走。
 4. 重開 VS Code，在 agent chat 打 `/` 確認指令出現。
 5. commit 進去，之後每個 clone 的人都有。
@@ -58,7 +59,7 @@ English: [INSTALL.md](INSTALL.md)
 └─ .github\skills\
    ├─ cdev-init\SKILL.md
    ├─ cdev-debug\SKILL.md
-   └─ ...（共 13 個）
+   └─ ...（共 14 個）
 ```
 
 **不想手動複製的話**，用腳本做同一件事：
@@ -81,7 +82,7 @@ py -3 C:\tools\cdev\install_local.py --repo D:\work\my-project
 
 ## 日常開發時要打什麼
 
-**大多數時候什麼都不用打。** 規則寫在 AGENTS.md，Copilot 每次對話都會自動載入，所以開新對話時 agent 應該會自己讀 PROGRESS.md 的 `## Now`、列出功能清單、跑一次文件檢查，然後問你要做哪個功能。開發過程中，它也會自己更新 `## Now` 和架構文件。
+**大多數時候什麼都不用打。** 在 VS Code 裡，session hook 會在 agent 第一次回答前，把 PROGRESS.md 的 `## Now`、功能清單和文件檢查結果交給它，所以開新對話時它就知道進度到哪，並問你要做哪個功能。hook 沒有執行的環境（Claude Code，或關掉了 hooks），AGENTS.md 的規則會讓 agent 自己做同樣的事。開發過程中，它也會自己更新 `## Now` 和架構文件。
 
 要你打的指令只有這些，而且都是偶爾才用：
 
@@ -89,6 +90,7 @@ py -3 C:\tools\cdev\install_local.py --repo D:\work\my-project
 |---|---|
 | `/cdev-init` | 這個 repo 第一次使用，只跑一次 |
 | `/cdev-upgrade` | plugin 更新後，每個 repo 跑一次 |
+| `/cdev-grill` | 動工前，計畫建立在沒講出口的假設上時 |
 | `/cdev-checkpoint` | 上下文用量偏高，或要離開一段時間之前 |
 | `/cdev-done` | 想完整收尾時：檢查文件、更新紀錄、產生 commit 訊息 |
 | `/cdev-session-start` | 想要完整版開場時（平常不需要，開對話本來就會做簡短版） |
@@ -109,7 +111,7 @@ py -3 C:\tools\cdev\install_local.py --repo D:\work\my-project
 
 ## 遇到問題
 
-- **打 `/` 看不到 cdev 指令**：確認 `chat.pluginLocations` 裡的路徑用的是正斜線（`C:/tools/cdev`），資料夾裡有 `plugin.json`，並且重開過 VS Code。
-- **`py -3` 找不到**：改用 `python`，或先安裝 Python 3。
-- **agent 開場沒有回報狀態**：規則在 AGENTS.md 裡，Copilot 會載入它，但照不照做由模型決定。這時候打一次 `/cdev-session-start` 就會完整走一遍。
+- **打 `/` 看不到 cdev 指令**：確認 `chat.plugins.enabled` 是 `true`、`chat.pluginLocations` 裡的路徑用的是正斜線（`C:/tools/cdev`）、資料夾裡有 `plugin.json`，並且重開過 VS Code。
+- **`py -3` 找不到**：Windows 上請從 python.org 安裝 Python 3（勾選 `py` launcher）；單打 `python` 常常是 Microsoft Store 的空殼，而 session hook 呼叫的是 `py -3`。macOS 和 Linux 上用 `python3`。
+- **agent 開場沒有回報狀態**：VS Code 的 agent hooks 還是預覽功能。確認 repo 裡有 `.github/hooks/cdev.json`（由 `/cdev-init` 或 `/cdev-upgrade` 寫入），而且 `py -3 tools/hooks.py session-start` 會印出 JSON。沒有 hook 時，AGENTS.md 的規則仍會要求開場回報，但照不照做由模型決定。這時候打一次 `/cdev-session-start` 就會完整走一遍。
 - **skills 會自己跑起來**：`cdev-implement`、`cdev-review`、`cdev-debug` 這幾個是設計成由 agent 自行判斷要不要用的。

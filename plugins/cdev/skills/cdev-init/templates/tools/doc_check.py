@@ -6,22 +6,30 @@ import re
 import subprocess
 import sys
 from pathlib import Path, PurePosixPath
+from urllib.parse import unquote
 
 DEFAULT_ROOT = Path(__file__).resolve().parents[1]
 DOC = "ARCHITECTURE.md"
 UNLISTED = {DOC, "AGENTS.md"}
 FILE_LINE_RE = re.compile(r"^\s*[-*]\s+`([^`]+)`")
 STUB = "Not documented yet"
-LINK_RE = re.compile(r"\]\(([^)#\s]*ARCHITECTURE\.md)\)")
+# [x](a/ARCHITECTURE.md), [x](./a/ARCHITECTURE.md), [x](<a b/ARCHITECTURE.md>) or [x](a%20b/ARCHITECTURE.md)
+LINK_RE = re.compile(r"\]\(\s*(?:<([^>]*ARCHITECTURE\.md)>|([^)#\s]*ARCHITECTURE\.md))")
+NOTES = "NOTES.md"
+NOTES_DIR = "docs/notes"
+NOTE_LINK_RE = re.compile(r"\]\(\s*(?:<(?:\./)?(docs/notes/[^>]+\.md)>|(?:\./)?(docs/notes/[^)#\s]+\.md))")
 
 
 def repository_files(root):
     """Every file git would show (tracked or untracked, not ignored), or every file outside dot folders."""
     root = Path(root)
     if (root / ".git").exists():
-        result = subprocess.run(["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"],
-                                cwd=root, capture_output=True)
-        if result.returncode == 0:
+        try:
+            result = subprocess.run(["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"],
+                                    cwd=root, capture_output=True)
+        except OSError:  # git is not on PATH; walk the tree instead
+            result = None
+        if result is not None and result.returncode == 0:
             names = result.stdout.decode("utf-8").split("\0")
             return sorted({name for name in names if name and (root / name).is_file()})
     found = []
@@ -32,11 +40,15 @@ def repository_files(root):
     return sorted(found)
 
 
+def read(path):
+    """Text of a file whatever its encoding: a BOM is dropped and bytes that are not UTF-8 are replaced."""
+    return Path(path).read_text(encoding="utf-8-sig", errors="replace")
+
+
 def section(text, heading):
     lines = text.splitlines()
-    try:
-        start = lines.index(heading) + 1
-    except ValueError:
+    start = next((i + 1 for i, line in enumerate(lines) if line.strip() == heading), None)
+    if start is None:
         return None
     end = next((i for i in range(start, len(lines)) if lines[i].startswith("## ")), len(lines))
     return lines[start:end]
@@ -52,6 +64,33 @@ def listed_patterns(text):
     return [match.group(1) for match in map(FILE_LINE_RE.match, lines) if match]
 
 
+def matches(name, pattern):
+    """A pattern with * or ? is a glob; anything else, such as foo[1].c, is a file name."""
+    if "*" in pattern or "?" in pattern:
+        return fnmatch.fnmatchcase(name, pattern)
+    return name == pattern
+
+
+def linked_documents(text):
+    links = set()
+    for bracketed, plain in LINK_RE.findall(text):
+        link = unquote(bracketed or plain)
+        links.add(PurePosixPath(link[2:] if link.startswith("./") else link).as_posix())
+    return links
+
+
+def note_problems(root, files):
+    """NOTES.md links a note that is gone, or a note in docs/notes/ has no line in NOTES.md."""
+    notes = [name for name in files if name.startswith(NOTES_DIR + "/") and name.endswith(".md")]
+    index = Path(root) / NOTES
+    if not index.is_file():
+        return [f"{NOTES} is missing, so {len(notes)} note(s) in {NOTES_DIR}/ have no index"] if notes else []
+    linked = {unquote(bracketed or plain) for bracketed, plain in NOTE_LINK_RE.findall(read(index))}
+    problems = [f"{NOTES}: links {link}, which does not exist" for link in sorted(linked) if link not in files]
+    problems += [f"{NOTES}: {name} has no line" for name in notes if name not in linked]
+    return problems
+
+
 def check(root):
     root = Path(root)
     files = repository_files(root)
@@ -61,7 +100,7 @@ def check(root):
 
     for doc in folder_docs:
         folder = str(PurePosixPath(doc).parent)
-        patterns = listed_patterns((root / doc).read_text(encoding="utf-8"))
+        patterns = listed_patterns(read(root / doc))
         if patterns is None:
             problems.append(f"{doc}: has no ## Files section")
             continue
@@ -71,23 +110,24 @@ def check(root):
         present = [PurePosixPath(name).name for name in files
                    if str(PurePosixPath(name).parent) == folder and PurePosixPath(name).name not in UNLISTED]
         for pattern in patterns:
-            if not fnmatch.filter(present, pattern):
+            if not any(matches(name, pattern) for name in present):
                 problems.append(f"{doc}: lists {pattern}, which is not in {folder}/")
         for name in present:
-            if not any(fnmatch.fnmatch(name, pattern) for pattern in patterns):
+            if not any(matches(name, pattern) for pattern in patterns):
                 problems.append(f"{doc}: {folder}/{name} is not listed")
 
     root_doc = root / DOC
     if not root_doc.is_file():
         problems.append(f"{DOC} is missing at the repository root")
     else:
-        linked = {PurePosixPath(link).as_posix() for link in LINK_RE.findall(root_doc.read_text(encoding="utf-8"))}
+        linked = linked_documents(read(root_doc))
         for link in sorted(linked):
             if link not in files:
                 problems.append(f"{DOC}: the map links {link}, which does not exist")
         for doc in folder_docs:
             if doc not in linked:
                 problems.append(f"{DOC}: the map does not link {doc}")
+    problems += note_problems(root, files)
     return problems, sorted(waiting)
 
 

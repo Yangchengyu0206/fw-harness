@@ -7,7 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PLUGIN = ROOT / "plugins" / "cdev"
-EXTRA = ("LICENSE", "THIRD_PARTY_NOTICES.md")
+EXTRA = ("LICENSE", "THIRD_PARTY_NOTICES.md", "CHANGELOG.md")
 INSTALLER = ROOT / "scripts" / "install_local.py"
 SKIP_PARTS = {"__pycache__", ".pytest_cache"}
 SKIP_SUFFIXES = {".pyc"}

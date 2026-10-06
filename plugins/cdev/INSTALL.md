@@ -4,7 +4,7 @@ This package is the whole cdev plugin. It needs no marketplace and no access to 
 
 繁體中文: [INSTALL.zh-TW.md](INSTALL.zh-TW.md)
 
-Python 3 is required (`py -3` on Windows).
+Python 3 is required: `py -3` on Windows, `python3` on macOS and Linux. The scripts and the session hook that `/cdev-init` writes into a repository run on it.
 
 ## Which route
 
@@ -29,24 +29,25 @@ Both can coexist, though one repository should use one of them, so a skill is no
 
    ```json
    {
+     "chat.plugins.enabled": true,
      "chat.pluginLocations": {
        "C:/tools/cdev": true
      }
    }
    ```
 
-3. In VS Code, press Ctrl+Shift+P, run **Preferences: Open User Settings (JSON)**, and add that `chat.pluginLocations` entry (when the setting is already there, add the one line to it).
+3. In VS Code, press Ctrl+Shift+P, run **Preferences: Open User Settings (JSON)**, and add both entries (when `chat.pluginLocations` is already there, add the one line to it). Plugins stay off until `chat.plugins.enabled` is `true`.
 
 4. Restart VS Code. Typing `/` in agent chat now lists the `cdev-` commands.
 
 ## Option 2: inside one repository, travelling with it
 
-This suits a team: everyone who clones the repository has the skills without touching their settings. It is also the simplest route, and it needs no Python.
+This suits a team: everyone who clones the repository has the skills without touching their settings. It is also the simplest route: copying needs no Python.
 
 **Copy the folders:**
 
 1. Make a `.github\skills` folder in your repository.
-2. Copy every folder inside the unzipped `cdev\skills\` (`cdev-init`, `cdev-debug`, and the rest of the 13) into it.
+2. Copy every folder inside the unzipped `cdev\skills\` (`cdev-init`, `cdev-debug`, and the rest of the 14) into it.
 3. Copy `LICENSE` and `THIRD_PARTY_NOTICES.md` in beside them, so the licence travels with the skills.
 4. Restart VS Code and type `/` in agent chat to see the commands.
 5. Commit them, and a clone carries them.
@@ -58,7 +59,7 @@ your-project\
 └─ .github\skills\
    ├─ cdev-init\SKILL.md
    ├─ cdev-debug\SKILL.md
-   └─ ... (13 in total)
+   └─ ... (14 in total)
 ```
 
 **To do the same without copying by hand:**
@@ -81,7 +82,7 @@ Read [README.md](README.md) for how the whole thing works.
 
 ## What you type day to day
 
-**Most of the time, nothing.** The rules live in AGENTS.md, which Copilot loads on its own, so a new conversation opens with the agent reading `## Now` in PROGRESS.md, listing the features, running the document check, and asking which feature to take. While you work, it also keeps `## Now` and the architecture documents up to date.
+**Most of the time, nothing.** In VS Code, a session hook hands the agent `## Now` from PROGRESS.md, the feature list, and the document check before its first answer, so a new conversation opens knowing where the work stands and asks which feature to take. Where hooks do not run (Claude Code, or with hooks turned off), the rules in AGENTS.md have the agent do the same itself. While you work, it also keeps `## Now` and the architecture documents up to date.
 
 These are the only commands you type, and each is occasional:
 
@@ -89,6 +90,7 @@ These are the only commands you type, and each is occasional:
 |---|---|
 | `/cdev-init` | once, the first time a repository uses cdev |
 | `/cdev-upgrade` | once per repository, after the plugin is updated |
+| `/cdev-grill` | before a piece of work whose plan rests on assumptions nobody has said out loud |
 | `/cdev-checkpoint` | when the context usage runs high, or before a long break |
 | `/cdev-done` | for a full wrap-up: the documents checked, the log written, a commit message drafted |
 | `/cdev-session-start` | for the full opening pass, when the short one a new conversation already does is not enough |
@@ -109,7 +111,7 @@ Either way, when a repository's own harness files (AGENTS.md, the architecture d
 
 ## When something is wrong
 
-- **`/` lists no cdev commands**: check that the path in `chat.pluginLocations` uses forward slashes (`C:/tools/cdev`), that the folder holds `plugin.json`, and that VS Code was restarted.
-- **`py -3` is not found**: use `python`, or install Python 3 first.
-- **The agent opens without reporting where the work stands**: the rule is in AGENTS.md and Copilot loads it, though following it is the model's call. Type `/cdev-session-start` for the full pass.
+- **`/` lists no cdev commands**: check that `chat.plugins.enabled` is `true`, that the path in `chat.pluginLocations` uses forward slashes (`C:/tools/cdev`), that the folder holds `plugin.json`, and that VS Code was restarted.
+- **`py -3` is not found**: on Windows, install Python 3 from python.org with the `py` launcher; a bare `python` is often the Microsoft Store stub, and the session hook calls `py -3`. On macOS and Linux, use `python3`.
+- **The agent opens without reporting where the work stands**: agent hooks are a preview feature in VS Code. Check that the repository has `.github/hooks/cdev.json` (written by `/cdev-init` or `/cdev-upgrade`) and that `py -3 tools/hooks.py session-start` prints JSON. Without the hook, the rule in AGENTS.md still asks for the opening, though following it is the model's call. Type `/cdev-session-start` for the full pass.
 - **Skills start on their own**: `cdev-implement`, `cdev-review`, and `cdev-debug` are meant to.

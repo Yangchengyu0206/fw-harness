@@ -12,7 +12,7 @@ When `doc_check` reports drift, when a folder appears or disappears, when a fold
 
 ## Common questions
 
-**Will it overwrite what I wrote?** It keeps sentences that are still true and changes only the parts the code contradicts.
+**Will it overwrite what I wrote?** It keeps sentences that are still true and changes only the parts the code contradicts. `## Decisions and why` and `## Terms` in the root document are left alone.
 
 **Why does it flag new dependencies?** A new include across layers is cheap to add and expensive to undo. Seeing it in the diff is the moment to decide whether it should exist.
 

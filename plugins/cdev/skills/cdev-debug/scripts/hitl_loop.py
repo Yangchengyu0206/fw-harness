@@ -1,5 +1,8 @@
 """Human-in-the-loop reproduction loop.
 
+Adapted from skills/engineering/diagnosing-bugs/scripts/hitl-loop.template.sh in
+mattpocock/skills (https://github.com/mattpocock/skills, MIT), rewritten in Python.
+
 Use it when reproducing a defect needs a person: pressing reset, moving a cable,
 watching an LED. Copy this file somewhere git ignores, edit STEPS, and ask the
 user to run it in their own terminal:

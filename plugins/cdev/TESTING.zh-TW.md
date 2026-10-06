@@ -8,7 +8,7 @@ English: [TESTING.md](TESTING.md)
 
 一句話：**讓 agent 知道現在在哪、規則是什麼、東西在哪裡，而且這些知識不會因為換對話就消失。**
 
-它不是 AI，也不會讓模型變聰明。它做的事是把「每次都要重講一遍」的東西寫進 repo 的檔案，讓 agent 每次自己讀。
+它不是模型，也不會讓模型變聰明。它做的事是把「每次都要重講一遍」的東西寫進 repo 的檔案，讓 agent 每次自己讀。
 
 裝進 repo 的東西：
 
@@ -17,7 +17,8 @@ English: [TESTING.md](TESTING.md)
 | `AGENTS.md` | 所有規則。Copilot 每次對話自動載入 |
 | `ARCHITECTURE.md`（根目錄與各資料夾） | 地圖：每個檔案做什麼、主要流程怎麼走、決策與理由、術語 |
 | `PROGRESS.md` | `## Now` 做到哪、確認了什麼事實、等你處理什麼；`## Log` 歷史 |
-| `feature_list.json` | 正在做什麼，狀態是 next / active / verifying / done |
+| `feature_list.json` | 正在做什麼，狀態是 backlog / next / active / verifying / done / blocked |
+| `NOTES.md` 與 `docs/notes/` | feature 結束後還用得到的知識，依主題存：工具怎麼設、地雷、實測數字 |
 | `tools/` 四個腳本 | 功能清單、文件漂移檢查、session hook、MCP 盤點 |
 | `.vscode/settings.json` | vendor 資料夾唯讀、危險指令要你確認 |
 | `.github/hooks/`、`.github/agents/`、`.github/instructions/` | 開場自動注入狀態、唯讀的讀碼 agent、改 code 時的提醒 |
@@ -46,9 +47,10 @@ English: [TESTING.md](TESTING.md)
 
 **好處**
 
-- 開新對話時，agent 自己知道做到哪、下一步是什麼（由 hook 注入，不靠模型自覺）
+- 開新對話時，agent 自己知道做到哪、下一步是什麼（VS Code 裡由 hook 注入，不靠模型自覺；其他環境由 AGENTS.md 要求）
 - 架構文件當地圖，定位快，而且答案會標明哪些是回頭驗證過的
 - 決策和理由留在 repo 裡，不是留在某個人的對話紀錄裡
+- 過程中學到的東西（工具怎麼設、地雷、數字）依主題保存，開新對話時以索引的形式交給 agent
 - 完成的標準一致，而且一定要你點頭才算 done
 - 文件和實際檔案不一致時，腳本會抓出來
 - vendor 資料夾唯讀、危險指令要確認
@@ -59,7 +61,7 @@ English: [TESTING.md](TESTING.md)
 
 - 第一次 `/cdev-init` 要花幾分鐘，而且會用掉一次比較大的上下文
 - 多了一批要維護的文件。過時的文件會誤導人，所以有 `doc_check` 和規則在擋，但不是零成本
-- 規則本身每次對話佔約 3 到 4 KB
+- 規則本身每次對話佔約 9 KB，開場時 session hook 另外最多加 5 KB
 - **大部分行為是規則導向，不是機制保證**。模型多數時候會照做，對話很長時最容易漏
 - 只問一個小問題的情境，它沒有幫助，甚至稍微更重
 
@@ -75,7 +77,7 @@ English: [TESTING.md](TESTING.md)
 
 | 行為 | 保證程度 |
 |---|---|
-| 開場注入目前狀態 | 機制（hook 腳本）。VS Code 標示 hooks 為 preview |
+| 開場注入目前狀態 | VS Code 裡是機制（hook 腳本），VS Code 標示 hooks 為 preview；Claude Code 裡是規則 |
 | 文件漂移偵測 | 機制（`doc_check.py`） |
 | vendor 唯讀、危險指令確認 | 編輯器設定。**尚未實測，這次請幫忙確認** |
 | 回答前先查文件再驗證 code | 規則 |
@@ -96,10 +98,11 @@ English: [TESTING.md](TESTING.md)
 6. **`/cdev-upgrade`**：在舊版 harness 的專案跑，看你寫的內容有沒有被保留。
 7. **長對話**：做一件比較久的事，中途打 `/cdev-checkpoint`，然後開新對話，看它接不接得回去。
 8. **`/cdev-grill`**：動工前叫它追問一輪，問題有沒有問到點上。
+9. **筆記**：做完一個有學到長期知識的 feature（例如某個工具怎麼設、某個指令絕對不能跑），打 `/cdev-done`。它有沒有在 `docs/notes/` 寫一份筆記，並在 NOTES.md 加一行？有沒有把只跟你這台機器有關的事實排除在外？下一次開新對話時，開場有沒有帶到那一行？
 
 ## 回報時請附上
 
-- VS Code 版本（Help → About）和 GitHub Copilot Chat 擴充套件版本
+- cdev 版本（看 `plugin.json` 或安裝包檔名）、VS Code 版本（Help → About）和 GitHub Copilot Chat 擴充套件版本
 - 用哪一種安裝方式（plugin 資料夾，還是複製進 repo）
 - 當下用哪個模型
 - 你做了什麼、預期看到什麼、實際看到什麼
@@ -109,7 +112,7 @@ English: [TESTING.md](TESTING.md)
 
 ## 已知還沒驗證的地方
 
-- VS Code 的唯讀與指令確認設定是照官方文件寫的，還沒有人實際確認過生效
-- agent hooks 在 VS Code 目前是 preview，格式可能會變
+- VS Code 的唯讀與指令確認設定是照官方文件寫的，還沒有人實際確認過生效。文件說 `files.readonlyInclude` 會讓檔案在編輯器裡變唯讀，但 agent 的編輯工具是否也遵守，文件沒有寫。VS Code 有一個未解的 issue（microsoft/vscode#336715）回報「Copilot」agent harness 會忽略 workspace 的 `chat.tools.terminal.autoApprove`，Local harness 則會遵守
+- agent hooks 在 VS Code 目前是 preview，格式可能會變。hook 檔同時帶了 Copilot CLI 的欄位（`version`、`powershell`），還沒在 CLI 裡試過
 - Linux 與 Windows 驅動的領域參考資料還沒經過驅動工程師審閱
 - 所有指令以 Windows 為準（`py -3`），macOS 和 Linux 請改用 `python3`

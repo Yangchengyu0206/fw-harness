@@ -27,7 +27,7 @@ Read the feature with `py -3 tools/feature.py show F-NNN`, and the ARCHITECTURE.
 
 ### 2. Decide how you will know it works
 
-**When AGENTS.md has a test command**, add a test that fails for the reason the feature exists, and run it. A test that passes before the code is written proves nothing, so read the failure and confirm it is the one you intended. When the behaviour can only be observed on real hardware or a real operating system, write the host-side test for the logic you can reach, and leave the rest to `cdev-target-verify`.
+**When AGENTS.md has a test command**, add a test that fails for the reason the feature exists, and run it. A test that passes before the code is written proves nothing, so read the failure and confirm it is the one you intended. When the behaviour can only be observed on real hardware or a real operating system, write the host-side test for the logic you can reach, and leave the rest as the step still owed; under `Verification: full` the user proves it with `/cdev-target-verify`.
 
 **When AGENTS.md says `Test: none`**, add no test framework and no test files unless the user asks. Write down instead the input you will run the change on and the output you expect: from the feature's `behavior`, from a reference result the user has (a spreadsheet, a MATLAB or NumPy output, a worked example), or from the user when neither says. For floating point, write the tolerance too. Run the current code on that input once, so you know the starting point.
 
@@ -53,12 +53,12 @@ Any scratch script you wrote to run the change goes in a folder git ignores. Whe
 
 Update the ARCHITECTURE.md of every folder whose files, flows, or dependencies the change altered, and run `py -3 tools/doc_check.py`.
 
+Under `off`, with the build and the run in this editor, no step is owed: go straight to the proposal. Otherwise, when a step the `Verification:` section asks for is still owed, or the build or run happens outside this editor:
+
 ```bash
 py -3 tools/feature.py set F-NNN --status verifying --next "<the step>" --notes "checked on <input>: <result>"
 ```
 
-Use `verifying` for a step the `Verification:` line asks for and that is still owed. Under `off` no step is owed, so go straight to the proposal.
-
-Show the user the evidence and propose closing the feature with cdev-done. Under `off`, say in the same message what has not been checked on real hardware. The feature becomes `done` on the user's confirmation.
+Show the user the evidence and propose closing the feature; for the full wrap-up, suggest they type `/cdev-done`. Under `off`, say in the same message what has not been checked on real hardware. The feature becomes `done` on the user's confirmation.
 
 **Done when:** `doc_check` reports no drift, the feature's status says what is left, and the user knows what is owed or has the proposal to close it.

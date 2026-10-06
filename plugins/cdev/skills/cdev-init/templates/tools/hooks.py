@@ -2,9 +2,10 @@
 
   session-start   put where the work stands in front of the agent before its first answer
   stop            say whether the architecture documents drifted during the session
+
+Safe to run by hand: it does not read stdin, and it always exits 0.
 """
 import argparse
-import io
 import json
 import sys
 from pathlib import Path
@@ -12,31 +13,33 @@ from pathlib import Path
 DEFAULT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-LIMIT = 4000
+LIMIT = 5000
+SECTION_LIMIT = 1800
+NOTES_LIMIT = 1200
+EVENTS = ("session-start", "stop")
+# Drift counted at session start, so the stop hook speaks only about drift this session added.
+BASELINE = Path(".git") / "cdev-drift-baseline"
 
 
-def read_stdin():
-    try:
-        raw = sys.stdin.read()
-    except (OSError, ValueError):
-        return {}
-    try:
-        return json.loads(raw) if raw.strip() else {}
-    except json.JSONDecodeError:
-        return {}
+def read(path):
+    """Text of a file whatever its encoding: a BOM is dropped and bytes that are not UTF-8 are replaced."""
+    return Path(path).read_text(encoding="utf-8-sig", errors="replace")
+
+
+def clip(text, limit=SECTION_LIMIT):
+    return text if len(text) <= limit else text[:limit].rstrip() + "\n(truncated)"
 
 
 def now_section(root):
     path = Path(root) / "PROGRESS.md"
     if not path.is_file():
         return "PROGRESS.md is missing. Fix: run cdev-init."
-    lines = path.read_text(encoding="utf-8").splitlines()
-    try:
-        start = lines.index("## Now")
-    except ValueError:
+    lines = read(path).splitlines()
+    start = next((i for i, text in enumerate(lines) if text.strip() == "## Now"), None)
+    if start is None:
         return "PROGRESS.md has no ## Now section. Fix: run cdev-upgrade."
     end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith("## ")), len(lines))
-    return "\n".join(lines[start:end]).strip()
+    return clip("\n".join(lines[start:end]).strip())
 
 
 def feature_lines(root):
@@ -47,44 +50,94 @@ def feature_lines(root):
     path = Path(root) / "feature_list.json"
     if not path.is_file():
         return "feature_list.json is missing. Fix: run cdev-init."
-    out = io.StringIO()
-    stdout, sys.stdout = sys.stdout, out
     try:
-        feature.main(["--file", str(path), "show"])
-    except BaseException:
-        return "feature.py could not read feature_list.json. Fix: run py -3 tools/feature.py check."
-    finally:
-        sys.stdout = stdout
-    return out.getvalue().strip() or "no features"
+        data = feature.load(path)
+    except feature.FeatureError as exc:
+        return clip(f"feature_list.json cannot be read, so the features are unknown, not absent. {exc}\n"
+                    "Fix: repair it, then run py -3 tools/feature.py check.")
+    items = data["features"]
+    return clip("\n".join(feature.line(item) for item in items)) if items else "no features yet"
+
+
+def notes_index(root):
+    """The topic lines of NOTES.md: what the next conversation should know exists, not the notes themselves."""
+    path = Path(root) / "NOTES.md"
+    if not path.is_file():
+        return "NOTES.md is missing. Fix: run cdev-upgrade."
+    lines = [line.strip() for line in read(path).splitlines() if line.strip().startswith("- [")]
+    if not lines:
+        return "no notes yet"
+    return clip("Open a note when its line matches the work.\n" + "\n".join(lines), NOTES_LIMIT)
+
+
+def drift(root):
+    """(problems, waiting) from doc_check; raises ImportError when the script is missing."""
+    import doc_check
+    return doc_check.check(root)
 
 
 def documents(root):
     try:
-        import doc_check
+        problems, waiting = drift(root)
     except ImportError:
         return "tools/doc_check.py is missing. Fix: run cdev-upgrade."
-    try:
-        problems, waiting = doc_check.check(root)
-    except BaseException as exc:
-        return f"doc_check could not run ({exc})."
+    remember_baseline(root, len(problems))
     parts = []
     if problems:
         parts.append(f"{len(problems)} drift(s): " + "; ".join(problems[:5]))
     if waiting:
         parts.append(f"not documented yet: {', '.join(waiting)}")
-    return "\n".join(parts) if parts else "the architecture documents match the files"
+    return clip("\n".join(parts)) if parts else "the architecture documents match the files"
+
+
+def remember_baseline(root, count):
+    path = Path(root) / BASELINE
+    if path.parent.is_dir():
+        try:
+            path.write_text(str(count), encoding="utf-8")
+        except OSError:
+            pass
+
+
+def baseline(root):
+    try:
+        return int((Path(root) / BASELINE).read_text(encoding="utf-8").strip())
+    except (OSError, ValueError):
+        return 0
+
+
+def guarded(section, root):
+    """One section's text; its own failure is reported in its place, and the others still arrive."""
+    try:
+        return section(root)
+    except Exception as exc:  # noqa: BLE001 - a hook must never take the session down
+        return f"could not be read ({type(exc).__name__}: {exc})"
 
 
 def session_context(root):
     text = (
         "The cdev harness reports where this repository's work stands. "
-        "Use it instead of reading PROGRESS.md and the feature list again, and ask the user "
-        "which feature to take before writing code.\n\n"
-        f"{now_section(root)}\n\n"
-        f"## Features\n\n{feature_lines(root)}\n\n"
-        f"## Architecture documents\n\n{documents(root)}"
+        "Use it instead of reading PROGRESS.md and the feature list again. "
+        "When the user has not said what to work on, ask which feature to take before writing code.\n\n"
+        f"{guarded(now_section, root)}\n\n"
+        f"## Features\n\n{guarded(feature_lines, root)}\n\n"
+        f"## Notes\n\n{guarded(notes_index, root)}\n\n"
+        f"## Architecture documents\n\n{guarded(documents, root)}"
     )
     return text[:LIMIT]
+
+
+def stop_answer(root):
+    answer = {"continue": True}
+    try:
+        problems, _ = drift(root)
+    except Exception:  # noqa: BLE001
+        return answer
+    if len(problems) > baseline(root):
+        answer["systemMessage"] = (f"cdev: the architecture documents drifted this session "
+                                   f"({len(problems)} drift(s) now). "
+                                   "Fix: update the documents, or run cdev-architecture-sync.")
+    return answer
 
 
 def main(argv=None):
@@ -93,24 +146,22 @@ def main(argv=None):
             stream.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(prog="hooks.py", description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("event", choices=("session-start", "stop"))
+    parser.add_argument("event", choices=EVENTS)
     parser.add_argument("--root", default=str(DEFAULT_ROOT))
-    args = parser.parse_args(argv)
-    read_stdin()
-
     try:
-        if args.event == "session-start":
-            answer = {"hookSpecificOutput": {"hookEventName": "SessionStart",
-                                             "additionalContext": session_context(args.root)}}
-        else:
-            summary = documents(args.root)
-            answer = {"continue": True}
-            if "drift" in summary:
-                answer["systemMessage"] = (
-                    f"cdev: {summary}. Fix: update the documents, or run cdev-architecture-sync.")
-    except BaseException as exc:  # a hook that fails stays out of the way
-        answer = {"continue": True, "systemMessage": f"cdev hook failed: {exc}"}
+        args = parser.parse_args(argv)
+    except SystemExit as exc:
+        if exc.code == 0:  # --help
+            return 0
+        # Exit code 2 makes VS Code treat a hook as a blocking error, so answer nothing instead.
+        print("{}")
+        return 0
 
+    if args.event == "session-start":
+        answer = {"hookSpecificOutput": {"hookEventName": "SessionStart",
+                                         "additionalContext": session_context(args.root)}}
+    else:
+        answer = stop_answer(args.root)
     print(json.dumps(answer, ensure_ascii=False))
     return 0
 

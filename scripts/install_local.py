@@ -18,7 +18,9 @@ SKIP = {"__pycache__"}
 
 
 def settings_snippet(folder):
-    return json.dumps({"chat.pluginLocations": {folder.as_posix(): True}}, indent=2)
+    # chat.plugins.enabled defaults to false, and a plugin location does nothing while it is off
+    return json.dumps({"chat.plugins.enabled": True,
+                       "chat.pluginLocations": {folder.as_posix(): True}}, indent=2)
 
 
 def skill_names():
@@ -31,18 +33,21 @@ def copy_into(repo, tool):
         raise SystemExit(f"{repo} is not a folder")
     target = repo / TARGETS[tool]
     target.mkdir(parents=True, exist_ok=True)
-    copied = []
+    copied, replaced = [], []
     for name in skill_names():
         destination = target / name
         if destination.exists():
             shutil.rmtree(destination)
+            replaced.append(name)
         shutil.copytree(SKILLS / name, destination,
                         ignore=shutil.ignore_patterns(*SKIP))
         copied.append(name)
     for extra in ("LICENSE", "THIRD_PARTY_NOTICES.md"):
         if (HERE / extra).is_file():
             shutil.copy2(HERE / extra, target / extra)
-    return target, copied
+    stale = sorted(path.name for path in target.glob("cdev-*")
+                   if path.is_dir() and path.name not in copied)
+    return target, copied, replaced, stale
 
 
 def main(argv=None):
@@ -62,17 +67,24 @@ def main(argv=None):
         raise SystemExit(f"no skills folder next to this script ({SKILLS})")
 
     if args.repo:
-        target, copied = copy_into(args.repo, args.tool)
+        target, copied, replaced, stale = copy_into(args.repo, args.tool)
         print(f"copied {len(copied)} skills into {target}")
         print("  " + ", ".join(copied))
+        if replaced:
+            print(f"Replaced {len(replaced)} already there; git diff shows what changed in them.")
+        if stale:
+            print(f"No longer shipped, left in place for you to delete: {', '.join(stale)}")
+        if args.tool == "claude":
+            print("Claude Code does not run the VS Code session hook; AGENTS.md has the agent open the session itself.")
         print("Commit them so everyone who clones the repository has them.")
         return 0
 
-    if args.settings or True:
-        print("Add this to your VS Code user settings JSON (Preferences: Open User Settings (JSON)):")
-        print(settings_snippet(HERE))
-        print(f"\nThen restart VS Code. The {len(skill_names())} cdev skills load in every workspace.")
-        print("To keep the skills inside one repository instead, run: py -3 install_local.py --repo <path>")
+    if args.tool != "copilot":
+        print("--tool applies only with --repo; printing the VS Code setting instead.", file=sys.stderr)
+    print("Add this to your VS Code user settings JSON (Preferences: Open User Settings (JSON)):")
+    print(settings_snippet(HERE))
+    print(f"\nThen restart VS Code. The {len(skill_names())} cdev skills load in every workspace.")
+    print("To keep the skills inside one repository instead, run: py -3 install_local.py --repo <path>")
     return 0
 
 

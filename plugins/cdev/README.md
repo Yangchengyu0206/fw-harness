@@ -46,7 +46,7 @@ Then, in your repository, open agent chat and type `/cdev-init` once. After a la
 py -3 scripts/pack_cdev.py
 ```
 
-It writes `dist/cdev-<version>.zip`, which holds the plugin, both READMEs, the licence, and an installer. Whoever receives it unzips it and follows [INSTALL.md](INSTALL.md): either registering the folder with the `chat.pluginLocations` setting, or copying the skills into one repository with `py -3 install_local.py --repo <path>`.
+It writes `dist/cdev-<version>.zip`, which holds the plugin, the README, INSTALL, and TESTING guides in both languages, the licence, and an installer. Whoever receives it unzips it and follows [INSTALL.md](INSTALL.md): either registering the folder with the `chat.pluginLocations` setting, or copying the skills into one repository with `py -3 install_local.py --repo <path>`.
 
 ## What lands in your repository
 
@@ -59,6 +59,8 @@ ARCHITECTURE.md      the map of the repository, and decisions with their reasons
                      responsibility, one line per file, flows, entry points, dependencies
 PROGRESS.md          ## Now (where the work is, confirmed facts, what waits on you), then a dated log
 feature_list.json    what is being built, the single source of truth
+NOTES.md             one line per topic that outlives a feature, linking docs/notes/<topic>.md:
+                     a tool's setup, a trap, a measured number, a false positive to expect
 tools/feature.py     keeps feature_list.json valid
 tools/doc_check.py   reports where the architecture documents no longer match the files
 tools/hooks.py       answers the session hooks
@@ -75,7 +77,7 @@ tools/mcp_list.py    lists the MCP servers configured here
 docs/reviews/        review reports
 ```
 
-The two scripts report; nothing blocks a commit.
+The scripts in `tools/` report; nothing blocks a commit.
 
 A large repository is not documented all at once: `cdev-init` writes the folders you work in in full and leaves the rest as stubs. `doc_check` reports a stub as waiting rather than as drift, and `cdev-architecture-sync` fills one when the work reaches that folder.
 
@@ -84,10 +86,16 @@ A large repository is not documented all at once: `cdev-init` writes the folders
 1. Open a conversation. The session hook hands the agent `## Now`, the features, and the state of the documents, and it asks which feature to take. Where hooks are unavailable, AGENTS.md has it do the same by hand.
 2. Questions about the code are answered from the architecture documents as a map, then checked in the code, with each claim marked verified or not. A question that means reading several files goes to the `cdev-explorer` agent, which reads in its own context and returns the answer with citations.
 3. A question this repository cannot answer, such as one about another branch, a datasheet, or an application note, sends the agent to the tools it holds this session before it answers that it does not know. New MCP servers are picked up without editing anything, because the rule points at the tool list rather than at a list of servers.
-3. While a feature is built, `## Now` is rewritten after every step, and confirmed facts go there as they are found, so a summarised conversation loses nothing.
-4. When the build or flashing happens in a vendor IDE, the feature stops at `verifying` with a checklist for you in `## Now`. You run it and report the result, in the same conversation or a new one.
-5. When the context usage runs high, type `/cdev-checkpoint`.
-6. When verification has passed, the agent shows the evidence and the documents it changed, and the feature becomes `done` on your confirmation.
+4. While a feature is built, `## Now` is rewritten after every step, and confirmed facts go there as they are found, so a summarised conversation loses nothing.
+5. When the build or flashing happens in a vendor IDE, the feature stops at `verifying`, with what to build or flash and what output shows success under `Waiting on the user` in `## Now` (the full checklist at `full`). You run it and report the result, in the same conversation or a new one.
+6. When the context usage runs high, type `/cdev-checkpoint`.
+7. When verification has passed, the agent shows the evidence and the documents it changed, and the feature becomes `done` on your confirmation.
+
+## What outlives a feature
+
+`## Now` is rewritten as the work moves and `## Log` is read by date, so neither is where the agent looks three months later for how a tool was set up or which command must never run here. Those facts go into a note under `docs/notes/`, one per topic, each with why it matters and how to apply it, and NOTES.md holds one line per note. The session hook hands the agent those lines, and the agent opens a note when its line matches the work. `/cdev-done` asks which confirmed facts outlive the feature, and `doc_check` reports a note without a line or a line without a note.
+
+Only facts true for anyone who clones the repository go there. A path on one person's machine, a network one machine cannot reach, or credentials stay out, left to the tool's own memory where it keeps one.
 
 ## Deciding before building
 
@@ -114,7 +122,7 @@ Looking at code: `cdev-review`, `cdev-test-gap`, `cdev-debug`.
 When the structure changes: `cdev-architecture-sync`.
 Router: `cdev-guide`.
 
-One page per skill lives in [docs/skills](../../docs/skills).
+One page per skill lives in [docs/skills](https://github.com/Yangchengyu0206/fw-harness/tree/main/docs/skills).
 
 ## Domains
 
@@ -124,6 +132,8 @@ One page per skill lives in [docs/skills](../../docs/skills).
 
 Eight of the skills are meant for you to type: `cdev-init`, `cdev-upgrade`, `cdev-session-start`, `cdev-grill`, `cdev-target-verify`, `cdev-checkpoint`, `cdev-done`, and `cdev-guide`. They carry `disable-model-invocation: true`, which GitHub Copilot in VS Code and Claude Code both document as keeping the agent from starting them; you start them with `/` in chat. Copilot CLI does not document the key, so there an agent may still reach them on its own.
 
+Installed as a Claude Code plugin, the commands are namespaced, `/cdev:cdev-init`; the bare `/cdev-init` works when no other command has that name. The session hook and the explorer agent live under `.github/`, which only VS Code reads, so in Claude Code the opening comes from the rule in AGENTS.md and code reading goes to Claude Code's own Explore agent.
+
 ## How it differs from fw-c-harness
 
 `fw-c-harness`, in the same marketplace, is for a firmware team: verification gates that block a bad commit, ticket state that records who changed what, and rules for review by another person. `cdev` drops all of that for one developer, and widens the domains from firmware to C and Python generally.
@@ -132,4 +142,4 @@ Install one of the two per repository.
 
 ## License
 
-MIT. See [THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md) for the content adapted from other projects.
+MIT. See [THIRD_PARTY_NOTICES.md](https://github.com/Yangchengyu0206/fw-harness/blob/main/THIRD_PARTY_NOTICES.md) for the content adapted from other projects.

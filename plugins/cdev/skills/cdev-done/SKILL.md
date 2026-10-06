@@ -31,9 +31,9 @@ Fix every drift it reports. Then compare the change with `## Flows` and `## Depe
 
 ### 3. Decide the feature's status
 
-Read the `Verification:` line in AGENTS.md first. Under `off` no hardware step is owed, and the choice is between `active` and the proposal to close.
+Read the `Verification:` line in AGENTS.md first. Under `off` no hardware step is owed, and the choice is between `active` and the proposal to close, unless the build or run happens outside this editor and is still owed.
 
-- **A step the `Verification:` line asks for is owed and runs outside this editor** (a build in a vendor IDE, flashing, a test on the board): set `verifying` with `--next "<the step>"`, and write what the user has to run under `Waiting on the user` in `## Now`. Under `full` that is the whole checklist: what to build, what to flash or load, what to do, what output shows success, and what shows failure.
+- **A step is owed outside this editor**, because the `Verification:` line asks for it or the build or run happens there (a build in a vendor IDE, flashing, a test on the board): set `verifying` with `--next "<the step>"`, and write what the user has to run under `Waiting on the user` in `## Now`. Under `full` that is the whole checklist: what to build, what to flash or load, what to do, what output shows success, and what shows failure.
 - **Nothing is owed**, because every step passed or the mode asks for none: show the user the evidence (the commands and their output, or the result they reported, or under `off` the build and what you read in the code) and the documents you changed, and ask whether to close the feature.
 - **The work is unfinished**: leave it `active`.
 
@@ -45,7 +45,20 @@ Run that only after the user confirms.
 
 **Done when:** `py -3 tools/feature.py show F-NNN` has the status the evidence supports, and a `done` status follows a confirmation from the user in this conversation.
 
-### 4. Update PROGRESS.md
+### 4. Keep the facts that outlive the feature
+
+Go through the facts this work confirmed (in `## Now`, in the conversation, in the debugging) and pick the ones the next person will need after this feature is closed: how a tool or a board is set up, a trap and how to avoid it, a measured number, a false positive to expect, why an option was ruled out.
+
+For each, decide whose fact it is:
+
+- **true for anyone who clones the repository**: write or update its note under `docs/notes/` and its line in NOTES.md, following `## Notes that outlive a feature` in AGENTS.md. A command never to run here also goes under `Ask before`.
+- **true only for one person or one machine** (a local path, a network that machine cannot reach, credentials, a preference): keep it out of the repository. Leave it to your own memory if this tool keeps one, and tell the user what you left out.
+
+A fact that only mattered to a finished step goes in the log entry below, not in a note.
+
+**Done when:** each confirmed fact is in a note, in the log entry, or named to the user as left out, and `doc_check` reports no note without a line.
+
+### 5. Update PROGRESS.md
 
 Rewrite `## Now`: the feature, where it stopped, the confirmed facts still needed, the next step, what is waiting on the user, and anything blocking it.
 
@@ -53,7 +66,7 @@ Add an entry at the top of `## Log` under today's date: what was done, how it wa
 
 **Done when:** `## Now` names a next step specific enough to start from without this conversation, and the log entry quotes the evidence.
 
-### 5. Draft the commit message
+### 6. Draft the commit message
 
 Write a message that names the feature id and says what changed and why. Show it to the user and let them run the commit.
 

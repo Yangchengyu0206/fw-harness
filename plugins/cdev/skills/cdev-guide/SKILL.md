@@ -6,21 +6,23 @@ disable-model-invocation: true
 
 # cdev-guide
 
+The router pattern is adapted from `skills/engineering/ask-matt` in [mattpocock/skills](https://github.com/mattpocock/skills) (MIT).
+
 Fourteen skills is more than anyone remembers, so ask here instead. The ones marked "the agent reaches on its own" fire without you typing them; the rest you type.
 
 ## Setting the repository up
 
-- **`/cdev-init`**: run once. It detects the repository's domains, writes AGENTS.md, PROGRESS.md, the architecture documents, the feature list, and the VS Code settings that guard read-only code, then hands you the whole result to review in one pass.
+- **`/cdev-init`**: run once. It detects the repository's domains, writes AGENTS.md, PROGRESS.md, the architecture documents, the feature list, the scripts in `tools/`, the VS Code settings that guard read-only code, the session hooks, the read-only `cdev-explorer` agent, and NOTES.md, the index of facts that outlive a feature, then hands you the whole result to review in one pass.
 - **`/cdev-upgrade`**: run after a plugin update. It adds what the current version expects to a repository set up by an older one, and leaves what you wrote alone.
 
 ## A day of work
 
-Every new conversation opens on its own: AGENTS.md tells the agent to read `## Now`, list the features, run `doc_check`, and ask which feature to take.
+Every new conversation opens on its own: in VS Code the session hook puts `## Now`, the features, and the state of the documents in front of the agent, and where hooks do not run (Claude Code), AGENTS.md has it read them itself. Either way it asks which feature to take when you have not said.
 
 1. **`/cdev-session-start`**: optional. The full version of that opening, with the drift fixed and the feature's behaviour read back.
 2. **`/cdev-grill`**: before the work, when the plan rests on assumptions nobody has said out loud. It interviews you a round at a time and records each decision with its reason.
 3. **`cdev-implement`** (the agent reaches on its own): a failing test first when the repository has tests, otherwise an input and the output you expect; then the smallest change, then the build and a real run.
-4. **`/cdev-target-verify`**: only when a feature needs real hardware or a real operating system to prove it: flashing a board, loading a driver, capturing the log. Pure algorithm work never needs it. When the build and flashing happen in a vendor IDE, the agent writes you a checklist in `## Now` instead, and you report back.
+4. **`/cdev-target-verify`**: only when a feature needs real hardware or a real operating system to prove it: flashing a board, loading a driver, capturing the log. Pure algorithm work never needs it. When the build and flashing happen in a vendor IDE, the agent writes under `Waiting on the user` in `## Now` what to build or flash and what output shows success, and you report back.
 5. **`/cdev-checkpoint`**: when the context usage runs high, before a long break, or before a build in a vendor IDE. It saves what the conversation found into `## Now`, so a summary or a new conversation loses nothing.
 6. **`/cdev-done`**: close a feature or a session. The documents checked against the change, PROGRESS.md, the feature's status on your confirmation, and a commit message for you to run.
 

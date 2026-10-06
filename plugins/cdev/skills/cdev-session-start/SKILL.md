@@ -32,11 +32,11 @@ When it reports drift, show it to the user and offer to fix it before the featur
 
 ### 3. Propose the feature
 
-Propose, in this order: the `active` feature, then a `verifying` feature whose checklist is waiting on the user, then the first `next` feature. For the one you propose, read back its `behavior`, and its `verification` list when it has one, with `py -3 tools/feature.py show F-NNN`.
+Propose, in this order: the `active` feature, then a `verifying` feature whose checklist is waiting on the user, then the first `next` feature, then the first `backlog` one. For the one you propose, read back its `behavior`, and its `verification` list when it has one, with `py -3 tools/feature.py show F-NNN`.
 
 When a `verifying` feature is waiting on the user, ask for the result of the checklist in `## Now` first.
 
-When there are no features yet, ask the user what to build and add it with `py -3 tools/feature.py add --title "..." --behavior "..."`. Add `--verify "..."` only for a check the user names or one that needs real hardware.
+When there are no features yet, ask the user what to build and add it with `py -3 tools/feature.py add --title "..." --behavior "..."`. Add `--verify "..."` only for a check the user names or one that needs real hardware, and never under `Verification: off`.
 
 **Done when:** the user has the proposal with its behaviour in front of them.
 

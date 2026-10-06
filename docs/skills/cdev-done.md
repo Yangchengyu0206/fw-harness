@@ -4,7 +4,7 @@ User-invoked. Type `/cdev-done`.
 
 ## What it does
 
-Closes a feature or a session: reads the diff, brings the architecture documents in line with it, sets the feature's status (`verifying` with a checklist for you when a build or a test outside the editor is owed, `done` only after you confirm), rewrites where PROGRESS.md says the work is, adds a dated log entry with the evidence and the decisions, and drafts a commit message naming the feature.
+Closes a feature or a session: reads the diff, brings the architecture documents in line with it, sets the feature's status (`verifying` with what you have to run when a build or a test outside the editor is owed, `done` only after you confirm), writes the confirmed facts that outlive the feature into notes under `docs/notes/` (keeping facts about one person's machine out of the repository), rewrites where PROGRESS.md says the work is, adds a dated log entry with the evidence and the decisions, and drafts a commit message naming the feature.
 
 ## When to reach for it
 

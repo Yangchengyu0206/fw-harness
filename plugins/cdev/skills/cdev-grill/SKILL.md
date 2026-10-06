@@ -29,7 +29,7 @@ Facts are your job, never the user's. Before a round, gather what the frontier n
 - the repository: the architecture documents, then the code
 - a question that means reading several files: the `cdev-explorer` agent, so this conversation keeps room
 - another branch, a datasheet, an application note: the tools this session holds, following `## When this repository cannot answer` in AGENTS.md
-- what the project already decided: `## Decisions and why` in the root ARCHITECTURE.md, and `## Log` in PROGRESS.md
+- what the project already decided or learned: `## Decisions and why` in the root ARCHITECTURE.md, the notes NOTES.md indexes, and `## Log` in PROGRESS.md
 
 A search still running is an unsettled prerequisite: ask the rest of the frontier now, and keep the questions that depend on it for a later round.
 

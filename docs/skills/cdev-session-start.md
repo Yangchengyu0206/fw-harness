@@ -8,11 +8,11 @@ The full version of the opening every conversation already does. Reads where PRO
 
 ## When to reach for it
 
-When you want that full pass: after a long break, or when the documents may have drifted. A plain new conversation already reads `## Now` and asks which feature to take.
+When you want that full pass: after a long break, or when the documents may have drifted. A plain new conversation already gets `## Now` from the session hook (or reads it itself where hooks do not run) and asks which feature to take.
 
 ## Common questions
 
-**Can it pick the feature for me?** It proposes one, in a fixed order: the active feature, then one still owed verification, then the next in the queue. You make the choice.
+**Can it pick the feature for me?** It proposes one, in a fixed order: the active feature, then one still owed verification, then the first `next` one, then the first in the backlog. You make the choice.
 
 **There are no features yet.** It asks what to build and adds the first one.
 

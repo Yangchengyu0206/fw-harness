@@ -17,7 +17,8 @@ What lands in a repository:
 | `AGENTS.md` | every rule. Copilot loads it in every conversation |
 | `ARCHITECTURE.md` (root and per folder) | the map: what each file does, the flows through it, decisions with reasons, terms |
 | `PROGRESS.md` | `## Now`: where the work is, the facts confirmed, what waits on you. `## Log`: the history |
-| `feature_list.json` | what is being built, as next / active / verifying / done |
+| `feature_list.json` | what is being built, as backlog / next / active / verifying / done / blocked |
+| `NOTES.md` and `docs/notes/` | what outlives a feature, by topic: a tool's setup, a trap, a measured number |
 | four scripts in `tools/` | the feature list, document drift, the session hook, the MCP listing |
 | `.vscode/settings.json` | vendor folders read-only, destructive commands held for your approval |
 | `.github/hooks/`, `.github/agents/`, `.github/instructions/` | the state injected at session start, a read-only reading agent, a reminder while editing documented code |
@@ -46,9 +47,10 @@ Of the 14 skills, some the agent reaches on its own (`cdev-implement`, `cdev-rev
 
 **What you gain**
 
-- a new conversation opens knowing where the work stands, injected by a hook rather than left to the model
+- a new conversation opens knowing where the work stands, injected by a hook rather than left to the model (in VS Code; elsewhere AGENTS.md asks for it)
 - the architecture documents locate the code, and answers say which claims were checked against it
 - decisions and their reasons live in the repository rather than in someone's chat history
+- what was learned along the way (a tool's setup, a trap, a number) is kept by topic and handed to the next conversation as an index
 - one standard for finished work, and a feature becomes `done` only when you say so
 - a script reports where the documents no longer match the files
 - vendor folders are read-only and destructive commands wait for you
@@ -59,7 +61,7 @@ Of the 14 skills, some the agent reaches on its own (`cdev-implement`, `cdev-rev
 
 - the first `/cdev-init` takes a few minutes and one large pass over the repository
 - more documents to keep true. A stale document misleads, which is what `doc_check` and the rules are there to limit, at some cost
-- the rules themselves take 3 to 4 KB of every conversation
+- the rules themselves take about 9 KB of every conversation, and the session hook adds up to 5 KB at the start
 - **most of the behaviour is rule-driven rather than guaranteed.** The model follows it most of the time, and a long conversation is where it slips
 - one small question gains nothing here, and carries a little more weight
 
@@ -75,7 +77,7 @@ This decides what to expect:
 
 | Behaviour | How firm |
 |---|---|
-| the state injected at the start of a session | mechanism (a hook script). VS Code marks hooks as preview |
+| the state injected at the start of a session | mechanism (a hook script) in VS Code, which marks hooks as preview; a rule in Claude Code |
 | document drift detected | mechanism (`doc_check.py`) |
 | vendor read-only, destructive commands confirmed | editor settings. **Unverified so far: please confirm this one** |
 | documents first, then verified in the code | rule |
@@ -96,10 +98,11 @@ Most important first:
 6. **`/cdev-upgrade`.** Run it on a repository set up by an older version. Is everything you wrote still there?
 7. **A long session.** Work on something for a while, type `/cdev-checkpoint`, then open a new conversation and see whether it picks up.
 8. **`/cdev-grill`.** Before starting a piece of work, let it interview you. Are the questions the right ones?
+9. **Notes.** Finish a feature that taught you something lasting, such as how to set up a tool or a command never to run, and type `/cdev-done`. Does it write a note under `docs/notes/` with a line in NOTES.md? Does it keep a fact about your own machine out? Does the next conversation open with that line?
 
 ## When you report something
 
-- the VS Code version (Help → About) and the GitHub Copilot Chat extension version
+- the cdev version (in `plugin.json`, or the package name), the VS Code version (Help → About), and the GitHub Copilot Chat extension version
 - which install route you used (the plugin folder, or the skills copied into the repository)
 - the model selected at the time
 - what you did, what you expected, and what happened
@@ -109,7 +112,7 @@ Report in [GitHub issues](https://github.com/Yangchengyu0206/fw-harness/issues),
 
 ## Known and unverified
 
-- the VS Code read-only and command-approval settings are written from the documented settings, and nobody has confirmed them in a running editor yet
-- agent hooks are in preview in VS Code, and their format may change
+- the VS Code read-only and command-approval settings follow the documented settings, and nobody has confirmed them in a running editor yet. The docs say `files.readonlyInclude` makes files read-only in the editor; whether the agent's edit tool honours it too is not documented. An open VS Code issue (microsoft/vscode#336715) reports that the "Copilot" agent harness ignores a workspace's `chat.tools.terminal.autoApprove`; the Local harness honours it
+- agent hooks are in preview in VS Code, and their format may change. The hook file also carries the Copilot CLI fields (`version`, `powershell`), which has not been tried in the CLI
 - the Linux and Windows driver references have not been reviewed by a driver engineer
 - the commands are written for Windows (`py -3`); use `python3` on macOS and Linux

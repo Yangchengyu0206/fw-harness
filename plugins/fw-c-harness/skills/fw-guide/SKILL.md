@@ -6,6 +6,8 @@ disable-model-invocation: true
 
 # fw-guide
 
+The router pattern is adapted from `skills/engineering/ask-matt` in [mattpocock/skills](https://github.com/mattpocock/skills) (MIT).
+
 Fourteen skills is more than anyone remembers, so ask here instead. The ones marked "the agent reaches on its own" fire without you typing them; the rest you type.
 
 ## Setting the repository up

@@ -98,3 +98,59 @@ def test_the_waiting_folders_are_named_in_the_output(tmp_path, capsys):
     assert doc_check.main(["--root", str(root)]) == 0
     out = capsys.readouterr().out
     assert "not documented yet: src" in out and "cdev-architecture-sync" in out
+
+
+def test_map_links_with_spaces_or_dot_slash_count(tmp_path):
+    root = tmp_path
+    write(root, "my dir/ARCHITECTURE.md", "# my dir\n\n## Files\n\n- `a.c`: a\n")
+    write(root, "my dir/a.c")
+    write(root, "lib/ARCHITECTURE.md", "# lib\n\n## Files\n\n- `b.c`: b\n")
+    write(root, "lib/b.c")
+    write(root, "ARCHITECTURE.md", "## Map\n\n| [my dir](<my dir/ARCHITECTURE.md>) |\n| [lib](./lib/ARCHITECTURE.md) |\n")
+    assert doc_check.check(root) == ([], [])
+    write(root, "ARCHITECTURE.md", "## Map\n\n| [my dir](my%20dir/ARCHITECTURE.md) |\n| [lib](lib/ARCHITECTURE.md) |\n")
+    assert doc_check.check(root) == ([], [])
+
+
+def test_a_file_name_with_brackets_is_not_a_glob(tmp_path):
+    root = repo(tmp_path, folder_doc="# src\n\n## Files\n\n- `foo[1].c`: one\n", files=("foo[1].c",))
+    assert doc_check.check(root) == ([], [])
+
+
+def test_a_byte_order_mark_and_trailing_spaces_are_tolerated(tmp_path):
+    root = repo(tmp_path, folder_doc="# src\n\n## Files \n\n- `main.c`: entry\n", files=("main.c",))
+    (root / "ARCHITECTURE.md").write_text(ROOT_DOC, encoding="utf-8-sig")
+    assert doc_check.check(root) == ([], [])
+
+
+def test_without_git_on_path_it_walks_the_tree(tmp_path, monkeypatch):
+    root = repo(tmp_path)
+    (root / ".git").mkdir()
+
+    def missing(*args, **kwargs):
+        raise FileNotFoundError("git")
+    monkeypatch.setattr(doc_check.subprocess, "run", missing)
+    assert doc_check.check(root) == ([], [])
+
+
+def test_every_note_has_a_line_and_every_line_a_note(tmp_path):
+    root = repo(tmp_path)
+    write(root, "NOTES.md", "# Notes\n\n## Topics\n\n- [crg](docs/notes/crg.md): before running the review graph\n")
+    write(root, "docs/notes/crg.md", "# crg\n")
+    assert doc_check.check(root) == ([], [])
+    write(root, "docs/notes/orphan.md", "# orphan\n")
+    (root / "docs" / "notes" / "crg.md").unlink()
+    problems, _ = doc_check.check(root)
+    assert "NOTES.md: links docs/notes/crg.md, which does not exist" in problems
+    assert "NOTES.md: docs/notes/orphan.md has no line" in problems
+
+
+def test_notes_without_an_index_are_reported(tmp_path):
+    root = repo(tmp_path)
+    write(root, "docs/notes/crg.md", "# crg\n")
+    problems, _ = doc_check.check(root)
+    assert any("NOTES.md is missing" in problem for problem in problems)
+
+
+def test_a_repository_without_notes_needs_no_index(tmp_path):
+    assert doc_check.check(repo(tmp_path)) == ([], [])

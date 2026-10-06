@@ -32,6 +32,8 @@ A repository belongs to a set of domains, not one. Look for these signals and re
 
 Each domain has a reference the other cdev skills read: [c](../cdev-implement/references/c.md), [firmware](../cdev-implement/references/firmware.md), [linux-driver](../cdev-implement/references/linux-driver.md), [windows-driver](../cdev-implement/references/windows-driver.md), [python](../cdev-implement/references/python.md).
 
+Leave the harness's own folders out of the signals: `.github/`, `.claude/`, `.vscode/`, and the `tools/` this skill writes. Skills copied into `.github/skills/` carry `.py` files that would otherwise make every repository look like a Python one.
+
 **Done when:** every domain in the set is backed by a file you can name.
 
 ### 3. Generate everything, with no questions in between
@@ -39,13 +41,13 @@ Each domain has a reference the other cdev skills read: [c](../cdev-implement/re
 Nothing is committed yet, so the whole result stays a draft the user can change. Do all of this, then stop:
 
 1. Copy `templates/tools/feature.py`, `templates/tools/doc_check.py`, `templates/tools/hooks.py`, and `templates/tools/mcp_list.py` into `tools/`, and `templates/feature_list.json` to `feature_list.json`.
-2. Scan the code folders two levels deep. A folder named like `third_party`, `vendor`, `external`, or a vendor SDK, or whose files carry a generated marker in their first lines, is read-only.
+2. Scan the code folders two levels deep, leaving out the same harness folders as step 2. A folder named like `third_party`, `vendor`, `external`, or a vendor SDK, or whose files carry a generated marker in their first lines, is read-only.
 3. Write an `ARCHITECTURE.md` for each code folder, choosing the depth per folder so a large repository still finishes in one pass:
    - **The folders the user works in**, up to about five: read their code and write the full document from `templates/ARCHITECTURE.folder.md`. Read the functions a flow passes through before writing the flow.
    - **Every other folder**, including read-only ones and any folder too large to read in this pass: write `templates/ARCHITECTURE.stub.md` with a responsibility line taken from its README, its file names, and its entry points. `doc_check` reports a stub as waiting rather than as drift, and cdev-architecture-sync fills it when the work first reaches that folder.
 
    When the user has not said where they work, take the folders the build files name as the product's own code, and say in step 4 which ones you chose.
-4. Write `ARCHITECTURE.md` at the root from `templates/ARCHITECTURE.root.md`, and `AGENTS.md`, `CLAUDE.md`, and `PROGRESS.md` from their templates.
+4. Write `ARCHITECTURE.md` at the root from `templates/ARCHITECTURE.root.md`, and `AGENTS.md`, `CLAUDE.md`, `PROGRESS.md`, and `NOTES.md` from their templates. `docs/notes/` stays absent until the first note.
 5. Write `.vscode/settings.json`, `.github/instructions/architecture.instructions.md`, `.github/hooks/cdev.json`, and `.github/agents/cdev-explorer.agent.md` from the templates of the same path. GitHub Copilot in VS Code reads all four: the settings make read-only folders uneditable and keep destructive terminal commands from running without the user's approval, the instructions reach the agent whenever it works on code a document describes, the hooks put the state of the work in front of the agent at the start of a session and report document drift at the end, and the explorer agent reads code in its own context so the main conversation keeps room.
 6. Run `py -3 tools/feature.py check`, `py -3 tools/doc_check.py`, and `py -3 tools/mcp_list.py`.
 
@@ -60,11 +62,11 @@ Fill every placeholder from what you found:
 | `{{READ_ONLY}}` | a bullet list of vendor and generated folders, or `none` |
 | `{{BUILD}}` | the build command in backticks, from the repository's build files; when there are none, the Build and test section of the domain's reference. When the project builds only inside a vendor IDE (AndeSight, Keil, IAR, MCUXpresso, or any Eclipse-based IDE whose project files you find), write `in <IDE>, outside this editor; the user builds and reports the errors` |
 | `{{TEST}}` | the test command in backticks, from the repository's own test setup, or `none` when it has no tests. Never take it from a reference, and never add a test framework here |
-| `{{RUN}}` | the command in backticks that runs the program or its main example, from the README, the build files, or the entry point. For firmware flashed from a vendor IDE, write `flashed and run by the user; the agent writes the checklist`. Write `unknown` when none is found |
+| `{{RUN}}` | the command in backticks that runs the program or its main example, from the README, the build files, or the entry point. For firmware flashed from a vendor IDE, write `flashed and run by the user`. Write `unknown` when none is found |
 | `{{FIRST_STEP}}` | with tests: `Write a failing test first.` With `Test: none`: `Write down the input you will run the change on and the output you expect.` |
 | `{{TEST_RULE}}` | with tests: `A failing test before the code. A test written after the code tends to check what the code does rather than what the feature asked for.` With `Test: none`: `No test framework is added unless the user asks for one. Each change is checked by running it on a real input and comparing the output with what was expected.` |
 | `{{DATE}}` | today's date, `YYYY-MM-DD` |
-| `{{MODULES}}` | a table of every code folder: folder, role, and what it depends on. The decisions and terms tables below it stay empty; cdev-grill and the work fill them |
+| `{{MODULES}}` | a table of every code folder: folder, role, and what it depends on. Each folder cell is a markdown link to that folder's ARCHITECTURE.md, with the folder path as the link text; `doc_check` reports a folder the map does not link. The decisions and terms tables below it stay empty; cdev-grill and the work fill them |
 | `{{FOLDER}}` | the folder's path from the repository root |
 | `{{RESPONSIBILITY}}` | one sentence on what the folder does, from reading its code rather than its file names |
 | `{{FILES}}` | one bullet per file directly in the folder: the name in backticks, a colon, and its role in a few words. A glob such as `hal_*.c` stands for a group with one role |
@@ -84,10 +86,11 @@ One message, with the finished work rather than a plan for it:
 - the domain set, and the file behind each domain
 - a table of code folders: role, depends on, read-only or not, documented in full or left as a stub for later, and a Note column flagging every guess (a folder classified read-only from its name alone, a responsibility inferred from little code, a flow written from part of its path, a build command taken from a reference because the repository had none, a run command marked `unknown`)
 - which MCP servers `mcp_list.py` found, or that none is configured, and that the agent is told to reach for a tool before answering that it does not know
-- that agent hooks are in preview in VS Code: the session hook makes the opening automatic where it runs, and the rules in AGENTS.md cover the case where it does not
-- whether the build and the run happen in this editor or in a vendor IDE. When they happen in an IDE, say that each feature will stop at `verifying` with a checklist for the user, and ask whether the IDE's toolchain can be run from a command line
+- that agent hooks are in preview in VS Code and do not run in Claude Code: the session hook makes the opening automatic where it runs, and the rules in AGENTS.md cover the case where it does not
+- whether the build and the run happen in this editor or in a vendor IDE. When they happen in an IDE, say that each feature will stop at `verifying` with a line under `Waiting on the user` saying what to build or flash and what output shows success (a full checklist under `full`), and ask whether the IDE's toolchain can be run from a command line
 - whether the repository has tests. When it has none, say plainly that the skills will not add any unless asked, and will run each change on a real input instead
 - every `.cdev-proposed` file, and why it exists
+- that NOTES.md indexes the facts that outlive a feature, and that a fact about one person's machine stays out of the repository
 - what is left to the user: the decisions table in the root ARCHITECTURE.md and the first features
 
 Ask the verification question inside that same message, so it stays one question: the `Verification:` line in AGENTS.md starts at `off`, which keeps the agent from asking for hardware results and records in each log entry what was not checked on hardware; `light` adds the one step still owed as the feature's next step; `full` adds the checklist, the evidence files, and cdev-target-verify. Say which one you would pick for this repository and why, and that the line is one word to change later.

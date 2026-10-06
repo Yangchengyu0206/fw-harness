@@ -27,7 +27,7 @@ Statuses: `backlog`, `next`, `active`, `verifying`, `done`, `blocked`. Any statu
 ## How to write a feature
 
 - **`behavior`** names what the product does differently when the feature is finished, in terms someone could observe: "Receives 4 KB at 115200 baud without dropping a byte", not "add DMA support".
-- **`verification`** is optional. Leave it empty when running the code on a real input is proof enough, which is the usual case for algorithm work. Add an entry only for a check that will not happen on its own: one that needs real hardware or a real operating system, or one the user names.
+- **`verification`** is optional. Leave it empty when running the code on a real input is proof enough, which is the usual case for algorithm work. Add an entry only for a check that will not happen on its own: one that needs real hardware or a real operating system, or one the user names. Under `Verification: off`, add none; name the owed hardware check in the `## Log` entry instead.
 - **`next_step`** is the single next action, specific enough to start without rereading the conversation.
 
 ## Moving a feature to done

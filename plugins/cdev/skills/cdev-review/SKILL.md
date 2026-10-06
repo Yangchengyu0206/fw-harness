@@ -86,7 +86,7 @@ Re-read the code behind every finding and rule out the false positive: a check t
 
 ### 6. Write the report
 
-Follow [report-format.md](report-format.md) and write it to `docs/reviews/<YYYY-MM-DD>_F-NNN.md`. Keep the two axes under their own headings, in the words the sub-agents used; merging or reranking them undoes the separation.
+Follow [report-format.md](report-format.md) and write it to `docs/reviews/<YYYY-MM-DD>_F-NNN.md`, or `docs/reviews/<YYYY-MM-DD>_<branch>.md` when no feature is known. Keep the two axes under their own headings, in the words the sub-agents used; merging or reranking them undoes the separation.
 
 **Done when:** the file exists, the counts in its table match the findings below it, and the two axes are still separate.
 

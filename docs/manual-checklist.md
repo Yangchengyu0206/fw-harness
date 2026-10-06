@@ -84,6 +84,15 @@ Run once in GitHub Copilot in VS Code and once in Claude Code, each on scratch r
 - [ ] `cdev-grill` asks a round of numbered questions with a recommended answer each, looks facts up itself, and writes the decisions into the root ARCHITECTURE.md.
 - [ ] A term the interview had to clarify lands in `## Terms`, and a term nobody misread does not.
 - [ ] `cdev-guide` names the skill you actually needed.
+- [ ] Copying the skill folders into `.github/skills/` by hand (INSTALL option 2) lists all fourteen commands after a restart.
+- [ ] In VS Code, a new conversation in a repository with the harness opens with `## Now`, the features, and the document state, without being asked; `py -3 tools/hooks.py session-start` prints that JSON when run by hand and returns at once.
+- [ ] In Claude Code, which does not read `.github/hooks/`, a new conversation still opens with the state, from the rule in AGENTS.md.
+- [ ] With `.vscode/settings.json` from `cdev-init`, a file in a read-only folder cannot be edited, and `git push` and `git checkout -- <file>` wait for approval.
+- [ ] `cdev-architecture-sync` writes a document for a new folder, takes a removed one off the map, and leaves `## Decisions and why` and `## Terms` alone.
+- [ ] `cdev-test-gap` ranks untested behaviour P0 to P3 against the domain references.
+- [ ] `cdev-feature` changes `feature_list.json` only through `tools/feature.py`, and adds no `--verify` step under `Verification: off`.
+- [ ] `cdev-done` on a feature that taught something lasting writes a note under `docs/notes/` with a line in NOTES.md, keeps a fact about one machine out of the repository, and the next session's opening lists the line.
+- [ ] `cdev-upgrade` on a 0.2.0 repository adds NOTES.md and the `## Notes that outlive a feature` section, and adds `tools/hooks.py`, `tools/mcp_list.py`, `.github/hooks/cdev.json`, the explorer agent, and `## Terms`, and replaces the invalid `git` rule in `.vscode/settings.json`.
 - [ ] `py -3 tools/feature.py check` fails loudly on a hand-broken `feature_list.json`.
 
 ## Record

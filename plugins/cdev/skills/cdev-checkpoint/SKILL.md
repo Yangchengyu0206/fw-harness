@@ -24,7 +24,7 @@ List, from this conversation:
 
 ### 2. Rewrite `## Now`
 
-Rewrite `## Now` in PROGRESS.md from the list. Keep confirmed facts and open hypotheses apart. Keep it short enough to read at the start of every conversation: a fact that only mattered to a finished step belongs in the next `## Log` entry, not in `## Now`.
+Rewrite `## Now` in PROGRESS.md from the list. Keep confirmed facts and open hypotheses apart. Keep it short enough to read at the start of every conversation: a fact that only mattered to a finished step belongs in the next `## Log` entry, not in `## Now`. A fact that will matter after the feature closes, and is true for anyone who clones the repository, goes into a note as `## Notes that outlive a feature` in AGENTS.md describes.
 
 Make the feature agree with it:
 

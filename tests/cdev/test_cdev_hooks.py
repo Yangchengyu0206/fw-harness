@@ -1,5 +1,6 @@
 """The hooks answer VS Code, so they always print valid JSON and never stop a session."""
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -94,3 +95,64 @@ def test_the_context_stays_small(repo, capsys):
     write(repo, "PROGRESS.md", PROGRESS.replace("## Log", "x " * 20000 + "\n## Log"))
     context = run("session-start", repo, capsys)["hookSpecificOutput"]["additionalContext"]
     assert len(context) <= hooks.LIMIT
+
+
+def test_an_invalid_feature_list_is_not_reported_as_empty(repo, capsys):
+    path = repo / "feature_list.json"
+    path.write_text(path.read_text(encoding="utf-8").replace('"active"', '"in_progress"'), encoding="utf-8")
+    features = run("session-start", repo, capsys)["hookSpecificOutput"]["additionalContext"].split("## Features")[1]
+    assert "unknown, not absent" in features and "in_progress" not in features.split("Fix:")[1]
+    assert "no features" not in features
+
+
+def test_a_progress_file_that_is_not_utf8_keeps_the_rest_of_the_context(repo, capsys):
+    (repo / "PROGRESS.md").write_bytes("## Now\n\n- 中文進度\n".encode("cp950"))
+    context = run("session-start", repo, capsys)["hookSpecificOutput"]["additionalContext"]
+    assert "## Now" in context and "retry on timeout" in context
+
+
+def test_a_byte_order_mark_is_ignored(repo, capsys):
+    (repo / "PROGRESS.md").write_text(PROGRESS, encoding="utf-8-sig")
+    context = run("session-start", repo, capsys)["hookSpecificOutput"]["additionalContext"]
+    assert "the retry fires after 3 ms" in context
+
+
+def test_bad_arguments_answer_nothing_instead_of_exit_two(capsys):
+    assert hooks.main(["Stop"]) == 0
+    assert json.loads(capsys.readouterr().out) == {}
+
+
+def test_running_it_by_hand_does_not_wait_for_stdin(repo):
+    # stdin stays open, as in a terminal: a hook that read it would never exit
+    process = subprocess.Popen([sys.executable, str(TOOLS / "hooks.py"), "stop", "--root", str(repo)],
+                               stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    try:
+        assert process.wait(timeout=20) == 0
+        assert json.loads(process.stdout.read())["continue"] is True
+    finally:
+        process.kill()
+        process.stdin.close()
+        process.stdout.close()
+
+
+def test_stop_stays_quiet_about_drift_that_predates_the_session(repo, capsys):
+    (repo / ".git").mkdir()
+    write(repo, "src/old.c")
+    run("session-start", repo, capsys)
+    assert "systemMessage" not in run("stop", repo, capsys)
+    write(repo, "src/new.c")
+    assert "drifted this session" in run("stop", repo, capsys)["systemMessage"]
+
+
+def test_session_start_lists_the_note_topics_not_their_text(repo, capsys):
+    write(repo, "NOTES.md", "# Notes\n\nintro\n\n## Topics\n\n- [crg](docs/notes/crg.md): before running the review graph\n")
+    write(repo, "docs/notes/crg.md", "# crg\n\nnever run install here\n")
+    context = run("session-start", repo, capsys)["hookSpecificOutput"]["additionalContext"]
+    notes = context.split("## Notes")[1].split("## Architecture documents")[0]
+    assert "- [crg](docs/notes/crg.md): before running the review graph" in notes
+    assert "never run install here" not in context and "intro" not in notes
+
+
+def test_session_start_says_when_there_are_no_notes(repo, capsys):
+    write(repo, "NOTES.md", "# Notes\n\n## Topics\n\nnone yet\n")
+    assert "no notes yet" in run("session-start", repo, capsys)["hookSpecificOutput"]["additionalContext"]

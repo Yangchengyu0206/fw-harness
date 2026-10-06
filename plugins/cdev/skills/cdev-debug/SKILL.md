@@ -101,7 +101,7 @@ Fix where the fault starts, not where it shows. When a bad value surfaces deep i
 
 - **With `Test: none` in AGENTS.md**: add no test framework. Make the smallest change that addresses the confirmed cause and watch the shrunken loop turn green. Then ask the user whether to keep the loop script in the repository as a check for this defect, or delete it.
 - **With a good seam**: turn the shrunken reproduction into a test, watch it fail on the defect, make the smallest change that addresses the confirmed cause, and watch it pass.
-- **With no seam off the target**: add the check to the feature with `py -3 tools/feature.py set F-NNN --verify "..."` and say so. When the architecture is what rules out a seam, tell the user, because that is a finding in its own right.
+- **With no seam off the target**: add the check to the feature with `py -3 tools/feature.py set F-NNN --verify "..."` and say so; under `Verification: off`, name it in the `## Log` entry instead. When the architecture is what rules out a seam, tell the user, because that is a finding in its own right.
 
 When the fix does not turn the loop green, revert it rather than stacking another change on top, and go back to step 4 with what it taught you. After three fixes that did not hold, stop and talk it through with the user before a fourth. When each fix exposes a new problem somewhere else, the design around the defect is the likely cause, and patching symptoms will not converge.
 

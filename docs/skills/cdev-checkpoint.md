@@ -4,7 +4,7 @@ User-invoked. Type `/cdev-checkpoint`.
 
 ## What it does
 
-Writes what the conversation holds into `## Now` in PROGRESS.md: the step in progress, the steps finished, every fact confirmed so far, the hypotheses still open, the next step, and what waits on you. It makes the feature's next step agree, then shows you the result.
+Writes what the conversation holds into `## Now` in PROGRESS.md: the step in progress, the steps finished, every fact confirmed so far, the hypotheses still open, the next step, and what waits on you. A fact that will matter after the feature closes goes into a note under `docs/notes/` instead. It makes the feature's next step agree, then shows you the result.
 
 ## When to reach for it
 

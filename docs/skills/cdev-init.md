@@ -4,7 +4,7 @@ User-invoked. Type `/cdev-init`.
 
 ## What it does
 
-Detects which domains the repository belongs to, then writes AGENTS.md (every rule, with CLAUDE.md importing it), PROGRESS.md, `feature_list.json` with `tools/feature.py` and `tools/doc_check.py`, an ARCHITECTURE.md for the root and every code folder with a line per file and the flows through it, and the VS Code files that guard read-only folders and keep the documents in the agent's view. It runs the whole generation without stopping and hands you the finished result to review in one pass.
+Detects which domains the repository belongs to, then writes AGENTS.md (every rule, with CLAUDE.md importing it), PROGRESS.md, `feature_list.json`, four reporting scripts in `tools/` (`feature.py`, `doc_check.py`, `hooks.py`, `mcp_list.py`), an ARCHITECTURE.md for the root and every code folder with a line per file and the flows through it, empty `## Decisions and why` and `## Terms` tables in the root one, an empty NOTES.md for the facts that outlive a feature, and the VS Code files: settings that guard read-only folders, an instructions file that keeps the documents in the agent's view, the session hooks in `.github/hooks/cdev.json`, and the read-only `cdev-explorer` agent. It runs the whole generation without stopping and hands you the finished result to review in one pass.
 
 ## When to reach for it
 
@@ -20,7 +20,7 @@ Once per repository, on a clean working tree.
 
 **How much verification does it set up?** `Verification: off`, every time. It offers `light` and `full` in the message that hands you the result, and the line is one word to change later. At `off` no skill asks for a board result; a feature still needs your confirmation to become `done`.
 
-**My project builds in AndeSight, Keil, or another vendor IDE.** AGENTS.md then says the build and flashing happen outside the editor. Each feature stops at `verifying` with a checklist for you, and you report the result back. When the IDE's toolchain also runs from a command line, put that command into the Build line and the agent compiles before handing over.
+**My project builds in AndeSight, Keil, or another vendor IDE.** AGENTS.md then says the build and flashing happen outside the editor. Each feature stops at `verifying`, with what to build or flash and what output shows success under `Waiting on the user` in `## Now` (the full checklist at `full`), and you report the result back. When the IDE's toolchain also runs from a command line, put that command into the Build line and the agent compiles before handing over.
 
 **What if I already have an AGENTS.md?** It is left alone. The generated version lands as `AGENTS.md.cdev-proposed` for you to compare.
 

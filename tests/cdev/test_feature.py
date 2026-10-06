@@ -120,3 +120,8 @@ def test_writes_utf8_with_lf(path):
     raw = path.read_bytes()
     assert b"\r\n" not in raw
     assert chr(0xB1) in raw.decode("utf-8")
+
+
+def test_a_byte_order_mark_is_accepted(path, capsys):
+    path.write_text('{"version": 1, "features": []}', encoding="utf-8-sig")
+    assert feature.main(["--file", str(path), "check"]) == 0
