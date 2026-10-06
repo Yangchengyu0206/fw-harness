@@ -57,8 +57,23 @@ def test_the_notes_index_starts_empty_and_hooks_can_read_it():
     assert not [line for line in text.splitlines() if line.startswith("- [")]
 
 
-def test_agents_md_says_where_notes_go_and_what_stays_out():
+def section(heading):
     text = (TEMPLATES / "AGENTS.md").read_text(encoding="utf-8")
-    section = text.split("## Notes that outlive a feature")[1].split("\n## ")[0]
-    assert "docs/notes/<topic>.md" in section and "NOTES.md" in section
-    assert "one person's machine" in section, "personal facts must be kept out of the repository"
+    return text.split(f"\n{heading}\n")[1].split("\n## ")[0]
+
+
+def test_agents_md_says_where_notes_go_and_what_stays_out():
+    text = section("## Notes that outlive a feature")
+    assert "docs/notes/<topic>.md" in text and "NOTES.md" in text
+    assert "one person's machine" in text, "personal facts must be kept out of the repository"
+
+
+def test_agents_md_routes_by_what_the_answer_is_made_of():
+    text = section("## Tools beyond this repository")
+    assert "first" in text and "memory" in text
+    assert "even when the question names a chip" in text
+
+
+def test_agents_md_keeps_git_to_changes_and_history():
+    text = section("## Using git")
+    assert "git grep" in text and "git branch -a" in text

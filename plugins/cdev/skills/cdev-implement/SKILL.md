@@ -23,7 +23,9 @@ Read the `Domains:` and `Verification:` lines in AGENTS.md, then read the refere
 
 Read the feature with `py -3 tools/feature.py show F-NNN`, and the ARCHITECTURE.md of every folder you are about to touch.
 
-**Done when:** you can state the feature's `behavior` in one sentence, name which folder owns the change and what it depends on, and list its `verification` steps if it has any.
+When the change sets a register, a timing, an electrical limit, or follows a vendor sequence, take each value from a document tool now, as `## Tools beyond this repository` in AGENTS.md says, and keep its source (document, page or table) for a comment in the code or the log entry. When another repository or branch already does what the feature asks, read how it does it with a code tool before designing your own.
+
+**Done when:** you can state the feature's `behavior` in one sentence, name which folder owns the change and what it depends on, list its `verification` steps if it has any, and name the source of every hardware value the change will use, or say it is unverified.
 
 ### 2. Decide how you will know it works
 

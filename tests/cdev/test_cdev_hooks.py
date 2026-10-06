@@ -156,3 +156,11 @@ def test_session_start_lists_the_note_topics_not_their_text(repo, capsys):
 def test_session_start_says_when_there_are_no_notes(repo, capsys):
     write(repo, "NOTES.md", "# Notes\n\n## Topics\n\nnone yet\n")
     assert "no notes yet" in run("session-start", repo, capsys)["hookSpecificOutput"]["additionalContext"]
+
+
+def test_session_start_names_the_configured_mcp_servers(repo, capsys, monkeypatch):
+    import mcp_list
+    monkeypatch.setattr(mcp_list, "user_files", lambda: [])
+    write(repo, ".vscode/mcp.json", '{"servers": {"himax-rag": {"url": "http://rag/mcp"}}}')
+    context = run("session-start", repo, capsys)["hookSpecificOutput"]["additionalContext"]
+    assert "configured: himax-rag" in context.split("## MCP servers")[1]

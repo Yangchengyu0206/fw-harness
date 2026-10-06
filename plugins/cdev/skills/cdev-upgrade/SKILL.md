@@ -51,7 +51,8 @@ Check each item. Add only the missing ones, taking the wording from the template
 | Editor settings | `.vscode/settings.json` holds `files.readonlyInclude` and `chat.tools.terminal.autoApprove` | the template's entries, merged into the existing file rather than replacing it. A `git` rule written with single backslashes (`\s`, from 0.2.0) is invalid JSON: replace it with the template's |
 | Path instructions | `.github/instructions/architecture.instructions.md` exists | the template, with `applyTo` covering the editable folders AGENTS.md lists |
 | Session hooks | `.github/hooks/cdev.json` exists and holds `"version": 1` | the template, and `tools/hooks.py` with it |
-| Reaching for a tool | AGENTS.md has the section `## When this repository cannot answer` | the section, and `tools/mcp_list.py` with it |
+| Tools first | AGENTS.md has the section `## Tools beyond this repository` | the section from the template, in place of an older `## When this repository cannot answer`, and `tools/mcp_list.py` with it |
+| Using git | AGENTS.md has the section `## Using git` | the section from the template, after `## Keeping the context small` |
 | Explorer agent | `.github/agents/cdev-explorer.agent.md` exists and its frontmatter has `tools: ['read', 'search']` | the template |
 
 Ask the user which folders they work in when AGENTS.md does not already make it plain, and document those in full.

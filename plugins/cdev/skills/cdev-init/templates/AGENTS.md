@@ -55,7 +55,7 @@ The architecture documents are a map for finding the code. The code is the sourc
 1. Read the topic lines in NOTES.md and open the note whose line matches the question. Read the root ARCHITECTURE.md, including `## Terms` where the question uses one of them, and the one in each folder the question touches. Use their `## Files` and `## Flows` to decide what to open. When a folder's document says it is not documented yet, read that folder and write its document first, with cdev-architecture-sync.
 2. Verify every claim about behaviour in the code. Read whole functions, follow definitions and callers, and follow interrupt handlers and shared state when the path crosses them.
 3. Leave read-only folders out of broad searches. Read vendor code directly when the question turns on it: a HAL call, a register sequence, an SDK driver's locking.
-4. Say where each part of the answer came from: verified in the code (with file and function), or taken from a document without checking.
+4. Say where each part of the answer came from: verified in the code (with file and function), returned by a named tool, or taken from a document without checking.
 5. When a document disagrees with the code, say so and offer the correction.
 
 ## Keeping the context small
@@ -65,15 +65,31 @@ The architecture documents are a map for finding the code. The code is the sourc
 - Send long build or run output to a file and read the errors and the tail: `<command> > build.log 2>&1`.
 - Filter logs and dumps before reading them.
 
-## When this repository cannot answer
+## Using git
 
-This repository holds one branch of one project. Other things live elsewhere, and this session may already carry a tool that reaches them: another branch or another project in git, a register or a timing in a datasheet, a recommended sequence in an application note.
+Git shows this clone's changes and history. It is not how you read or search the code, and each command costs a turn and often an approval.
 
-Before you answer that you do not know, or ask the user to paste something in:
+- Run it when the task is about a change (`git status`, `git diff` for a review, a wrap-up, or a commit message) or about history (`git log`, `git blame`, `git bisect` when the question is when or why something changed).
+- Read and search files with your read and search tools, not `git show`, `git grep`, `git ls-files`, or `git log -p`.
+- Another repository, or a branch this clone does not hold, is not reachable with git here: use a code tool, as `## Tools beyond this repository` says. Do not run `git branch -a`, `git fetch`, or `git log --all` to look for one.
+- Do not run git to re-check what the session opening or `## Now` already told you.
 
-1. Look through the tools you were given this session and pick the one whose description covers the question. `py -3 tools/mcp_list.py` prints the MCP servers configured for this repository and this machine, which is worth running when you suspect a tool exists that is not enabled.
-2. Use it, and name the tool that answered, so the user can tell a documented fact from a guess.
-3. Ask the user only when no tool fits, and say what you looked for.
+## Tools beyond this repository
+
+This repository holds one branch of one project. The tools this session carries (MCP servers among them) may reach the rest: other repositories and branches, datasheets, application notes. They answer from sources; your memory of a part or of someone else's code does not. Reach for them first, not after you run out of ideas.
+
+Always take these from a tool when one covers them, before they go into code, a review, or an answer:
+
+- a register address or bit, a timing, an electrical limit, a pin, a recommended sequence, an erratum: from a document tool. With none available, say the value is unverified memory and ask where it should come from.
+- how another repository or a branch this clone does not hold does something, or where it is implemented: from a code tool, not from local `git` and not from a guess.
+
+Pick the tool by what the answer is made of, not by the words in the question:
+
+- the answer is code (a file, a function, a repository, a branch, how a driver or firmware does something) → a code tool, even when the question names a chip, a part number, or a register. A name shaped like a repository or a branch is code, even when it begins like a part number.
+- the answer is a value or a sentence in a datasheet or an application note → a document tool.
+- the answer needs both (how this firmware sets a register, and what the datasheet says it should be) → call both, the code tool first.
+
+Name the tool each part of the answer came from. When the tool you need is not in this session, `py -3 tools/mcp_list.py` shows which servers are configured, so you can tell the user which one to enable. Ask the user only when no tool fits, and say what you looked for.
 
 ## Notes that outlive a feature
 

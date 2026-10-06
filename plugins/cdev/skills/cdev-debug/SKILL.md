@@ -69,7 +69,9 @@ Build settings are experiments, not clutter. When the defect vanishes at `-O0`, 
 
 ### 4. Rank hypotheses, then prove one
 
-**Compare with code that works.** Find the closest thing that does work: the same driver on another port, the same routine before the regression, or, for an algorithm, the reference implementation it was ported from, such as a MATLAB or NumPy version, run on the same input with intermediate values printed side by side. List every difference between the two, however small, before deciding one cannot matter. The differences are the first hypotheses.
+**Compare with code that works.** Find the closest thing that does work: the same driver on another port, the same routine before the regression, or, for an algorithm, the reference implementation it was ported from, such as a MATLAB or NumPy version, run on the same input with intermediate values printed side by side. List every difference between the two, however small, before deciding one cannot matter. The differences are the first hypotheses. That working code is often in another repository or a branch this clone does not hold: read it with a code tool, as `## Tools beyond this repository` in AGENTS.md says.
+
+**Check the hardware facts against their documents.** When a hypothesis rests on how the part behaves (a register's reset value, a timing, an erratum, the order a datasheet or application note asks for), look it up with a document tool before testing it. A value the code holds that the document contradicts is a hypothesis in its own right.
 
 Write three to five hypotheses, most likely first, each with the prediction that would falsify it:
 

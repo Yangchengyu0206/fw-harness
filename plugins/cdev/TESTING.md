@@ -54,14 +54,14 @@ Of the 14 skills, some the agent reaches on its own (`cdev-implement`, `cdev-rev
 - one standard for finished work, and a feature becomes `done` only when you say so
 - a script reports where the documents no longer match the files
 - vendor folders are read-only and destructive commands wait for you
-- a question this repository cannot answer (another branch, a datasheet) sends the agent to the tools it holds rather than to "I do not know"
+- hardware values and other repositories' code come from the tools it holds first, chosen by what the answer is made of, rather than from the model's memory
 - `/cdev-grill` puts the assumptions under a plan on the table before the work starts
 
 **What it costs**
 
 - the first `/cdev-init` takes a few minutes and one large pass over the repository
 - more documents to keep true. A stale document misleads, which is what `doc_check` and the rules are there to limit, at some cost
-- the rules themselves take about 9 KB of every conversation, and the session hook adds up to 5 KB at the start
+- the rules themselves take about 10 KB of every conversation, and the session hook adds up to 5 KB at the start
 - **most of the behaviour is rule-driven rather than guaranteed.** The model follows it most of the time, and a long conversation is where it slips
 - one small question gains nothing here, and carries a little more weight
 
@@ -98,7 +98,8 @@ Most important first:
 6. **`/cdev-upgrade`.** Run it on a repository set up by an older version. Is everything you wrote still there?
 7. **A long session.** Work on something for a while, type `/cdev-checkpoint`, then open a new conversation and see whether it picks up.
 8. **`/cdev-grill`.** Before starting a piece of work, let it interview you. Are the questions the right ones?
-9. **Notes.** Finish a feature that taught you something lasting, such as how to set up a tool or a command never to run, and type `/cdev-done`. Does it write a note under `docs/notes/` with a line in NOTES.md? Does it keep a fact about your own machine out? Does the next conversation open with that line?
+9. **Tools first.** With your MCP servers enabled, ask about a register value, and separately about how another repository or branch implements something, naming a chip in the second question too. Did each go to the right tool, without being told? Did the answer name it?
+10. **Notes.** Finish a feature that taught you something lasting, such as how to set up a tool or a command never to run, and type `/cdev-done`. Does it write a note under `docs/notes/` with a line in NOTES.md? Does it keep a fact about your own machine out? Does the next conversation open with that line?
 
 ## When you report something
 

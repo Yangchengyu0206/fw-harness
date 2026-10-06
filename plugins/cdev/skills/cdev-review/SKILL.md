@@ -41,11 +41,7 @@ Note which tools this repository already runs, from its build and test commands 
 
 ### 3. Find the callers the change reaches
 
-List every function, macro, class, type, and global whose signature, meaning, units, error returns, locking, or calling context the diff changes. Find their users outside the diff:
-
-```bash
-git grep -n -w <name>
-```
+List every function, macro, class, type, and global whose signature, meaning, units, error returns, locking, or calling context the diff changes. Find their users outside the diff with your search tool, searching each name as a whole word. When the interface is shared with other repositories, ask a code tool for their callers too.
 
 A change often breaks where it is called rather than where it is written: a return value that now means something else, a function that may now sleep, a length now counted in bytes instead of elements, an exception a caller never catches.
 
@@ -82,7 +78,9 @@ When no feature is known, skip the Spec sub-agent and say so in the report.
 
 Re-read the code behind every finding and rule out the false positive: a check that already happened earlier on the path, a bound the caller guarantees, a lock that is held after all, a caller the same range already updated. Drop what does not survive, drop anything the tools already catch, and lower the confidence of anything resting on thin evidence.
 
-**Done when:** every finding left has been re-read against the code, and you can say why each one is real.
+Then check the hardware values the diff adds or changes (register addresses and bits, timings, limits, sequences) against a document tool, as `## Tools beyond this repository` in AGENTS.md says. A value the document contradicts is a rule finding; a value no source confirms is a finding with low confidence that names what to look up.
+
+**Done when:** every finding left has been re-read against the code, you can say why each one is real, and every hardware value in the diff is confirmed by a named source or reported as unconfirmed.
 
 ### 6. Write the report
 

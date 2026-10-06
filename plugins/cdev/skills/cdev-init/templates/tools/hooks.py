@@ -70,6 +70,19 @@ def notes_index(root):
     return clip("Open a note when its line matches the work.\n" + "\n".join(lines), NOTES_LIMIT)
 
 
+def tool_servers(root):
+    """The MCP servers configured here, so the agent knows what to reach for before it answers from memory."""
+    try:
+        import mcp_list
+    except ImportError:
+        return "tools/mcp_list.py is missing. Fix: run cdev-upgrade."
+    servers = mcp_list.names(root)
+    if not servers:
+        return "no MCP server is configured for this repository or this machine"
+    return clip(f"configured: {', '.join(servers)}. Reach for them first, as `## Tools beyond this repository` "
+                "in AGENTS.md says; a server missing from your tool list is configured but not enabled.", 600)
+
+
 def drift(root):
     """(problems, waiting) from doc_check; raises ImportError when the script is missing."""
     import doc_check
@@ -122,6 +135,7 @@ def session_context(root):
         f"{guarded(now_section, root)}\n\n"
         f"## Features\n\n{guarded(feature_lines, root)}\n\n"
         f"## Notes\n\n{guarded(notes_index, root)}\n\n"
+        f"## MCP servers\n\n{guarded(tool_servers, root)}\n\n"
         f"## Architecture documents\n\n{guarded(documents, root)}"
     )
     return text[:LIMIT]

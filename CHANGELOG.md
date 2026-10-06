@@ -10,7 +10,9 @@ A repository set up by 0.2.0 picks all of this up with `/cdev-upgrade`. There wa
 - **The session opens itself.** `.github/hooks/cdev.json` and `tools/hooks.py` put `## Now`, the feature list, and the document check in front of the agent at the start of a VS Code session, and report document drift the session added when it stops. Hooks are a VS Code preview; where they do not run, the rule in AGENTS.md does the opening.
 - **`cdev-explorer`**, a read-only agent (read and search tools only) that reads code in its own context and returns the answer with `path:line` citations.
 - **`/cdev-grill`**, an interview before the work that records each decision with its reason. Adapted from mattpocock/skills.
-- **`## When this repository cannot answer`** in AGENTS.md, and `tools/mcp_list.py`: the agent reaches for the tools it holds before answering that it does not know.
+- **Tools first.** `## Tools beyond this repository` in AGENTS.md has the agent take hardware values (registers, timings, limits, sequences, errata) from a document tool and other repositories' code from a code tool before they go into code, a review, or an answer, instead of from memory. It picks the tool by what the answer is made of, so a question about code goes to a code tool even when it names a chip. cdev-implement, cdev-debug, and cdev-review each check hardware values against their source, and the session hook names the configured MCP servers.
+- **`## Using git`** in AGENTS.md: git is for changes and history, not for reading or searching code, and never for finding another repository or a branch this clone does not hold. cdev-review finds callers with the search tool instead of `git grep`.
+- `tools/mcp_list.py` lists the servers configured for this repository and this machine, including VS Code `settings.json`, `~/.claude.json` and its per-project entries, and files with comments or trailing commas; a file it cannot read is reported rather than counted as empty.
 - **`## Terms`** in the root ARCHITECTURE.md, for the words this project reads differently.
 - **TESTING.md** and TESTING.zh-TW.md for the first people trying cdev.
 - A CHANGELOG.

@@ -4,7 +4,7 @@ User-invoked. Type `/cdev-upgrade`.
 
 ## What it does
 
-Brings a repository set up by an older version of the plugin up to the current shape: replaces the four scripts under `tools/`, adds the missing AGENTS.md sections (including `## When this repository cannot answer`) and refreshes the sentences an older version wrote differently (the hook-aware opening, the `## Terms` pointer, the explorer delegation), adds the `Verification:` line, the `## Now` fields, `## Terms`, NOTES.md with its section in AGENTS.md, the `## Files` and `## Flows` sections, the session hooks, the explorer agent, and the VS Code files, then hands you the whole diff. Sentences you wrote stay where they are.
+Brings a repository set up by an older version of the plugin up to the current shape: replaces the four scripts under `tools/`, adds the missing AGENTS.md sections (including `## Tools beyond this repository`, which replaces an older `## When this repository cannot answer`) and refreshes the sentences an older version wrote differently (the hook-aware opening, the `## Terms` pointer, the explorer delegation), adds the `Verification:` line, the `## Now` fields, `## Terms`, NOTES.md with its section in AGENTS.md, the `## Files` and `## Flows` sections, the session hooks, the explorer agent, and the VS Code files, then hands you the whole diff. Sentences you wrote stay where they are.
 
 ## When to reach for it
 
