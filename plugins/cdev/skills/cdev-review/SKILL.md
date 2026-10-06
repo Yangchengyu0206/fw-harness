@@ -78,7 +78,7 @@ When no feature is known, skip the Spec sub-agent and say so in the report.
 
 Re-read the code behind every finding and rule out the false positive: a check that already happened earlier on the path, a bound the caller guarantees, a lock that is held after all, a caller the same range already updated. Drop what does not survive, drop anything the tools already catch, and lower the confidence of anything resting on thin evidence.
 
-Then check the hardware values the diff adds or changes (register addresses and bits, timings, limits, sequences) against a document tool, as `## Tools beyond this repository` in AGENTS.md says. A value the document contradicts is a rule finding; a value no source confirms is a finding with low confidence that names what to look up.
+Then run `py -3 tools/value_check.py`, and check the hardware values the diff adds or changes (register addresses and bits, timings, limits, sequences) against a document tool, as `## Tools beyond this repository` in AGENTS.md says. A value the document contradicts is a rule finding; a value no source confirms is a finding with low confidence that names what to look up.
 
 **Done when:** every finding left has been re-read against the code, you can say why each one is real, and every hardware value in the diff is confirmed by a named source or reported as unconfirmed.
 

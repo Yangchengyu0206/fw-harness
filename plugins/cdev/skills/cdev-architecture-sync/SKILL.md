@@ -19,7 +19,7 @@ The templates are [ARCHITECTURE.folder.md](../cdev-init/templates/ARCHITECTURE.f
 py -3 tools/doc_check.py
 ```
 
-It lists files missing from or added to each `## Files`, and folder documents the root map does not link. Then list the code folders two levels deep and compare them with the map in the root ARCHITECTURE.md. For folders that exist in both, compare each folder's `## Depends on` with what its code now includes or imports, and each step of `## Flows` with the functions it names.
+It lists files missing from or added to each `## Files`, and folder documents the root map does not link. Then list the code folders two levels deep, inside the submodules AGENTS.md lists as edited too, and compare them with the map in the root ARCHITECTURE.md. A submodule that is only used keeps its one map row and gets no document. For folders that exist in both, compare each folder's `## Depends on` with what its code now includes or imports, and each step of `## Flows` with the functions it names.
 
 **Done when:** you have a list of folders that are new, removed, or whose files, flows, or dependencies changed, each with the file, include, or function that shows it.
 

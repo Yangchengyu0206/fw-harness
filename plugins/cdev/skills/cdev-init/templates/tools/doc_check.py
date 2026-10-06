@@ -21,7 +21,34 @@ NOTE_LINK_RE = re.compile(r"\]\(\s*(?:<(?:\./)?(docs/notes/[^>]+\.md)>|(?:\./)?(
 
 
 def repository_files(root):
-    """Every file git would show (tracked or untracked, not ignored), or every file outside dot folders."""
+    """Every file git would show (tracked or untracked, not ignored), including those of checked-out
+    submodules, or every file outside dot folders. A submodule worked in here is documented like any
+    folder, so its files are part of what the documents must match."""
+    root = Path(root)
+    found = own_files(root)
+    for module in submodules(root):
+        if (root / module / ".git").exists():
+            found += [f"{module}/{name}" for name in own_files(root / module)]
+    return sorted(set(found))
+
+
+def personal_markdown(root):
+    """Markdown a personal harness keeps out of commits through info/exclude (tools/personal.py).
+    Hidden from git's usual listing, it is still the documents this check compares."""
+    try:
+        where = subprocess.run(["git", "rev-parse", "--git-path", "info/exclude"], cwd=root, capture_output=True)
+        exclude = Path(where.stdout.decode("utf-8").strip())
+        exclude = exclude if exclude.is_absolute() else Path(root) / exclude
+        if where.returncode != 0 or not exclude.is_file():
+            return []
+        result = subprocess.run(["git", "ls-files", "--others", "--ignored", f"--exclude-from={exclude}", "-z",
+                                 "--", "*.md"], cwd=root, capture_output=True)
+    except OSError:
+        return []
+    return result.stdout.decode("utf-8").split("\0") if result.returncode == 0 else []
+
+
+def own_files(root):
     root = Path(root)
     if (root / ".git").exists():
         try:
@@ -31,6 +58,7 @@ def repository_files(root):
             result = None
         if result is not None and result.returncode == 0:
             names = result.stdout.decode("utf-8").split("\0")
+            names += personal_markdown(root)
             return sorted({name for name in names if name and (root / name).is_file()})
     found = []
     for folder, dirs, files in os.walk(root):
@@ -79,6 +107,16 @@ def linked_documents(text):
     return links
 
 
+def submodules(root):
+    """The submodule paths .gitmodules declares. Their files belong to their own repositories, so this
+    repository documents them only as rows in the root map, never with files inside them."""
+    path = Path(root) / ".gitmodules"
+    if not path.is_file():
+        return []
+    found = re.findall(r"^\s*path\s*=\s*(.+?)\s*$", read(path), re.MULTILINE)
+    return [PurePosixPath(p.replace("\\", "/")).as_posix() for p in found]
+
+
 def note_problems(root, files):
     """NOTES.md links a note that is gone, or a note in docs/notes/ has no line in NOTES.md."""
     notes = [name for name in files if name.startswith(NOTES_DIR + "/") and name.endswith(".md")]
@@ -97,7 +135,6 @@ def check(root):
     problems = []
     waiting = []
     folder_docs = [name for name in files if PurePosixPath(name).name == DOC and "/" in name]
-
     for doc in folder_docs:
         folder = str(PurePosixPath(doc).parent)
         patterns = listed_patterns(read(root / doc))
@@ -120,13 +157,18 @@ def check(root):
     if not root_doc.is_file():
         problems.append(f"{DOC} is missing at the repository root")
     else:
-        linked = linked_documents(read(root_doc))
+        text = read(root_doc)
+        linked = linked_documents(text)
+        modules = submodules(root)
         for link in sorted(linked):
             if link not in files:
                 problems.append(f"{DOC}: the map links {link}, which does not exist")
         for doc in folder_docs:
             if doc not in linked:
                 problems.append(f"{DOC}: the map does not link {doc}")
+        for path in modules:
+            if not re.search(r"(?<![\w/.-])" + re.escape(path) + r"(?![\w.-])", text):
+                problems.append(f"{DOC}: the map does not mention the submodule {path}")
     problems += note_problems(root, files)
     return problems, sorted(waiting)
 

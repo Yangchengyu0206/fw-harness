@@ -22,11 +22,11 @@ Confirm the repository root with the user, and that `git status --porcelain` is 
 
 ### 2. Replace the scripts
 
-`tools/feature.py`, `tools/doc_check.py`, `tools/hooks.py`, and `tools/mcp_list.py` belong to the plugin. Copy them from the templates over whatever is there, and add the ones the repository has none of.
+`tools/feature.py`, `tools/doc_check.py`, `tools/hooks.py`, `tools/mcp_list.py`, `tools/value_check.py`, and `tools/personal.py` belong to the plugin. Copy them from the templates over whatever is there, and add the ones the repository has none of.
 
 The tree was clean, so `git diff tools/` shows exactly what the copy changed. Read it: where it removes something that looks like a local change rather than an older version of the plugin's code, restore the user's file, put the new version beside it as `<name>.cdev-proposed`, and say so in step 5.
 
-**Done when:** all four run: `py -3 tools/feature.py check`, `py -3 tools/doc_check.py`, `py -3 tools/hooks.py session-start`, and `py -3 tools/mcp_list.py`.
+**Done when:** all six run: `py -3 tools/feature.py check`, `py -3 tools/doc_check.py`, `py -3 tools/hooks.py session-start`, `py -3 tools/mcp_list.py`, `py -3 tools/value_check.py`, and `py -3 tools/personal.py --check`.
 
 ### 3. Add what is missing
 
@@ -53,6 +53,10 @@ Check each item. Add only the missing ones, taking the wording from the template
 | Session hooks | `.github/hooks/cdev.json` exists and holds `"version": 1` | the template, and `tools/hooks.py` with it |
 | Tools first | AGENTS.md has the section `## Tools beyond this repository` | the section from the template, in place of an older `## When this repository cannot answer`, and `tools/mcp_list.py` with it |
 | Using git | AGENTS.md has the section `## Using git` | the section from the template, after `## Keeping the context small` |
+| Hardware values | AGENTS.md has the section `## Hardware values are never written from memory` | the section from the template, right after the opening line, and `tools/value_check.py` |
+| Sharing | AGENTS.md has a `Sharing:` line | the line and its two bullets from the template. Ask the user: `personal` when the harness's files were never committed, then run `py -3 tools/personal.py`; `team` when they are already in the repository's history |
+| Commit asks first | `Ask before` in `## Where to work` lists `git commit` | the template's line |
+| Submodules | when `.gitmodules` exists: `## Where to work` has the `Submodules` paragraph naming each one's kind, and `doc_check` reports no submodule missing from the map | the paragraph with one line per submodule and a map row for each. Ask the user which kind each one is: edited a lot, edited now and then, or only used. A submodule an older version locked under `Read-only` or in `files.readonlyInclude` only for being a submodule comes out of both unless the user says it is only used and read-only. For one edited a lot, document it as the folders the user works in |
 | Explorer agent | `.github/agents/cdev-explorer.agent.md` exists and its frontmatter has `tools: ['read', 'search']` | the template |
 
 Ask the user which folders they work in when AGENTS.md does not already make it plain, and document those in full.

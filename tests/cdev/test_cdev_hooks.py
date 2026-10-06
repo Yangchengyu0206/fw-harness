@@ -164,3 +164,12 @@ def test_session_start_names_the_configured_mcp_servers(repo, capsys, monkeypatc
     write(repo, ".vscode/mcp.json", '{"servers": {"himax-rag": {"url": "http://rag/mcp"}}}')
     context = run("session-start", repo, capsys)["hookSpecificOutput"]["additionalContext"]
     assert "configured: himax-rag" in context.split("## MCP servers")[1]
+
+
+def test_stop_reports_a_hardware_value_added_without_a_source(repo, capsys):
+    subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+    subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", "add", "-A"], cwd=repo, check=True)
+    subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "base"], cwd=repo, check=True)
+    write(repo, "src/hx.h", "#define HX_REG_REPORT_RATE 0xD5u\n")
+    message = run("stop", repo, capsys).get("systemMessage", "")
+    assert "HX_REG_REPORT_RATE = 0xD5" in message and "UNVERIFIED" in message

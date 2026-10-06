@@ -2,6 +2,14 @@
 
 Entry point for any agent working in this repository. Every rule the agent follows is in this file; CLAUDE.md only imports it.
 
+## Hardware values are never written from memory
+
+A register address or bit, a timing, an electrical limit, a pin, or a vendor sequence comes from a document or from the user, never from what a part usually looks like.
+
+- Take it from a document tool (`## Tools beyond this repository`) or the user, and cite the source beside it: `/* HX83102-J02 datasheet, Table 7-3 */`.
+- With no source available, still write the code, but mark each such value `/* UNVERIFIED: <what to look up> */`, and name those values in your reply.
+- `py -3 tools/value_check.py` lists values added without either, and the stop hook reports them.
+
 ## Domains
 
 Domains: {{DOMAINS}}
@@ -30,8 +38,20 @@ Read-only (vendor or generated; upgrade from the source instead of editing here)
 
 {{READ_ONLY}}
 
+Submodules (other repositories checked out here):
+
+{{SUBMODULES}}
+
+A submodule is another repository checked out here, and its code is on disk, so read it directly. One that is edited here is documented like any folder, with its ARCHITECTURE.md files inside it; one that is only used gets a row in the root map and nothing written inside it. A change inside a submodule is committed in that submodule first, on its branch (`git -C <path> switch <branch>` when it sits on a detached HEAD, so the commit is not lost), and then its new pointer here; ask before both.
+
+Sharing: {{SHARING}}
+
+- `personal`: the harness is this developer's own for now. Every `.md` file, here and in each submodule, and the harness's scripts, feature list, hook, and editor settings stay out of commits through `.git/info/exclude`, which is never pushed. `py -3 tools/personal.py` sets it, and `--check` reports a submodule checked out since. Never `git add -f` one of them.
+- `team`: the harness's files are committed with the code, so everyone who clones the repository has them. Switching from `personal`: `py -3 tools/personal.py --team`, change this line, then commit the files, inside each edited submodule first.
+
 Ask before any of these:
 
+- `git commit`, unless the user asked you to commit; otherwise draft the message and let them run it
 - `git clean`, `git push`, force pushes, and rewriting history
 - deleting a file the current task did not create
 - editing a read-only folder
@@ -80,7 +100,7 @@ This repository holds one branch of one project. The tools this session carries 
 
 Always take these from a tool when one covers them, before they go into code, a review, or an answer:
 
-- a register address or bit, a timing, an electrical limit, a pin, a recommended sequence, an erratum: from a document tool. With none available, say the value is unverified memory and ask where it should come from.
+- a register address or bit, a timing, an electrical limit, a pin, a recommended sequence, an erratum: from a document tool, as `## Hardware values are never written from memory` says.
 - how another repository or a branch this clone does not hold does something, or where it is implemented: from a code tool, not from local `git` and not from a guess.
 
 Pick the tool by what the answer is made of, not by the words in the question:
@@ -110,7 +130,7 @@ Name the tool each part of the answer came from. When the tool you need is not i
 4. Test: {{TEST}}
 5. Run: {{RUN}}
 6. After each step, rewrite `## Now` in PROGRESS.md: what is done, the facts confirmed so far, and the next step. Write a confirmed fact (an address, a timing, a call order) there the moment it is confirmed; a long conversation gets summarised and loses details that live only in chat.
-7. Before the first change inside a folder whose document says it is not documented yet, write that document with cdev-architecture-sync.
+7. Before the first change inside a folder whose document says it is not documented yet, or a folder of an edited submodule that has no document yet, write that document with cdev-architecture-sync.
 8. When a change adds, removes, or renames a file, changes what a folder depends on, or changes a flow a document describes, update that folder's ARCHITECTURE.md in the same change.
 9. When the code is written and a step is still owed, set the feature to `verifying` with `py -3 tools/feature.py set F-NNN --status verifying --next "<the step>"`, as far as the `Verification:` section above asks. Under `full`, write the checklist under `Waiting on the user` in `## Now`: what to build, what to flash or load, what to do, what output shows success, and what shows failure.
 10. Propose closing the feature against `## What done means`, with the commands and output (or the user's reported result) and the documents you changed. Under `off`, say what has not been checked on real hardware. The user confirms before the feature becomes `done`; for the full wrap-up, suggest they type `/cdev-done`.

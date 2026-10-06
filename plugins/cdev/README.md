@@ -65,6 +65,8 @@ tools/feature.py     keeps feature_list.json valid
 tools/doc_check.py   reports where the architecture documents no longer match the files
 tools/hooks.py       answers the session hooks
 tools/mcp_list.py    lists the MCP servers configured here
+tools/value_check.py reports hardware values added without a source
+tools/personal.py    keeps the personal harness out of commits (.git/info/exclude)
 .vscode/settings.json
                      read-only folders cannot be edited; destructive commands need your approval
 .github/instructions/architecture.instructions.md

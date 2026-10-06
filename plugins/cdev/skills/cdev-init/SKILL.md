@@ -40,16 +40,17 @@ Leave the harness's own folders out of the signals: `.github/`, `.claude/`, `.vs
 
 Nothing is committed yet, so the whole result stays a draft the user can change. Do all of this, then stop:
 
-1. Copy `templates/tools/feature.py`, `templates/tools/doc_check.py`, `templates/tools/hooks.py`, and `templates/tools/mcp_list.py` into `tools/`, and `templates/feature_list.json` to `feature_list.json`.
-2. Scan the code folders two levels deep, leaving out the same harness folders as step 2. A folder named like `third_party`, `vendor`, `external`, or a vendor SDK, or whose files carry a generated marker in their first lines, is read-only.
-3. Write an `ARCHITECTURE.md` for each code folder, choosing the depth per folder so a large repository still finishes in one pass:
+1. Copy `templates/tools/feature.py`, `templates/tools/doc_check.py`, `templates/tools/hooks.py`, `templates/tools/mcp_list.py`, `templates/tools/value_check.py`, and `templates/tools/personal.py` into `tools/`, and `templates/feature_list.json` to `feature_list.json`.
+2. Read `.gitmodules`, or run `git submodule status`, for the submodules. A submodule is another repository checked out here, and it is not vendor code for being one: a project's most edited code often lives in one. Each submodule is one of three kinds, and the user decides which in step 4. **Edited a lot**: documented like any folder, with its ARCHITECTURE.md files written inside it. **Edited now and then**: listed as edited here, with nothing written inside it yet; a folder's document is written there when the work first reaches it. **Only used**: a row in the map and nothing written inside it. Until the user answers, treat a submodule the build compiles from and recent commits touch as edited a lot, and the others as only used, and flag the guess in step 4. Every submodule gets a row in the root map (its path, what it does, and the `url` it comes from) and a line in `{{SUBMODULES}}`. A submodule whose folder is empty is not initialised: say so in its row.
+3. Scan the code folders two levels deep, leaving out the same harness folders as step 2 and the submodules that are only used. A folder named like `third_party`, `vendor`, `external`, or a vendor SDK, or whose files carry a generated marker in their first lines, is read-only.
+4. Write an `ARCHITECTURE.md` for each code folder, inside the submodules edited a lot too, choosing the depth per folder so a large repository still finishes in one pass:
    - **The folders the user works in**, up to about five: read their code and write the full document from `templates/ARCHITECTURE.folder.md`. Read the functions a flow passes through before writing the flow.
    - **Every other folder**, including read-only ones and any folder too large to read in this pass: write `templates/ARCHITECTURE.stub.md` with a responsibility line taken from its README, its file names, and its entry points. `doc_check` reports a stub as waiting rather than as drift, and cdev-architecture-sync fills it when the work first reaches that folder.
 
    When the user has not said where they work, take the folders the build files name as the product's own code, and say in step 4 which ones you chose.
-4. Write `ARCHITECTURE.md` at the root from `templates/ARCHITECTURE.root.md`, and `AGENTS.md`, `CLAUDE.md`, `PROGRESS.md`, and `NOTES.md` from their templates. `docs/notes/` stays absent until the first note.
-5. Write `.vscode/settings.json`, `.github/instructions/architecture.instructions.md`, `.github/hooks/cdev.json`, and `.github/agents/cdev-explorer.agent.md` from the templates of the same path. GitHub Copilot in VS Code reads all four: the settings make read-only folders uneditable and keep destructive terminal commands from running without the user's approval, the instructions reach the agent whenever it works on code a document describes, the hooks put the state of the work in front of the agent at the start of a session and report document drift at the end, and the explorer agent reads code in its own context so the main conversation keeps room.
-6. Run `py -3 tools/feature.py check`, `py -3 tools/doc_check.py`, and `py -3 tools/mcp_list.py`.
+5. Write `ARCHITECTURE.md` at the root from `templates/ARCHITECTURE.root.md`, and `AGENTS.md`, `CLAUDE.md`, `PROGRESS.md`, and `NOTES.md` from their templates. `docs/notes/` stays absent until the first note.
+6. Write `.vscode/settings.json`, `.github/instructions/architecture.instructions.md`, `.github/hooks/cdev.json`, and `.github/agents/cdev-explorer.agent.md` from the templates of the same path. GitHub Copilot in VS Code reads all four: the settings make read-only folders uneditable and keep destructive terminal commands from running without the user's approval, the instructions reach the agent whenever it works on code a document describes, the hooks put the state of the work in front of the agent at the start of a session and report document drift at the end, and the explorer agent reads code in its own context so the main conversation keeps room.
+7. Run `py -3 tools/personal.py`, so nothing written here or inside a submodule can reach a commit, then `py -3 tools/feature.py check`, `py -3 tools/doc_check.py`, `py -3 tools/mcp_list.py`, and `py -3 tools/value_check.py`.
 
 Fill every placeholder from what you found:
 
@@ -57,9 +58,11 @@ Fill every placeholder from what you found:
 |---|---|
 | `{{PROJECT}}` | the repository's name, from its folder or its build files |
 | `{{DOMAINS}}` | the detected set, comma separated, for example `firmware, python` |
+| `{{SHARING}}` | `personal`. A harness starts as the developer's own; step 4 says how to share it |
 | `{{VERIFICATION}}` | `off`. Every repository starts there, and step 4 offers the other two |
 | `{{EDITABLE}}` | a bullet list of the folders the user owns |
 | `{{READ_ONLY}}` | a bullet list of vendor and generated folders, or `none` |
+| `{{SUBMODULES}}` | one bullet per submodule: the path in backticks, what it does, where it comes from, and `edited a lot`, `edited now and then`, or `only used`. `none` when the repository has no submodules |
 | `{{BUILD}}` | the build command in backticks, from the repository's build files; when there are none, the Build and test section of the domain's reference. When the project builds only inside a vendor IDE (AndeSight, Keil, IAR, MCUXpresso, or any Eclipse-based IDE whose project files you find), write `in <IDE>, outside this editor; the user builds and reports the errors` |
 | `{{TEST}}` | the test command in backticks, from the repository's own test setup, or `none` when it has no tests. Never take it from a reference, and never add a test framework here |
 | `{{RUN}}` | the command in backticks that runs the program or its main example, from the README, the build files, or the entry point. For firmware flashed from a vendor IDE, write `flashed and run by the user`. Write `unknown` when none is found |
@@ -74,8 +77,8 @@ Fill every placeholder from what you found:
 | `{{ENTRY_POINTS}}` | the functions or commands other code is meant to call |
 | `{{DEPENDS_ON}}` | the folders and libraries it includes or imports |
 | `{{NOTES}}` | what the domain needs recorded: interrupts, shared state, and stack for firmware; locking and context for drivers; external services and hardware for Python |
-| `{{READ_ONLY_GLOBS}}` | a JSON object with one `"<folder>/**": true` entry per read-only folder, or `{}` when there are none |
-| `{{CODE_GLOBS}}` | the editable code folders as comma-separated globs, for example `src/**,drivers/**` |
+| `{{READ_ONLY_GLOBS}}` | a JSON object with one `"<folder>/**": true` entry per read-only folder, or `{}` when there are none. A submodule goes in only when the user says it is read-only here |
+| `{{CODE_GLOBS}}` | the editable code folders as comma-separated globs, submodules that are edited included, for example `src/**,ALG/**` |
 
 **Done when:** every file exists, no `{{` remains in any file you wrote, `feature.py check` passes, `doc_check.py` reports no drift, listing the stubs as waiting, and `py -3 tools/hooks.py session-start` prints JSON holding `## Now`.
 
@@ -84,11 +87,13 @@ Fill every placeholder from what you found:
 One message, with the finished work rather than a plan for it:
 
 - the domain set, and the file behind each domain
+- the submodules: each one's role, source, and the kind you chose, with the guess flagged. Ask which kind each one is in this project. Say that documents in a submodule edited a lot were written inside it and are committed in that submodule's own repository, on its branch rather than a detached HEAD
 - a table of code folders: role, depends on, read-only or not, documented in full or left as a stub for later, and a Note column flagging every guess (a folder classified read-only from its name alone, a responsibility inferred from little code, a flow written from part of its path, a build command taken from a reference because the repository had none, a run command marked `unknown`)
 - which MCP servers `mcp_list.py` found, or that none is configured, and that the agent is told to reach for a tool before answering that it does not know
 - that agent hooks are in preview in VS Code and do not run in Claude Code: the session hook makes the opening automatic where it runs, and the rules in AGENTS.md cover the case where it does not
 - whether the build and the run happen in this editor or in a vendor IDE. When they happen in an IDE, say that each feature will stop at `verifying` with a line under `Waiting on the user` saying what to build or flash and what output shows success (a full checklist under `full`), and ask whether the IDE's toolchain can be run from a command line
 - whether the repository has tests. When it has none, say plainly that the skills will not add any unless asked, and will run each change on a real input instead
+- that the harness is personal: `.git/info/exclude` keeps every `.md` file, here and in the submodules, and the harness's other files out of commits, and nothing is pushed. Sharing it later means setting `Sharing: team`, removing those lines from `info/exclude`, and committing the files
 - every `.cdev-proposed` file, and why it exists
 - that NOTES.md indexes the facts that outlive a feature, and that a fact about one person's machine stays out of the repository
 - what is left to the user: the decisions table in the root ARCHITECTURE.md and the first features

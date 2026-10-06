@@ -4,7 +4,7 @@ Harnesses and skills for C and Python development, for GitHub Copilot in VS Code
 
 ## Status: preview
 
-`cdev` is at 0.4.0 ([changes](CHANGELOG.md)) and `fw-c-harness` at 0.1.0. Both are complete and their scripts are covered by automated tests, but the skills have not yet been run end to end by a real agent. Expect rough edges, and please report them in [GitHub issues](https://github.com/Yangchengyu0206/fw-harness/issues).
+`cdev` is at 0.5.0 ([changes](CHANGELOG.md)) and `fw-c-harness` at 0.1.0. Both are complete and their scripts are covered by automated tests, but the skills have not yet been run end to end by a real agent. Expect rough edges, and please report them in [GitHub issues](https://github.com/Yangchengyu0206/fw-harness/issues).
 
 Known limits in this version:
 
@@ -27,7 +27,7 @@ This marketplace holds two plugins. Install one per repository.
 | State | one ticket file per feature, with who changed what | one `feature_list.json`, a `PROGRESS.md`, and NOTES.md for what outlives a feature |
 | Review | by someone other than the author | self-review, with every finding re-verified |
 | State that survives a long conversation | the ticket files and handoffs | `## Now` in PROGRESS.md, rewritten after every step, with `/cdev-checkpoint` to save the rest |
-| Scripts written into the repository | the gate and state scripts | four in `tools/`: `feature.py`, `doc_check.py`, `hooks.py`, `mcp_list.py`, all reporting only |
+| Scripts written into the repository | the gate and state scripts | six in `tools/`: `feature.py`, `doc_check.py`, `hooks.py`, `mcp_list.py`, `value_check.py`, `personal.py`; none blocks a commit |
 | Install | `fw-c-harness` from `@agentPlugins` in VS Code | `cdev` from `@agentPlugins` in VS Code, or from a zip on a machine with no marketplace |
 | Keeping a repository current | `/fw-harness-upgrade` | `/cdev-upgrade` |
 

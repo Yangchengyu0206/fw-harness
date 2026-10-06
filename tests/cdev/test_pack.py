@@ -32,6 +32,8 @@ REQUIRED = (
     "cdev/skills/cdev-init/templates/.github/agents/cdev-explorer.agent.md",
     "cdev/skills/cdev-init/templates/tools/hooks.py",
     "cdev/skills/cdev-init/templates/tools/mcp_list.py",
+    "cdev/skills/cdev-init/templates/tools/value_check.py",
+    "cdev/skills/cdev-init/templates/tools/personal.py",
     "cdev/skills/cdev-init/templates/NOTES.md",
     "cdev/CHANGELOG.md",
 )

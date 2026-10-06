@@ -65,6 +65,9 @@ Run once in GitHub Copilot in VS Code and once in Claude Code, each on scratch r
 - [ ] With an MCP server configured, a register value is taken from the document tool before it goes into code or an answer, without being told to, and the answer names the tool.
 - [ ] A question about how another repository or branch does something goes to the code tool even when it names a chip, and a repository name shaped like a part number is not sent to the document tool.
 - [ ] The session opening lists the configured MCP servers.
+- [ ] On a repository with submodules, `cdev-init` lists each in the root map and under `Submodules` in AGENTS.md, documents the one edited a lot inside it, writes nothing inside one only used, and asks which kind each is rather than locking them.
+- [ ] After `cdev-init`, `git status` in the repository and in each submodule shows none of the harness's files, and `py -3 tools/personal.py --check` passes.
+- [ ] Asked to add a register setting with no datasheet tool enabled, the agent marks the value `/* UNVERIFIED: ... */` and says so, and `value_check` and the stop hook report a value left without either.
 - [ ] Over a working session, the agent reads and searches files with its tools rather than `git show` or `git grep`, and runs no `git branch -a` or `git fetch` to find another branch.
 - [ ] `py -3 tools/mcp_list.py` lists the servers from `.vscode/mcp.json` and from the user configuration.
 - [ ] `cdev-session-start` proposes a feature and stops for your answer before writing code.

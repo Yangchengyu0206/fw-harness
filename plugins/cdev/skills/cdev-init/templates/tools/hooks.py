@@ -141,16 +141,32 @@ def session_context(root):
     return text[:LIMIT]
 
 
+def unsourced_values(root):
+    """Hardware values added since the last commit with no source; [] when the check cannot run."""
+    try:
+        import value_check
+        return value_check.unsourced(root)
+    except Exception:  # noqa: BLE001
+        return []
+
+
 def stop_answer(root):
     answer = {"continue": True}
+    messages = []
     try:
         problems, _ = drift(root)
+        if len(problems) > baseline(root):
+            messages.append(f"the architecture documents drifted this session ({len(problems)} drift(s) now). "
+                            "Fix: update the documents, or run cdev-architecture-sync.")
     except Exception:  # noqa: BLE001
-        return answer
-    if len(problems) > baseline(root):
-        answer["systemMessage"] = (f"cdev: the architecture documents drifted this session "
-                                   f"({len(problems)} drift(s) now). "
-                                   "Fix: update the documents, or run cdev-architecture-sync.")
+        pass
+    values = unsourced_values(root)
+    if values:
+        shown = ", ".join(f"{name} = {value} ({path}:{line})" for path, line, name, value in values[:5])
+        messages.append(f"{len(values)} hardware value(s) added without a source: {shown}. "
+                        "Fix: cite the datasheet or note in a comment, or mark /* UNVERIFIED: ... */ and tell the user.")
+    if messages:
+        answer["systemMessage"] = "cdev: " + " ".join(messages)
     return answer
 
 

@@ -77,3 +77,24 @@ def test_agents_md_routes_by_what_the_answer_is_made_of():
 def test_agents_md_keeps_git_to_changes_and_history():
     text = section("## Using git")
     assert "git grep" in text and "git branch -a" in text
+
+
+def test_hardware_values_come_first_and_name_the_unverified_mark():
+    text = (TEMPLATES / "AGENTS.md").read_text(encoding="utf-8")
+    first = text.index("\n## ")
+    assert text[first:].startswith("\n## Hardware values are never written from memory")
+    assert "UNVERIFIED" in section("## Hardware values are never written from memory")
+
+
+def test_committing_waits_for_the_user():
+    assert "`git commit`, unless the user asked you to commit" in section("## Where to work")
+
+
+def test_submodules_are_described_not_locked():
+    text = section("## Where to work")
+    assert "{{SUBMODULES}}" in text and "documented like any folder" in text and "detached HEAD" in text
+
+
+def test_a_personal_harness_says_what_stays_out_of_commits():
+    text = section("## Where to work")
+    assert "Sharing: {{SHARING}}" in text and "tools/personal.py" in text

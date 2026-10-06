@@ -63,6 +63,8 @@ tools/feature.py     確保 feature_list.json 有效
 tools/doc_check.py   回報架構文件和實際檔案不一致的地方
 tools/hooks.py       回應 session hooks
 tools/mcp_list.py    列出這台機器與這個 repo 設定了哪些 MCP server
+tools/value_check.py 回報新增了卻沒有出處的硬體數值
+tools/personal.py    讓個人版 harness 不進 commit（.git/info/exclude）
 NOTES.md             feature 結束後仍有用的知識，一個主題一行，連到 docs/notes/<主題>.md：
                      工具怎麼設、地雷、實測數字、該預期的誤報
 .vscode/settings.json

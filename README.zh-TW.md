@@ -4,7 +4,7 @@
 
 ## 目前狀態：預覽版
 
-`cdev` 目前是 0.4.0（[變更紀錄](CHANGELOG.md)），`fw-c-harness` 是 0.1.0。兩個 plugin 的內容都已完成，腳本也有自動化測試，但 skill 還沒有實際讓 agent 從頭到尾跑過。使用上可能會遇到不順的地方，歡迎到 [GitHub issues](https://github.com/Yangchengyu0206/fw-harness/issues) 回報。
+`cdev` 目前是 0.5.0（[變更紀錄](CHANGELOG.md)），`fw-c-harness` 是 0.1.0。兩個 plugin 的內容都已完成，腳本也有自動化測試，但 skill 還沒有實際讓 agent 從頭到尾跑過。使用上可能會遇到不順的地方，歡迎到 [GitHub issues](https://github.com/Yangchengyu0206/fw-harness/issues) 回報。
 
 這個版本已知的限制：
 
@@ -27,7 +27,7 @@
 | 狀態 | 一票一檔，記錄誰改了什麼 | 一份 `feature_list.json`、一份 `PROGRESS.md`，以及記下長期知識的 NOTES.md |
 | 審查 | 必須由作者以外的人審 | 自我審查，每個發現都重新驗證 |
 | 長對話中不遺失的狀態 | 票務檔案與交接文件 | PROGRESS.md 的 `## Now`，每完成一步就重寫，另有 `/cdev-checkpoint` 補存 |
-| 寫進 repo 的腳本 | 閘門與狀態腳本 | `tools/` 裡四個：`feature.py`、`doc_check.py`、`hooks.py`、`mcp_list.py`，都只回報 |
+| 寫進 repo 的腳本 | 閘門與狀態腳本 | `tools/` 裡六個：`feature.py`、`doc_check.py`、`hooks.py`、`mcp_list.py`、`value_check.py`、`personal.py`，都不會擋 commit |
 | 安裝 | 在 VS Code 的 `@agentPlugins` 安裝 `fw-c-harness` | 在 VS Code 的 `@agentPlugins` 安裝 `cdev`，或在連不到 marketplace 的機器上用 zip 安裝 |
 | 讓既有 repo 跟上新版 | `/fw-harness-upgrade` | `/cdev-upgrade` |
 

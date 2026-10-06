@@ -154,3 +154,47 @@ def test_notes_without_an_index_are_reported(tmp_path):
 
 def test_a_repository_without_notes_needs_no_index(tmp_path):
     assert doc_check.check(repo(tmp_path)) == ([], [])
+
+
+def test_every_submodule_is_on_the_map_but_needs_no_document_of_ours(tmp_path):
+    root = repo(tmp_path)
+    write(root, ".gitmodules", '[submodule "ALG"]\n\tpath = ALG\n\turl = ../ALG.git\n[submodule "MPFW"]\n\tpath = fw/MPFW\n\turl = ../MPFW.git\n')
+    problems, _ = doc_check.check(root)
+    assert "ARCHITECTURE.md: the map does not mention the submodule ALG" in problems
+    assert "ARCHITECTURE.md: the map does not mention the submodule fw/MPFW" in problems
+    write(root, "ARCHITECTURE.md", ROOT_DOC + "| `ALG` | submodule: algorithm, edited here |\n| `fw/MPFW` | submodule: main firmware, read-only |\n")
+    assert doc_check.check(root) == ([], [])
+
+
+def git(cwd, *args):
+    import subprocess
+    subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", "-c", "protocol.file.allow=always", *args],
+                   cwd=cwd, check=True, capture_output=True)
+
+
+def with_submodule(tmp_path):
+    """A real superproject with ALG checked out as a submodule, the way a project repository looks."""
+    alg = tmp_path / "alg_origin"
+    write(alg, "src/filter.c")
+    write(alg, "src/filter.h")
+    git(alg, "init", "-q")
+    git(alg, "add", "-A")
+    git(alg, "commit", "-qm", "alg")
+    root = repo(tmp_path / "proj")
+    git(root, "init", "-q")
+    git(root, "submodule", "add", "-q", str(alg), "ALG")
+    return root
+
+
+def test_a_submodule_worked_in_here_is_documented_inside_it_like_any_folder(tmp_path):
+    root = with_submodule(tmp_path)
+    write(root, "ALG/src/ARCHITECTURE.md", "# ALG/src\n\n## Files\n\n- `filter.c`: filter\n")
+    write(root, "ARCHITECTURE.md", ROOT_DOC + "| [ALG/src](ALG/src/ARCHITECTURE.md) | submodule ALG, edited here |\n")
+    problems, _ = doc_check.check(root)
+    assert problems == ["ALG/src/ARCHITECTURE.md: ALG/src/filter.h is not listed"]
+
+
+def test_a_submodule_only_used_here_needs_only_its_row(tmp_path):
+    root = with_submodule(tmp_path)
+    write(root, "ARCHITECTURE.md", ROOT_DOC + "| `ALG` | submodule, read-only here |\n")
+    assert doc_check.check(root) == ([], [])

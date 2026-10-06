@@ -19,7 +19,7 @@ English: [TESTING.md](TESTING.md)
 | `PROGRESS.md` | `## Now` 做到哪、確認了什麼事實、等你處理什麼；`## Log` 歷史 |
 | `feature_list.json` | 正在做什麼，狀態是 backlog / next / active / verifying / done / blocked |
 | `NOTES.md` 與 `docs/notes/` | feature 結束後還用得到的知識，依主題存：工具怎麼設、地雷、實測數字 |
-| `tools/` 四個腳本 | 功能清單、文件漂移檢查、session hook、MCP 盤點 |
+| `tools/` 六個腳本 | 功能清單、文件漂移檢查、session hook、MCP 盤點、沒有出處的硬體數值、讓個人版 harness 不進 commit |
 | `.vscode/settings.json` | vendor 資料夾唯讀、危險指令要你確認 |
 | `.github/hooks/`、`.github/agents/`、`.github/instructions/` | 開場自動注入狀態、唯讀的讀碼 agent、改 code 時的提醒 |
 
@@ -98,8 +98,10 @@ English: [TESTING.md](TESTING.md)
 6. **`/cdev-upgrade`**：在舊版 harness 的專案跑，看你寫的內容有沒有被保留。
 7. **長對話**：做一件比較久的事，中途打 `/cdev-checkpoint`，然後開新對話，看它接不接得回去。
 8. **`/cdev-grill`**：動工前叫它追問一輪，問題有沒有問到點上。
-9. **工具優先**：把你的 MCP server 開著，分別問一個暫存器值，以及另一個 repo 或分支怎麼實作某件事（第二題也故意提到 IC 型號）。兩題有沒有不用提醒就各自用對工具？答案有沒有說是哪個工具給的？
-10. **筆記**：做完一個有學到長期知識的 feature（例如某個工具怎麼設、某個指令絕對不能跑），打 `/cdev-done`。它有沒有在 `docs/notes/` 寫一份筆記，並在 NOTES.md 加一行？有沒有把只跟你這台機器有關的事實排除在外？下一次開新對話時，開場有沒有帶到那一行？
+9. **查不到的數值**：在沒開 datasheet 工具的情況下，叫它設定一個你知道正確值的暫存器。它有沒有把數值標成 `UNVERIFIED` 並告訴你，還是把猜的數字當事實？Stop hook 有沒有提醒？
+10. **Submodule**：在有 submodule 的 repo 跑 `/cdev-init`。submodule 有沒有列進地圖？它有沒有問你哪些會改，而不是直接鎖成唯讀？
+11. **工具優先**：把你的 MCP server 開著，分別問一個暫存器值，以及另一個 repo 或分支怎麼實作某件事（第二題也故意提到 IC 型號）。兩題有沒有不用提醒就各自用對工具？答案有沒有說是哪個工具給的？
+12. **筆記**：做完一個有學到長期知識的 feature（例如某個工具怎麼設、某個指令絕對不能跑），打 `/cdev-done`。它有沒有在 `docs/notes/` 寫一份筆記，並在 NOTES.md 加一行？有沒有把只跟你這台機器有關的事實排除在外？下一次開新對話時，開場有沒有帶到那一行？
 
 ## 回報時請附上
 

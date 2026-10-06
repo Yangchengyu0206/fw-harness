@@ -47,6 +47,9 @@ Run that only after the user confirms.
 
 ### 4. Keep the facts that outlive the feature
 
+First run `py -3 tools/value_check.py`. Every hardware value it lists gets its source cited, or an `UNVERIFIED` mark that the log entry below names, before the feature is proposed for `done`.
+
+
 Go through the facts this work confirmed (in `## Now`, in the conversation, in the debugging) and pick the ones the next person will need after this feature is closed: how a tool or a board is set up, a trap and how to avoid it, a measured number, a false positive to expect, why an option was ruled out.
 
 For each, decide whose fact it is:

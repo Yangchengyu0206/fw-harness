@@ -1,5 +1,22 @@
 # Changelog
 
+## cdev 0.5.0
+
+What the first trial runs showed. A repository set up by 0.4.0 picks this up with `/cdev-upgrade`.
+
+### Added
+
+- **`tools/value_check.py`**, the fifth script: hardware values (`#define NAME 0x..`, enum members `NAME = 0x..`) added since the last commit with no source marker on their line or the comment above. The stop hook reports them every turn. In a trial with a small model, every run asked to add a register setting invented the address (four runs, four different addresses), with or without the rule in AGENTS.md; a rule alone did not hold, so this makes it a check.
+- **`## Hardware values are never written from memory`** at the top of AGENTS.md: cite the source beside the value, or write the code anyway and mark the value `/* UNVERIFIED: <what to look up> */`, and name it in the reply.
+- **Submodules are no longer vendor code.** A trial repository's most edited code (its algorithm) was a submodule that `cdev-init` locked read-only and left undocumented. Now each submodule gets a row in the root map and is one of three kinds the user picks: edited a lot (documented inside it like any folder), edited now and then (documented inside it when the work first reaches a folder), or only used (a map row only). `doc_check` reads the files of checked-out submodules, so documents inside one are checked like any other, and reports a submodule the map does not mention. `value_check` checks values added inside submodules too. AGENTS.md says to commit inside a submodule on its branch, not a detached HEAD, before updating its pointer.
+
+- **A personal harness by default.** `tools/personal.py`, the sixth script, adds every `.md` file (in the repository and in each submodule) and the harness's other files to `.git/info/exclude`, which is never committed or pushed, so trying cdev on a team's repository changes nothing anyone else sees. AGENTS.md carries `Sharing: personal`; `team` is one word and a commit away. `doc_check` still reads the excluded documents.
+
+### Changed
+
+- `Ask before` in AGENTS.md lists `git commit`, unless the user asked for one. In the trial, three of four runs committed without being asked.
+- cdev-implement, cdev-review, and cdev-done run `value_check` and handle what it lists.
+
 ## cdev 0.4.0
 
 A repository set up by 0.2.0 picks all of this up with `/cdev-upgrade`. There was no 0.3.0 release; its changes are folded in here.

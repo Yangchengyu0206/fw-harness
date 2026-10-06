@@ -19,7 +19,7 @@ What lands in a repository:
 | `PROGRESS.md` | `## Now`: where the work is, the facts confirmed, what waits on you. `## Log`: the history |
 | `feature_list.json` | what is being built, as backlog / next / active / verifying / done / blocked |
 | `NOTES.md` and `docs/notes/` | what outlives a feature, by topic: a tool's setup, a trap, a measured number |
-| four scripts in `tools/` | the feature list, document drift, the session hook, the MCP listing |
+| six scripts in `tools/` | the feature list, document drift, the session hook, the MCP listing, hardware values without a source, keeping the personal harness out of commits |
 | `.vscode/settings.json` | vendor folders read-only, destructive commands held for your approval |
 | `.github/hooks/`, `.github/agents/`, `.github/instructions/` | the state injected at session start, a read-only reading agent, a reminder while editing documented code |
 
@@ -98,8 +98,10 @@ Most important first:
 6. **`/cdev-upgrade`.** Run it on a repository set up by an older version. Is everything you wrote still there?
 7. **A long session.** Work on something for a while, type `/cdev-checkpoint`, then open a new conversation and see whether it picks up.
 8. **`/cdev-grill`.** Before starting a piece of work, let it interview you. Are the questions the right ones?
-9. **Tools first.** With your MCP servers enabled, ask about a register value, and separately about how another repository or branch implements something, naming a chip in the second question too. Did each go to the right tool, without being told? Did the answer name it?
-10. **Notes.** Finish a feature that taught you something lasting, such as how to set up a tool or a command never to run, and type `/cdev-done`. Does it write a note under `docs/notes/` with a line in NOTES.md? Does it keep a fact about your own machine out? Does the next conversation open with that line?
+9. **A value it cannot look up.** With no datasheet tool enabled, ask it to set a register you know. Does it mark the value `UNVERIFIED` and tell you, or present a guess as fact? Does the stop hook warn about it?
+10. **Submodules.** On a repository with submodules, run `/cdev-init`. Are they in the map, and did it ask which ones you change rather than lock them?
+11. **Tools first.** With your MCP servers enabled, ask about a register value, and separately about how another repository or branch implements something, naming a chip in the second question too. Did each go to the right tool, without being told? Did the answer name it?
+12. **Notes.** Finish a feature that taught you something lasting, such as how to set up a tool or a command never to run, and type `/cdev-done`. Does it write a note under `docs/notes/` with a line in NOTES.md? Does it keep a fact about your own machine out? Does the next conversation open with that line?
 
 ## When you report something
 
